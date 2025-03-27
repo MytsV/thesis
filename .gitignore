@@ -53,6 +53,16 @@ coverage
 .next/
 out/
 .parcel-cache/
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+npm-debug.log*
+*.tsbuildinfo
+next-env.d.ts
 
 # PostgreSQL
 *.dump

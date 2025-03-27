@@ -36,6 +36,21 @@ services:
     volumes:
       - redis_data:/data
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8603:3000"
+    volumes:
+      - ./frontend:/app
+      - ./frontend/node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - API_URL=http://backend:8000
+    stdin_open: true
+    tty: true
+
 volumes:
   postgres_data:
   redis_data:
