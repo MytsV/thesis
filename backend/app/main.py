@@ -1,21 +1,20 @@
-from json import dumps
+from typing import List
 
 from fastapi import FastAPI, Depends
-from typing import Dict
 
 from sqlalchemy.orm import Session
 
+from app.models.user_models import UserResponse
+from app.routes import auth
 from app.sqla.database import get_db
 import app.sqla.models as models
 
 app = FastAPI()
 
+app.include_router(auth.router)
 
-@app.get("/")
+
+@app.get("/", response_model=List[UserResponse])
 async def root(db: Session = Depends(get_db)):
     users = db.query(models.User).all()
-    user_list = [
-        {"id": user.id, "username": user.username, "email": user.email}
-        for user in users
-    ]
-    return user_list
+    return users
