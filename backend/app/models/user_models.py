@@ -9,7 +9,7 @@ class UserBase(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
 
 
-class UserCreate(UserBase):
+class UserCreateRequest(UserBase):
     password: str = Field(..., min_length=8)
 
     @field_validator("username")
@@ -33,8 +33,18 @@ class UserCreate(UserBase):
         return value
 
 
-class UserResponse(UserBase):
+class UserCreateResponse(UserBase):
     id: int
 
     class Config:
         from_attributes = True
+
+
+class UserLoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+class UserLoginResponse(BaseModel):
+    username: str
+    email: str
