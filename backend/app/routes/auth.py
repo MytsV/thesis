@@ -88,7 +88,7 @@ async def login(
         max_age=None,
     )
 
-    return {"username": user.username, "email": user.email}
+    return user
 
 
 @router.get("/validate", response_model=UserCreateResponse)
