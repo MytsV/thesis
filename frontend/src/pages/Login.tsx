@@ -4,6 +4,7 @@ import LoginForm from "@/components/LoginForm";
 import { LoginCredentials } from "@/lib/types";
 import { loginUser } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function Login() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function Login() {
       await loginUser(credentials);
       router.push("/dashboard");
     } catch (error) {
+      toast.error(error.message);
       // TODO: handle errors with toasts
     }
   };

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import RegisterForm from "@/components/RegisterForm";
 import { registerUser } from "@/lib/api";
 import { RegisterData } from "@/lib/types";
+import { toast } from "sonner";
 
 export default function Register() {
   const router = useRouter();
@@ -14,8 +15,7 @@ export default function Register() {
       // TODO: display success toast
       router.push("/login");
     } catch (error) {
-      console.log(error);
-      // TODO: handle errors with toasts
+      toast.error(error.message);
     }
   };
 
