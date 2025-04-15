@@ -1,4 +1,8 @@
-import { LoginCredentials, UserLoginViewModel } from "@/lib/types";
+import {
+  LoginCredentials,
+  RegisterData,
+  UserLoginViewModel,
+} from "@/lib/types";
 
 export function getApiUrl(): string {
   if (typeof window === "undefined") {
@@ -32,6 +36,25 @@ export async function logoutUser(): Promise<{ message: string }> {
     method: "POST",
     credentials: "include",
   });
+
+  return response.json();
+}
+
+export async function registerUser(
+  data: RegisterData,
+): Promise<UserLoginViewModel> {
+  const response = await fetch(`${getApiUrl()}/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Registration failed");
+  }
 
   return response.json();
 }

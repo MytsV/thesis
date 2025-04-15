@@ -1,6 +1,6 @@
 "use client";
 
-import LoginForm from "@/components/custom/LoginForm";
+import LoginForm from "@/components/LoginForm";
 import { LoginCredentials } from "@/lib/types";
 import { loginUser } from "@/lib/api";
 import { useRouter } from "next/navigation";
@@ -17,5 +17,9 @@ export default function Login() {
     }
   };
 
-  return <LoginForm onLogin={onLogin} />;
+  const onRegister = () => {
+    router.push("/register");
+  };
+
+  return <LoginForm onLogin={onLogin} onRegister={onRegister} />;
 }

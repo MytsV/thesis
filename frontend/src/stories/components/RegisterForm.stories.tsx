@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import LoginForm from "@/components/LoginForm";
+import RegisterForm from "@/components/RegisterForm";
 
-const meta: Meta<typeof LoginForm> = {
-  title: "Components/Login/LoginForm",
-  component: LoginForm,
+const meta: Meta<typeof RegisterForm> = {
+  title: "Components/Register/RegisterForm",
+  component: RegisterForm,
   parameters: {
     layout: "fullscreen",
   },
@@ -18,18 +19,15 @@ const meta: Meta<typeof LoginForm> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof LoginForm>;
+type Story = StoryObj<typeof RegisterForm>;
 
 export const Default: Story = {
   args: {
-    onLogin: async (credentials) => {
+    onRegister: async (data) => {
       await new Promise((resolve) => setTimeout(resolve, 500));
       alert(
-        `Username: ${credentials.username}, Password: ${credentials.password}`,
+        `Username: ${data.username}, Email: ${data.email}, Password: ${data.password}`,
       );
-    },
-    onRegister: () => {
-      alert("Register clicked");
     },
   },
 };

@@ -8,6 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 
 export interface LoginFormProps {
   onLogin: (credentials: LoginCredentials) => Promise<void>;
+  onRegister: () => void;
 }
 
 export default function LoginForm(props: LoginFormProps) {
@@ -32,17 +33,23 @@ export default function LoginForm(props: LoginFormProps) {
         <Input
           required
           value={username}
+          placeholder="Username"
           onChange={(event) => setUsername(event.target.value)}
         />
         <Input
           required
+          type="password"
           value={password}
+          placeholder="Password"
           onChange={(event) => setPassword(event.target.value)}
         />
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full cursor-pointer">
           {isLoading ? <Spinner className="text-secondary py-2" /> : "Sign In"}
         </Button>
       </form>
+      <span className="cursor-pointer" onClick={() => props.onRegister()}>
+        Don't have an account? Sign up
+      </span>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { getApiUrl } from "@/lib/api";
 
 const protectedPaths = ["/dashboard"];
-const authPaths = ["/login"];
+const authPaths = ["/login", "/register"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
