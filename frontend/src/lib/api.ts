@@ -1,10 +1,16 @@
-import { LoginCredentials, User } from "@/lib/types";
+import { LoginCredentials, UserLoginViewModel } from "@/lib/types";
 
-// TODO: load from environment variables
-export const API_URL = "http://localhost:8600";
+export function getApiUrl(): string {
+  if (typeof window === "undefined") {
+    return process.env.API_URL!;
+  }
+  return process.env.NEXT_PUBLIC_API_URL!;
+}
 
-export async function loginUser(credentials: LoginCredentials): Promise<User> {
-  const response = await fetch(`${API_URL}/auth/login`, {
+export async function loginUser(
+  credentials: LoginCredentials,
+): Promise<UserLoginViewModel> {
+  const response = await fetch(`${getApiUrl()}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -22,7 +28,7 @@ export async function loginUser(credentials: LoginCredentials): Promise<User> {
 }
 
 export async function logoutUser(): Promise<{ message: string }> {
-  const response = await fetch(`${API_URL}/auth/logout`, {
+  const response = await fetch(`${getApiUrl()}/auth/logout`, {
     method: "POST",
     credentials: "include",
   });

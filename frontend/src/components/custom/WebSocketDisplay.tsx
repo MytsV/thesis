@@ -1,5 +1,8 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { API_URL } from "@/lib/api";
+import { getApiUrl, logoutUser } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 export default function WebSocketDisplay() {
   const [message, setMessage] = useState<string>("");
@@ -7,7 +10,9 @@ export default function WebSocketDisplay() {
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket(`ws://${API_URL.replace("http://", "")}/ws/test`);
+    const ws = new WebSocket(
+      `ws://${getApiUrl().replace("http://", "")}/ws/test`,
+    );
 
     ws.onopen = () => {
       console.log("WebSocket Connected");
@@ -34,8 +39,16 @@ export default function WebSocketDisplay() {
     };
   }, []);
 
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logoutUser();
+    router.push("/login");
+  };
+
   return (
     <div>
+      <button onClick={() => handleLogout()}>Logout</button>
       <h2>WebSocket Updates</h2>
       <p>Status: {connected ? "Connected" : "Disconnected"}</p>
       <div>{message}</div>
