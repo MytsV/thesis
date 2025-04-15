@@ -4,9 +4,14 @@ from fastapi import APIRouter, status, Depends, HTTPException, Response
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.auth.dependencies import create_access_token
+from app.auth.dependencies import create_access_token, get_current_user
 from app.auth.password import get_password_hash, verify_password
-from app.models.user_models import UserCreateResponse, UserCreateRequest, UserLoginRequest, UserLoginResponse
+from app.models.user_models import (
+    UserCreateResponse,
+    UserCreateRequest,
+    UserLoginRequest,
+    UserLoginResponse,
+)
 from app.sqla.database import get_db
 from app.sqla.models import User
 
@@ -16,7 +21,9 @@ router = APIRouter(prefix="/auth")
 @router.post(
     "/register", response_model=UserCreateResponse, status_code=status.HTTP_201_CREATED
 )
-async def register_user(request: UserCreateRequest, db: Session = Depends(get_db)) -> Any:
+async def register_user(
+    request: UserCreateRequest, db: Session = Depends(get_db)
+) -> Any:
     """
     Register a new user with email validation and password hashing.
     """
@@ -82,6 +89,11 @@ async def login(
     )
 
     return {"username": user.username, "email": user.email}
+
+
+@router.get("/validate", response_model=UserCreateResponse)
+async def validate(user: User = Depends(get_current_user)):
+    return user
 
 
 # TODO: check whether the cookie is set
