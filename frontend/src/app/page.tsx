@@ -1,43 +1,60 @@
-type ApiResponse = {
-  message: string;
-};
+"use client";
 
-export default async function Home() {
-  const API_URL = process.env.API_URL;
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth";
 
-  try {
-    if (!API_URL) {
-      throw new Error("API_URL is not set");
+export default function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const { login } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      await login({ username, password });
+      router.push("/home");
+    } catch (err: any) {
+      setError(err.message);
     }
+  };
 
-    const response = await fetch(API_URL, {
-      cache: "no-store",
-    });
+  return (
+    <div>
+      <h1>Login</h1>
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-    if (!response.ok) {
-      throw new Error(`API call failed: ${response.status}`);
-    }
-
-    const data: ApiResponse = await response.json();
-
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="p-6 max-w-md bg-white rounded-lg shadow-md text-black">
-          <h1 className="text-2xl font-bold mb-4">Server Component Data</h1>
-          <p className="mb-2">{data.message}</p>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>
+            Username:
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </label>
         </div>
-      </div>
-    );
-  } catch (error) {
-    console.error("Error fetching data:", error);
 
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="text-black p-6 max-w-md bg-white rounded-lg shadow-md border-l-4 border-red-500">
-          <h1 className="text-2xl font-bold mb-4 text-red-500">Error</h1>
-          <p>Failed to load data from API. Please try again later.</p>
+        <div>
+          <label>
+            Password:
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </label>
         </div>
-      </div>
-    );
-  }
+
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  );
 }
