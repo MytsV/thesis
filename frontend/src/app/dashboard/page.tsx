@@ -1,8 +1,8 @@
 import WebSocketDisplay from "@/components/custom/WebSocketDisplay";
-import { getUser } from "@/lib/auth";
+import { getUserServer } from "@/lib/auth";
 
 export default async function Dashboard() {
-  const user = await getUser();
+  const user = await getUserServer();
 
   return (
     <div>

@@ -1,7 +1,7 @@
-"use client";
-
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { getUserServer } from "@/lib/auth";
+import Header from "@/pages/Header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,17 +13,22 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getUserServer();
+
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
-        {children}
+        <Header initialUser={user} />
+        <main className="flex flex-col grow w-full max-w-screen-xl mx-auto px-4 py-8">
+          {children}
+        </main>
       </body>
     </html>
   );

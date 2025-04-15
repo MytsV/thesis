@@ -1,7 +1,8 @@
 import { UserViewModel } from "@/lib/types";
 import { headers } from "next/headers";
+import { getUser } from "@/lib/api";
 
-export async function getUser(): Promise<UserViewModel> {
+export async function getUserServer(): Promise<UserViewModel | undefined> {
   const headersList = await headers();
 
   const userId = headersList.get("x-user-id");
@@ -10,7 +11,7 @@ export async function getUser(): Promise<UserViewModel> {
 
   // TODO: either redirect to login or throw an error
   if (!userId || !username || !email) {
-    throw new Error("Not authenticated");
+    return undefined;
   }
 
   return {

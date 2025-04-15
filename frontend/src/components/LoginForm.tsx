@@ -24,7 +24,7 @@ export default function LoginForm(props: LoginFormProps) {
   };
 
   return (
-    <div className="flex h-full flex-col justify-center items-center space-y-5">
+    <div className="flex grow h-full flex-col justify-center items-center space-y-5">
       <h1 className="text-3xl font-medium">Welcome Back</h1>
       <form
         onSubmit={onSubmit}

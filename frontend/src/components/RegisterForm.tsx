@@ -34,7 +34,7 @@ export default function RegisterForm(props: RegisterFormProps) {
   };
 
   return (
-    <div className="flex h-full flex-col justify-center space-y-5">
+    <div className="flex grow h-full flex-col justify-center space-y-5">
       <h1 className="text-3xl font-medium">Register</h1>
       <form
         onSubmit={onSubmit}

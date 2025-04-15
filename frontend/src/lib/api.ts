@@ -2,6 +2,7 @@ import {
   LoginCredentials,
   RegisterData,
   UserLoginViewModel,
+  UserViewModel,
 } from "@/lib/types";
 
 export function getApiUrl(): string {
@@ -57,4 +58,27 @@ export async function registerUser(
   }
 
   return response.json();
+}
+
+export async function getUser(): Promise<UserViewModel> {
+  const response = await fetch(`${getApiUrl()}/auth/validate`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch user");
+  }
+
+  return response.json();
+}
+
+export async function getUserClient(): Promise<UserViewModel | undefined> {
+  try {
+    const user = await getUser();
+    return user;
+  } catch (error) {
+    return undefined;
+  }
 }
