@@ -20,7 +20,7 @@ const meta: Meta<typeof Landing> = {
 export default meta;
 type Story = StoryObj<typeof Landing>;
 
-export const Default: Story = {
+export const Unauthenticated: Story = {
   args: {
     onLogin: async () => {
       alert("Login clicked");
@@ -28,5 +28,24 @@ export const Default: Story = {
     onRegister: () => {
       alert("Register clicked");
     },
+    onDashboard: () => {
+      alert("Dashboard clicked");
+    },
+    isAuthenticated: false,
+  },
+};
+
+export const Authenticated: Story = {
+  args: {
+    onLogin: async () => {
+      alert("Login clicked");
+    },
+    onRegister: () => {
+      alert("Register clicked");
+    },
+    onDashboard: () => {
+      alert("Dashboard clicked");
+    },
+    isAuthenticated: true,
   },
 };

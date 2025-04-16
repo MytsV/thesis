@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getApiUrl, logoutUser } from "@/lib/api";
-import { useRouter } from "next/navigation";
+import { getApiUrl } from "@/lib/api";
 
 export default function WebSocketDisplay() {
   const [message, setMessage] = useState<string>("");
@@ -39,16 +38,8 @@ export default function WebSocketDisplay() {
     };
   }, []);
 
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    await logoutUser();
-    router.push("/login");
-  };
-
   return (
     <div>
-      <button onClick={() => handleLogout()}>Logout</button>
       <h2>WebSocket Updates</h2>
       <p>Status: {connected ? "Connected" : "Disconnected"}</p>
       <div>{message}</div>

@@ -1,32 +1,16 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { UserViewModel } from "@/lib/types";
 import NavigationBar from "@/components/NavigationBar";
-import { getUserClient, logoutUser } from "@/lib/api";
-import { useEffect, useRef, useState } from "react";
+import { logoutUser } from "@/lib/api";
 
 export interface HeaderProps {
-  initialUser?: UserViewModel;
+  user?: UserViewModel;
 }
 
-export default function Header({ initialUser }: HeaderProps) {
+export default function Header({ user }: HeaderProps) {
   const router = useRouter();
-  const [user, setUser] = useState(initialUser);
-  const pathname = usePathname();
-  const previousPathName = useRef<string>(pathname);
-
-  const updateUser = async () => {
-    const user = await getUserClient();
-    setUser(user);
-  };
-
-  useEffect(() => {
-    if (previousPathName.current !== pathname) {
-      updateUser();
-      previousPathName.current = pathname;
-    }
-  }, [pathname]);
 
   const onLogoClick = () => {
     router.push("/");

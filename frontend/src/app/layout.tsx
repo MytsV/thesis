@@ -3,6 +3,7 @@ import "./globals.css";
 import { getUserServer } from "@/lib/auth";
 import Header from "@/pages/Header";
 import { Toaster } from "@/components/ui/sonner";
+import { UserProvider } from "@/lib/user-provision";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,9 +27,9 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
-        <Header initialUser={user} />
+        <Header user={user} />
         <main className="flex flex-col grow w-full max-w-screen-xl mx-auto px-4 py-8">
-          {children}
+          <UserProvider user={user}>{children}</UserProvider>
         </main>
         <Toaster />
       </body>
