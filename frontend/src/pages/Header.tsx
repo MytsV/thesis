@@ -13,15 +13,12 @@ export interface HeaderProps {
 export default function Header({ initialUser }: HeaderProps) {
   const router = useRouter();
   const [user, setUser] = useState(initialUser);
-  const [isUserLoading, setIsUserLoading] = useState(false);
   const pathname = usePathname();
   const previousPathName = useRef<string>(pathname);
 
   const updateUser = async () => {
-    setIsUserLoading(true);
     const user = await getUserClient();
     setUser(user);
-    setIsUserLoading(false);
   };
 
   useEffect(() => {
@@ -39,17 +36,13 @@ export default function Header({ initialUser }: HeaderProps) {
     try {
       await logoutUser();
       router.push("/");
+      router.refresh();
     } catch (error) {
       // TODO: handle errors with toasts
     }
   };
 
   return (
-    <NavigationBar
-      onLogout={onLogout}
-      onLogoClick={onLogoClick}
-      user={user}
-      isUserLoading={isUserLoading}
-    />
+    <NavigationBar onLogout={onLogout} onLogoClick={onLogoClick} user={user} />
   );
 }

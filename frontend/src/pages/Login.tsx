@@ -13,6 +13,7 @@ export default function Login() {
     try {
       await loginUser(credentials);
       router.push("/dashboard");
+      router.refresh();
     } catch (error) {
       toast.error(error.message);
       // TODO: handle errors with toasts
