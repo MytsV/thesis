@@ -55,6 +55,7 @@ export default function RegisterForm(props: RegisterFormProps) {
         />
         <Input
           required
+          type="password"
           value={password}
           placeholder="Password"
           onChange={(event) => setPassword(event.target.value)}
