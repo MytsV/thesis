@@ -8,13 +8,15 @@ from fastapi import (
     Form,
     UploadFile,
     HTTPException,
+    Query,
 )
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
 from app.auth.dependencies import get_current_user
 from app.file_storage import LocalFileStorageService, FileStorageService
-from app.models.project_models import ProjectCreateResponse
+from app.models.project_models import ProjectCreateResponse, ProjectListResponse
 from app.sqla.database import get_db
 from app.sqla.file_repository import FileRepository
 from app.sqla.models import Project, User
@@ -62,3 +64,24 @@ async def create_project(
     # TODO: delete the project if file processing fails (rollback)
     # TODO: close the project after creation
     return project
+
+
+@router.get(path="/", response_model=List[ProjectListResponse])
+async def list_user_projects(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    offset = (page - 1) * page_size
+
+    projects = (
+        db.query(Project)
+        .filter(Project.user_id == current_user.id)
+        .order_by(desc(Project.created_at))
+        .offset(offset)
+        .limit(page_size)
+        .all()
+    )
+
+    return projects
