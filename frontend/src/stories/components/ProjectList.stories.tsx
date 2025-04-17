@@ -60,6 +60,9 @@ export const Default: Story = {
       <ProjectCardMock key={8} />,
       <ProjectCardMock key={9} />,
     ],
+    onCreateProject: () => {
+      alert("Create project clicked");
+    },
   },
 };
 
@@ -81,6 +84,9 @@ export const LittleContent: Story = {
       <ProjectCardMock key={2} />,
       <ProjectCardMock key={3} />,
     ],
+    onCreateProject: () => {
+      alert("Create project clicked");
+    },
   },
 };
 
@@ -98,5 +104,8 @@ export const NoProjects: Story = {
       alert(`Tab changed to ${tab}`);
     },
     children: [],
+    onCreateProject: () => {
+      alert("Create project clicked");
+    },
   },
 };

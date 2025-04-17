@@ -1,8 +1,9 @@
 import React from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils";
 
 export enum ProjectListTabs {
   MINE = "mine",
@@ -19,6 +20,7 @@ interface ProjectListPaginationProps {
 export interface ProjectListProps extends ProjectListPaginationProps {
   children?: React.ReactNode;
   onTabChange: (tab: ProjectListTabs) => void;
+  onCreateProject: () => void;
   isLoading?: boolean;
 }
 
@@ -44,6 +46,25 @@ function ProjectListPagination(props: ProjectListPaginationProps) {
         <ChevronRight className="h-4 w-4 flex-shrink-0" />
       </div>
     </div>
+  );
+}
+
+interface CreateProjectButtonProps {
+  onClick: () => void;
+  className?: string;
+}
+
+function CreateProjectButton(props: CreateProjectButtonProps) {
+  return (
+    <button
+      className={cn(
+        "bg-foreground hover:bg-primary/90 shadow-sm text-secondary p-4 rounded-full cursor-pointer",
+        props.className,
+      )}
+      onClick={props.onClick}
+    >
+      <Plus className="w-5 h-5" />
+    </button>
   );
 }
 
@@ -100,6 +121,10 @@ export default function ProjectList(props: ProjectListProps) {
         </TabsList>
       </Tabs>
       {getChildren()}
+      <CreateProjectButton
+        onClick={props.onCreateProject}
+        className="fixed right-4 bottom-4"
+      />
     </div>
   );
 }
