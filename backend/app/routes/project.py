@@ -67,7 +67,7 @@ async def create_project(
     return project
 
 
-@router.get(path="/", response_model=PaginatedResponse[ProjectListResponse])
+@router.get(path="", response_model=PaginatedResponse[ProjectListResponse])
 async def list_user_projects(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
