@@ -1,17 +1,17 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from fastapi_camelcase import CamelModel
 
 
-class ProjectCreateResponse(BaseModel):
+class ProjectCreateResponse(CamelModel):
     id: uuid.UUID
     title: str
     description: str | None = None
     user_id: int
 
 
-class ProjectListResponse(BaseModel):
+class ProjectListResponse(CamelModel):
     id: uuid.UUID
     title: str
     description: str | None = None

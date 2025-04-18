@@ -1,10 +1,11 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from fastapi_camelcase import CamelModel
+from pydantic import EmailStr, Field, field_validator
 import re
 
 
-class UserBase(BaseModel):
+class UserBase(CamelModel):
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=50)
 
@@ -40,11 +41,11 @@ class UserCreateResponse(UserBase):
         from_attributes = True
 
 
-class UserLoginRequest(BaseModel):
+class UserLoginRequest(CamelModel):
     username: str
     password: str
 
 
-class UserLoginResponse(BaseModel):
+class UserLoginResponse(CamelModel):
     username: str
     email: str

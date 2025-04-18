@@ -1,10 +1,10 @@
 from typing import TypeVar, Generic, List
 
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 T = TypeVar("T")
 
 
-class PaginatedResponse(BaseModel, Generic[T]):
+class PaginatedResponse(CamelModel, Generic[T]):
     data: List[T]
     has_next_page: bool
