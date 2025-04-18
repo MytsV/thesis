@@ -3,7 +3,7 @@ from typing import List, Optional
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
-from app.file_storage import FileStorageService
+from app.utils.file_storage import FileStorageService
 from app.sqla.models import File
 
 

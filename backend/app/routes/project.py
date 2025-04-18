@@ -15,7 +15,8 @@ from sqlalchemy.orm import Session
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
 from app.auth.dependencies import get_current_user
-from app.file_storage import LocalFileStorageService, FileStorageService
+from app.utils.file_storage import LocalFileStorageService, FileStorageService
+from app.models.base_models import PaginatedResponse
 from app.models.project_models import ProjectCreateResponse, ProjectListResponse
 from app.sqla.database import get_db
 from app.sqla.file_repository import FileRepository
@@ -66,7 +67,7 @@ async def create_project(
     return project
 
 
-@router.get(path="/", response_model=List[ProjectListResponse])
+@router.get(path="/", response_model=PaginatedResponse[ProjectListResponse])
 async def list_user_projects(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
@@ -80,8 +81,13 @@ async def list_user_projects(
         .filter(Project.user_id == current_user.id)
         .order_by(desc(Project.created_at))
         .offset(offset)
-        .limit(page_size)
+        .limit(page_size + 1)
         .all()
     )
 
-    return projects
+    has_next_page = len(projects) > page_size
+
+    if has_next_page:
+        projects = projects[:page_size]
+
+    return PaginatedResponse(data=projects, has_next_page=has_next_page)
