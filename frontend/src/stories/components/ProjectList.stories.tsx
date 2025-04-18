@@ -109,3 +109,24 @@ export const NoProjects: Story = {
     },
   },
 };
+
+export const Loading: Story = {
+  args: {
+    onPageNext: () => {
+      alert("Next page");
+    },
+    onPagePrevious: () => {
+      alert("Previous page");
+    },
+    currentPage: 1,
+    hasNextPage: false,
+    onTabChange: (tab) => {
+      alert(`Tab changed to ${tab}`);
+    },
+    children: [],
+    onCreateProject: () => {
+      alert("Create project clicked");
+    },
+    isLoading: true,
+  },
+};
