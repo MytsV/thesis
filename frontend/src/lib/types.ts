@@ -17,3 +17,21 @@ export interface RegisterData {
   email: string;
   password: string;
 }
+
+export type PaginatedResponse<T> = {
+  data: T[];
+  hasNextPage: boolean;
+};
+
+export interface ProjectViewModel {
+  id: number;
+  title: string;
+  description: string;
+  createdAt: Date;
+  userId: number;
+}
+
+export enum ProjectListTabs {
+  MINE = "mine",
+  SHARED = "shared",
+}

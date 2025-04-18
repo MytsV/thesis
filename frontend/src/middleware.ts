@@ -90,10 +90,5 @@ function redirectToLogin(request: NextRequest, pathname: string) {
 }
 
 export const config = {
-  matcher: [
-    ...protectedPaths,
-    ...authPaths,
-    "/",
-    "/((?!api|_next/static|_next/image|_next/data|_next/media|favicon.ico).*)",
-  ],
+  matcher: ["/login", "/register", "/dashboard", "/"],
 };

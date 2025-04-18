@@ -4,11 +4,7 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
-
-export enum ProjectListTabs {
-  MINE = "mine",
-  SHARED = "shared",
-}
+import { ProjectListTabs } from "@/lib/types";
 
 interface ProjectListPaginationProps {
   onPageNext: () => void;
@@ -100,7 +96,7 @@ export default function ProjectList(props: ProjectListProps) {
   };
 
   return (
-    <div className="flex flex-col w-full h-full space-y-3">
+    <div className="flex grow flex-col w-full h-full space-y-3">
       <h1 className="text-3xl font-medium">Dashboard</h1>
       <Tabs defaultValue={ProjectListTabs.MINE} className="w-full">
         <TabsList className="w-full">
