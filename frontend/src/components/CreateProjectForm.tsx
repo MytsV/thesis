@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useDropzone } from "react-dropzone";
 import { File as FileIcon, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatBytes } from "@/lib/utils";
 
 interface CreateProjectDropzoneProps {
   onFileUpload: (acceptedFiles: File[]) => void;
@@ -52,17 +53,25 @@ export default function CreateProjectForm(props: CreateProjectFormProps) {
   const [description, setDescription] = React.useState<string>("");
 
   const displayFiles = () => {
-    return props.files.map((file) => {
+    return props.files.map((file, index) => {
       return (
-        <div key={file.name} className="flex items-center justify-between">
+        <div
+          key={`${file.name}-${index}`}
+          className="flex items-center justify-between"
+        >
           <div className="flex flex-row items-center space-x-2">
             <FileIcon />
             <span className="text-sm">{file.name}</span>
           </div>
-          <X
-            className="hover:text-primary/90 cursor-pointer"
-            onClick={() => props.onRemoveFile(file)}
-          />
+          <div className="flex flex-row items-center space-x-2">
+            <span className="text-sm text-gray-500">
+              {formatBytes(file.size)}
+            </span>
+            <X
+              className="hover:text-primary/90 cursor-pointer"
+              onClick={() => props.onRemoveFile(file)}
+            />
+          </div>
         </div>
       );
     });
