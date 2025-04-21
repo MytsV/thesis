@@ -45,7 +45,7 @@ export default function InfoTab({ project, onFileDownload }: InfoTabProps) {
       return (
         <div
           key={file.id}
-          className="flex items-center justify-between w-full space-y-1"
+          className="flex items-center justify-between w-full space-y-2"
         >
           <div className="flex flex-row items-center space-x-2 min-w-0 flex-1">
             <FileIcon className="flex-shrink-0 h-5 w-5" />
