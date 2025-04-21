@@ -10,6 +10,7 @@ export interface LoginCredentials {
 
 export interface UserViewModel extends UserLoginViewModel {
   id: number;
+  avatarUrl?: string;
 }
 
 export interface RegisterData {

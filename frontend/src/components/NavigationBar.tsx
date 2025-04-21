@@ -4,20 +4,13 @@ import { UserViewModel } from "@/lib/types";
 import { Cat } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import UserAvatar from "@/components/common/UserAvatar";
 
 export interface HeaderProps {
   user?: UserViewModel;
   onLogoClick: () => void;
   onLogout: () => void;
   isUserLoading?: boolean;
-}
-
-function UserAvatar({ user }: { user: UserViewModel }) {
-  return (
-    <div className="flex w-10 h-10 rounded-full border shadow-xs items-center justify-center cursor-pointer">
-      {user.username[0].toUpperCase()}
-    </div>
-  );
 }
 
 interface UserDropdownProps {
