@@ -5,6 +5,7 @@ import { Cat } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import UserAvatar from "@/components/common/UserAvatar";
+import WebsiteLogo from "@/components/common/WebsiteLogo";
 
 export interface HeaderProps {
   user?: UserViewModel;
@@ -71,10 +72,7 @@ export default function NavigationBar(props: HeaderProps) {
   return (
     <div className="w-full h-14 border-b shadow-xs">
       <div className="flex items-center justify-between h-full max-w-7xl mx-auto px-4">
-        <Cat
-          className="h-8 w-8 text-primary cursor-pointer"
-          onClick={props.onLogoClick}
-        />
+        <WebsiteLogo onLogoClick={props.onLogoClick} />
         {showAvatar && (
           <UserDropdown user={props.user!} onLogout={props.onLogout} />
         )}

@@ -20,7 +20,7 @@ export default function UserAvatar({
   return (
     <div
       className={cn(
-        "flex w-10 h-10 rounded-full border shadow-xs items-center justify-center cursor-pointer",
+        "flex w-10 h-10 rounded-full bg-background border shadow-xs items-center justify-center cursor-pointer",
         className,
       )}
       style={borderStyle}

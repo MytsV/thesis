@@ -36,3 +36,11 @@ export enum ProjectListTabs {
   MINE = "mine",
   SHARED = "shared",
 }
+
+export interface ActiveUserViewModel {
+  id: number;
+  username: string;
+  email: string;
+  avatarUrl?: string;
+  outlineColor: string;
+}
