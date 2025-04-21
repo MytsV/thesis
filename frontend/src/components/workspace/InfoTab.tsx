@@ -53,10 +53,12 @@ export default function InfoTab({ project, onFileDownload }: InfoTabProps) {
               {file.name}
             </span>
           </div>
-          <Download
-            className="hover:text-primary/90 cursor-pointer flex-shrink-0 h-5 w-5"
+          <div
+            className="p-2 rounded-md hover:bg-gray-100 cursor-pointer"
             onClick={() => onFileDownload(file.relativePath)}
-          />
+          >
+            <Download className="flex-shrink-0 h-5 w-5" />
+          </div>
         </div>
       );
     });
