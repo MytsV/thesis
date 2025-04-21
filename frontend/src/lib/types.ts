@@ -44,3 +44,20 @@ export interface ActiveUserViewModel {
   avatarUrl?: string;
   outlineColor: string;
 }
+
+export interface FileViewModel {
+  id: number;
+  name: string;
+  relativePath: string;
+  fileSize?: number;
+  fileType?: string;
+}
+
+export interface DetailedProjectViewModel {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: Date;
+  owner: UserViewModel;
+  files: FileViewModel[];
+}
