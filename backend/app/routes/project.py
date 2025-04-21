@@ -12,7 +12,7 @@ from fastapi import (
     Query,
 )
 from fastapi.params import Path
-from sqlalchemy import desc
+from sqlalchemy import desc, exists, select
 from sqlalchemy.orm import Session
 from starlette.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
@@ -98,21 +98,89 @@ async def list_user_projects(
 ):
     offset = (page - 1) * page_size
 
-    projects = (
-        db.query(Project)
+    subquery = (
+        select(ProjectShare.project_id)
+        .where(ProjectShare.project_id == Project.id)
+        .exists()
+        .label("is_shared")
+    )
+
+    query = (
+        db.query(Project, subquery)
         .filter(Project.owner_id == current_user.id)
         .order_by(desc(Project.created_at))
         .offset(offset)
         .limit(page_size + 1)
-        .all()
     )
 
-    has_next_page = len(projects) > page_size
+    results = query.all()
+    has_next_page = len(results) > page_size
 
+    # Trim the extra result used for pagination
     if has_next_page:
-        projects = projects[:page_size]
+        results = results[:page_size]
+
+    # Create response objects directly from query results
+    projects = [
+        ProjectListResponse(
+            id=project.id,
+            title=project.title,
+            description=project.description,
+            created_at=project.created_at,
+            owner_id=project.owner_id,
+            is_shared=is_shared,
+        )
+        for project, is_shared in results
+    ]
 
     return PaginatedResponse(data=projects, has_next_page=has_next_page)
+
+
+@router.get("/shared-with-me", response_model=PaginatedResponse[ProjectListResponse])
+async def list_shared_projects(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get all projects that are shared with the current user.
+    """
+    offset = (page - 1) * page_size
+
+    query = (
+        db.query(Project, User.username.label("owner_username"))
+        .join(ProjectShare, ProjectShare.project_id == Project.id)
+        .join(User, User.id == Project.owner_id)
+        .filter(ProjectShare.user_id == current_user.id)
+        .order_by(desc(Project.created_at))
+        .offset(offset)
+        .limit(page_size + 1)
+    )
+
+    results = query.all()
+
+    has_next_page = len(results) > page_size
+
+    if has_next_page:
+        results = results[:page_size]
+
+    shared_projects = []
+
+    for project, owner_username in results:
+        shared_projects.append(
+            ProjectListResponse(
+                id=project.id,
+                title=project.title,
+                description=project.description,
+                created_at=project.created_at,
+                owner_id=project.owner_id,
+                owner_username=owner_username,
+                is_shared=True,
+            )
+        )
+
+    return PaginatedResponse(data=shared_projects, has_next_page=has_next_page)
 
 
 def check_project_exists(db: Session, project_id: UUID) -> Project:

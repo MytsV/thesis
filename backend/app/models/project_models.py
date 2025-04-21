@@ -15,6 +15,9 @@ class ProjectCreateResponse(CamelModel):
     description: str | None = None
     owner_id: int
 
+    class Config:
+        from_attributes = True
+
 
 class ProjectListResponse(CamelModel):
     id: uuid.UUID
@@ -22,7 +25,12 @@ class ProjectListResponse(CamelModel):
     description: str | None = None
     created_at: datetime
     owner_id: int
+    owner_username: str | None = None
+    is_shared: bool = False
     # TODO: add fields coming from Redis
+
+    class Config:
+        from_attributes = True
 
 
 class FileResponse(BaseModel):
@@ -33,7 +41,7 @@ class FileResponse(BaseModel):
     file_type: str | None = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
     @classmethod
     def from_orm(cls, file: File):
@@ -55,4 +63,4 @@ class ProjectDetailResponse(BaseModel):
     files: List[FileResponse]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
