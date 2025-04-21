@@ -33,7 +33,7 @@ function ProjectListPagination(props: ProjectListPaginationProps) {
         <ChevronLeft className="h-4 w-4 flex-shrink-0" />
         <span className="text-sm">Previous</span>
       </div>
-      <Card className="py-2 px-3 rounded-sm mx-10">{props.currentPage}</Card>
+      <Card className="py-2 px-4 rounded-sm mx-10">{props.currentPage}</Card>
       <div
         className={`flex flex-row space-x-1 items-center ${isNextDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
         onClick={isNextDisabled ? undefined : props.onPageNext}
