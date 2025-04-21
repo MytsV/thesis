@@ -26,9 +26,6 @@ export const NoCollaboration: Story = {
       alert("Logo clicked");
     },
     projectName: "Test Project",
-    onProjectInfoClick: () => {
-      alert("Project info clicked");
-    },
     currentUser: {
       id: 0,
       username: "testuser",
@@ -43,9 +40,6 @@ export const FewConcurrentUsers: Story = {
       alert("Logo clicked");
     },
     projectName: "Test Project",
-    onProjectInfoClick: () => {
-      alert("Project info clicked");
-    },
     currentUser: {
       id: 0,
       username: "testuser",
@@ -76,9 +70,6 @@ export const ManyConcurrentUsers: Story = {
       alert("Logo clicked");
     },
     projectName: "Test Project",
-    onProjectInfoClick: () => {
-      alert("Project info clicked");
-    },
     currentUser: {
       id: 0,
       username: "testuser",
@@ -134,9 +125,6 @@ export const LongProjectName: Story = {
     },
     projectName:
       "A very long project name that might overflow and cause issues when displayed while rendering the component in the UI",
-    onProjectInfoClick: () => {
-      alert("Project info clicked");
-    },
     currentUser: {
       id: 0,
       username: "testuser",

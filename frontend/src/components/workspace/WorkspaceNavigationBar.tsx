@@ -7,7 +7,6 @@ import WebsiteLogo from "@/components/common/WebsiteLogo";
 export interface WorkspaceNavigationBarProps {
   onLogoClick: () => void;
   projectName: string;
-  onProjectInfoClick: () => void;
   currentUser: UserViewModel;
   activeUsers?: ActiveUserViewModel[];
 }
@@ -65,12 +64,8 @@ export default function WorkspaceNavigationBar(
         </div>
 
         <div className="flex items-center justify-center overflow-hidden px-2">
-          <div
-            className="flex space-x-2 items-center cursor-pointer max-w-full"
-            onClick={props.onProjectInfoClick}
-          >
+          <div className="flex space-x-2 items-center max-w-full">
             <span className="font-medium truncate">{props.projectName}</span>
-            <Info className="w-4 h-4 flex-shrink-0" />
           </div>
         </div>
 
