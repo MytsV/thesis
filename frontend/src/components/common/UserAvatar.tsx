@@ -14,7 +14,7 @@ export default function UserAvatar({
   outlineColor,
 }: UserAvatarProps) {
   const borderStyle = outlineColor
-    ? { borderColor: outlineColor, borderWidth: "2px" }
+    ? { borderColor: outlineColor, borderWidth: "3px" }
     : {};
 
   return (
