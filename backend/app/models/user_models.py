@@ -41,6 +41,10 @@ class UserCreateResponse(UserBase):
         from_attributes = True
 
 
+class UserDetailResponse(UserCreateResponse):
+    pass
+
+
 class UserLoginRequest(CamelModel):
     username: str
     password: str

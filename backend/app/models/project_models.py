@@ -1,7 +1,12 @@
 import uuid
 from datetime import datetime
+from typing import List
 
 from fastapi_camelcase import CamelModel
+from pydantic import BaseModel
+
+from app.models.user_models import UserDetailResponse
+from app.sqla.models import File
 
 
 class ProjectCreateResponse(CamelModel):
@@ -18,3 +23,36 @@ class ProjectListResponse(CamelModel):
     created_at: datetime
     owner_id: int
     # TODO: add fields coming from Redis
+
+
+class FileResponse(BaseModel):
+    id: int
+    name: str
+    relative_path: str
+    file_size: int | None = None
+    file_type: str | None = None
+
+    class Config:
+        orm_mode = True
+
+    @classmethod
+    def from_orm(cls, file: File):
+        return cls(
+            id=file.id,
+            name=file.original_filename,
+            relative_path=file.file_path,
+            file_size=file.file_size,
+            file_type=file.file_type,
+        )
+
+
+class ProjectDetailResponse(BaseModel):
+    id: uuid.UUID
+    title: str
+    description: str | None = None
+    created_at: datetime
+    owner: UserDetailResponse
+    files: List[FileResponse]
+
+    class Config:
+        orm_mode = True
