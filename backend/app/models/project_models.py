@@ -8,7 +8,7 @@ class ProjectCreateResponse(CamelModel):
     id: uuid.UUID
     title: str
     description: str | None = None
-    user_id: int
+    owner_id: int
 
 
 class ProjectListResponse(CamelModel):
@@ -16,5 +16,5 @@ class ProjectListResponse(CamelModel):
     title: str
     description: str | None = None
     created_at: datetime
-    user_id: int
+    owner_id: int
     # TODO: add fields coming from Redis

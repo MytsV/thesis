@@ -22,6 +22,10 @@ class User(Base):
         back_populates="user", cascade="all, delete-orphan"
     )
 
+    shared_projects: Mapped[List["ProjectShare"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+
 
 class Project(Base):
     __tablename__ = "projects"
@@ -33,12 +37,28 @@ class Project(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
 
     user: Mapped["User"] = relationship(back_populates="projects")
     files: Mapped[List["File"]] = relationship(
         back_populates="project", cascade="all, delete-orphan"
     )
+
+    shared_users: Mapped[List["ProjectShare"]] = relationship(
+        back_populates="project", cascade="all, delete-orphan"
+    )
+
+
+class ProjectShare(Base):
+    __tablename__ = "project_shares"
+
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("projects.id"), primary_key=True
+    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+
+    project: Mapped["Project"] = relationship("Project", back_populates="shared_users")
+    user: Mapped["User"] = relationship("User", back_populates="shared_projects")
 
 
 class File(Base):

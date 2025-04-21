@@ -11,7 +11,7 @@ class FileStorageService(ABC):
 
     @abstractmethod
     async def save_file(
-        self, file: UploadFile, project_id: int
+        self, file: UploadFile, project_id: uuid.UUID
     ) -> Tuple[str, str, str, int]:
         """
         Save a file and return storage details.

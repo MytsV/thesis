@@ -59,7 +59,7 @@ async def create_project(
             status_code=HTTP_422_UNPROCESSABLE_ENTITY, detail="Title cannot be empty"
         )
 
-    project = Project(title=title, description=description, user_id=user.id)
+    project = Project(title=title, description=description, owner_id=user.id)
     db.add(project)
     db.commit()
     db.refresh(project)
@@ -86,7 +86,7 @@ async def list_user_projects(
 
     projects = (
         db.query(Project)
-        .filter(Project.user_id == current_user.id)
+        .filter(Project.owner_id == current_user.id)
         .order_by(desc(Project.created_at))
         .offset(offset)
         .limit(page_size + 1)

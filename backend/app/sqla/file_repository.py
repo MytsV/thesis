@@ -1,4 +1,5 @@
 from typing import List, Optional
+from uuid import UUID
 
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
@@ -14,7 +15,7 @@ class FileRepository:
         self.db = db_session
         self.storage_service = storage_service
 
-    async def create_file(self, project_id: int, upload_file: UploadFile) -> File:
+    async def create_file(self, project_id: UUID, upload_file: UploadFile) -> File:
         """Create a new file record associated with a project."""
         # Save the file using the storage service
         storage_filename, file_path, file_type, file_size = (
