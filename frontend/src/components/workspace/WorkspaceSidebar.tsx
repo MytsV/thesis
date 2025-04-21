@@ -96,7 +96,7 @@ export default function WorkspaceSidebar(props: WorkspaceSidebarProps) {
               setActiveTab("info");
               setIsExpanded(true);
             }}
-            isActive={activeTab === "info"}
+            isActive={isExpanded && activeTab === "info"}
           />
 
           <SidebarIcon
@@ -105,7 +105,7 @@ export default function WorkspaceSidebar(props: WorkspaceSidebarProps) {
               setActiveTab("users");
               setIsExpanded(true);
             }}
-            isActive={activeTab === "users"}
+            isActive={isExpanded && activeTab === "users"}
           />
 
           <SidebarIcon
@@ -114,7 +114,7 @@ export default function WorkspaceSidebar(props: WorkspaceSidebarProps) {
               setActiveTab("views");
               setIsExpanded(true);
             }}
-            isActive={activeTab === "views"}
+            isActive={isExpanded && activeTab === "views"}
           />
 
           <SidebarIcon
@@ -123,7 +123,7 @@ export default function WorkspaceSidebar(props: WorkspaceSidebarProps) {
               setActiveTab("chat");
               setIsExpanded(true);
             }}
-            isActive={activeTab === "chat"}
+            isActive={isExpanded && activeTab === "chat"}
           />
         </div>
 
