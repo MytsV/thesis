@@ -5,6 +5,7 @@ import { useDropzone } from "react-dropzone";
 import { File as FileIcon, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatBytes } from "@/lib/utils";
+import { CreateProjectData } from "@/lib/types";
 
 interface CreateProjectDropzoneProps {
   onFileUpload: (acceptedFiles: File[]) => void;
@@ -45,7 +46,7 @@ function CreateProjectDropzone(props: CreateProjectDropzoneProps) {
 export interface CreateProjectFormProps extends CreateProjectDropzoneProps {
   files: File[];
   onRemoveFile: (file: File) => void;
-  onSubmit: (title: string, description: string) => void;
+  onSubmit: (data: CreateProjectData) => void;
 }
 
 export default function CreateProjectForm(props: CreateProjectFormProps) {
@@ -79,7 +80,7 @@ export default function CreateProjectForm(props: CreateProjectFormProps) {
 
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    props.onSubmit(title, description);
+    props.onSubmit({ title, description });
   };
 
   return (

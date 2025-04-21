@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getApiUrl } from "@/lib/api";
 
-const protectedPaths = ["/dashboard"];
+const protectedPaths = ["/dashboard", "/projects"];
 const authPaths = ["/login", "/register"];
 
 export async function middleware(request: NextRequest) {
@@ -90,5 +90,5 @@ function redirectToLogin(request: NextRequest, pathname: string) {
 }
 
 export const config = {
-  matcher: ["/login", "/register", "/dashboard", "/"],
+  matcher: ["/login", "/register", "/dashboard", "/", "/projects/:path*"],
 };

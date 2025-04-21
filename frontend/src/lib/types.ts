@@ -35,3 +35,8 @@ export enum ProjectListTabs {
   MINE = "mine",
   SHARED = "shared",
 }
+
+export interface CreateProjectData {
+  title: string;
+  description: string;
+}
