@@ -36,16 +36,24 @@ def get_file_repository(
 
 router = APIRouter(prefix="/projects")
 
+MAX_FILES = 3
+
 
 @router.post("/", response_model=ProjectCreateResponse)
 async def create_project(
     title: str = Form(..., min_length=3, max_length=100),
     description: str = Form(None),
-    files: List[UploadFile] = FastAPIFile(..., max_items=3),
+    files: List[UploadFile] = FastAPIFile(..., max_items=MAX_FILES),
     db: Session = Depends(get_db),
     file_repository: FileRepository = Depends(get_file_repository),
     user: User = Depends(get_current_user),
 ):
+    if len(files) > MAX_FILES:
+        raise HTTPException(
+            status_code=HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Maximum 3 files allowed per project",
+        )
+
     if title.strip() == "":
         raise HTTPException(
             status_code=HTTP_422_UNPROCESSABLE_ENTITY, detail="Title cannot be empty"
