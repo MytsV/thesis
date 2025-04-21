@@ -137,6 +137,26 @@ export async function listProjects({
   return response.json();
 }
 
+export async function listSharedProjects({
+  page,
+  pageSize,
+}: ListProjectsRequest): Promise<PaginatedResponse<ProjectViewModel>> {
+  const response = await fetch(
+    `${getApiUrl()}/projects/shared-with-me${buildQueryString({ page, pageSize })}`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch projects");
+  }
+
+  return response.json();
+}
+
 export interface CreateProjectRequest {
   formData: FormData;
   onUploadProgress: (progressEvent: AxiosProgressEvent) => void;

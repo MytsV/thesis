@@ -29,7 +29,9 @@ export interface ProjectViewModel {
   title: string;
   description: string;
   createdAt: Date;
-  userId: number;
+  ownerId: number;
+  ownerUsername?: string;
+  isShared: boolean;
 }
 
 export enum ProjectListTabs {

@@ -3,7 +3,7 @@
 import { useUser } from "@/lib/user-provision";
 import ProjectList from "@/components/project/ProjectList";
 import { useQuery } from "@tanstack/react-query";
-import { listProjects } from "@/lib/api";
+import { listProjects, listSharedProjects } from "@/lib/api";
 import ProjectCard from "@/components/project/ProjectCard";
 import { useCallback, useState } from "react";
 import { ProjectListTabs } from "@/lib/types";
@@ -17,7 +17,8 @@ export default function Dashboard() {
   const [tab, setTab] = useState<ProjectListTabs>(ProjectListTabs.MINE);
 
   const runQuery = useCallback(async () => {
-    if (tab === ProjectListTabs.SHARED) return { data: [], hasNextPage: false };
+    if (tab === ProjectListTabs.SHARED)
+      return listSharedProjects({ page, pageSize: PAGE_SIZE });
     return listProjects({ page, pageSize: PAGE_SIZE });
   }, [page, tab]);
 
@@ -38,6 +39,8 @@ export default function Dashboard() {
         key={project.id}
         title={project.title}
         description={project.description}
+        isLive={project.isShared}
+        author={project.ownerUsername}
         onClick={() => {
           router.push(`/projects/${project.id}`);
         }}
@@ -47,7 +50,10 @@ export default function Dashboard() {
 
   return (
     <ProjectList
-      onTabChange={(value) => setTab(value)}
+      onTabChange={(value) => {
+        setTab(value);
+        setPage(1);
+      }}
       onPageNext={() => setPage((prevState) => prevState + 1)}
       onPagePrevious={() => setPage((prevState) => prevState - 1)}
       onCreateProject={() => {
