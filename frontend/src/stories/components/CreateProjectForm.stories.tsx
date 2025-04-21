@@ -29,6 +29,14 @@ export const Default: Story = {
         type: "text/plain",
       }),
     ],
+    title: "Project Title",
+    description: "Project Description",
+    setTitle: (title: string) => {
+      alert(`Title set to: ${title}`);
+    },
+    setDescription: (description: string) => {
+      alert(`Description set to: ${description}`);
+    },
     onRemoveFile: (file: File) => {
       alert(`Trying to remove file: ${file.name}`);
     },
@@ -37,8 +45,8 @@ export const Default: Story = {
         alert(`File uploaded: ${file.name}`);
       });
     },
-    onSubmit: (data) => {
-      alert(`Title: ${data.title}, Description: ${data.description}`);
+    onSubmit: () => {
+      alert("Form submitted");
     },
   },
 };
@@ -55,6 +63,14 @@ export const LongFilenames: Story = {
         type: "text/plain",
       }),
     ],
+    title: "Project Title",
+    description: "Project Description",
+    setTitle: (title: string) => {
+      alert(`Title set to: ${title}`);
+    },
+    setDescription: (description: string) => {
+      alert(`Description set to: ${description}`);
+    },
     onRemoveFile: (file: File) => {
       alert(`Trying to remove file: ${file.name}`);
     },
@@ -63,8 +79,8 @@ export const LongFilenames: Story = {
         alert(`File uploaded: ${file.name}`);
       });
     },
-    onSubmit: (data) => {
-      alert(`Title: ${data.title}, Description: ${data.description}`);
+    onSubmit: () => {
+      alert("Form submitted");
     },
   },
 };

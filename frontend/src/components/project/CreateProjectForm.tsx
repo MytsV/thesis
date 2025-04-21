@@ -44,15 +44,16 @@ function CreateProjectDropzone(props: CreateProjectDropzoneProps) {
 }
 
 export interface CreateProjectFormProps extends CreateProjectDropzoneProps {
+  title: string;
+  description: string;
+  setTitle: (title: string) => void;
+  setDescription: (description: string) => void;
   files: File[];
   onRemoveFile: (file: File) => void;
-  onSubmit: (data: CreateProjectData) => void;
+  onSubmit: () => void;
 }
 
 export default function CreateProjectForm(props: CreateProjectFormProps) {
-  const [title, setTitle] = React.useState<string>("");
-  const [description, setDescription] = React.useState<string>("");
-
   const displayFiles = () => {
     return props.files.map((file, index) => {
       return (
@@ -80,7 +81,7 @@ export default function CreateProjectForm(props: CreateProjectFormProps) {
 
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    props.onSubmit({ title, description });
+    props.onSubmit();
   };
 
   return (
@@ -92,14 +93,14 @@ export default function CreateProjectForm(props: CreateProjectFormProps) {
       >
         <Input
           required
-          value={title}
+          value={props.title}
           placeholder="Title"
-          onChange={(event) => setTitle(event.target.value)}
+          onChange={(event) => props.setTitle(event.target.value)}
         />
         <Textarea
           placeholder="Description"
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
+          value={props.description}
+          onChange={(event) => props.setDescription(event.target.value)}
         />
         <CreateProjectDropzone onFileUpload={props.onFileUpload} />
         {displayFiles()}

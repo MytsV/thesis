@@ -6,12 +6,13 @@ import { toast } from "sonner";
 import axios from "axios";
 import { getApiUrl } from "@/lib/api";
 import { useMutation } from "@tanstack/react-query";
-import { CreateProjectData } from "@/lib/types";
 import CreateProjectProgress from "@/components/project/CreateProjectProgress";
 
 const MAX_FILES = 3;
 
 export default function CreateProject() {
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
@@ -68,12 +69,12 @@ export default function CreateProject() {
     setFiles((prevState) => prevState.filter((f) => f.name !== file.name));
   };
 
-  const onSubmit = (data: CreateProjectData) => {
+  const onSubmit = () => {
     // TODO: validate data
 
     const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("description", data.description);
+    formData.append("title", title);
+    formData.append("description", description);
     files.forEach((file) => {
       formData.append("files", file);
     });
@@ -86,6 +87,10 @@ export default function CreateProject() {
 
   return (
     <CreateProjectForm
+      title={title}
+      description={description}
+      setTitle={setTitle}
+      setDescription={setDescription}
       files={files}
       onRemoveFile={onRemoveFile}
       onSubmit={onSubmit}
