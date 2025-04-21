@@ -24,7 +24,7 @@ export type PaginatedResponse<T> = {
 };
 
 export interface ProjectViewModel {
-  id: number;
+  id: string;
   title: string;
   description: string;
   createdAt: Date;
@@ -34,9 +34,4 @@ export interface ProjectViewModel {
 export enum ProjectListTabs {
   MINE = "mine",
   SHARED = "shared",
-}
-
-export interface CreateProjectData {
-  title: string;
-  description: string;
 }

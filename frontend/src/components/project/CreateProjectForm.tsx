@@ -5,7 +5,6 @@ import { useDropzone } from "react-dropzone";
 import { File as FileIcon, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatBytes } from "@/lib/utils";
-import { CreateProjectData } from "@/lib/types";
 
 interface CreateProjectDropzoneProps {
   onFileUpload: (acceptedFiles: File[]) => void;

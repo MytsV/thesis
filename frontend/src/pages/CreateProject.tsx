@@ -7,6 +7,8 @@ import { AxiosProgressEvent } from "axios";
 import { createProject } from "@/lib/api";
 import { useMutation } from "@tanstack/react-query";
 import CreateProjectProgress from "@/components/project/CreateProjectProgress";
+import CreateProjectSuccess from "@/components/project/CreateProjectSuccess";
+import { useRouter } from "next/navigation";
 
 const MAX_FILES = 3;
 
@@ -15,6 +17,7 @@ export default function CreateProject() {
   const [description, setDescription] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [projectId, setProjectId] = useState<string | null>(null);
 
   const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
     if (progressEvent.total) {
@@ -28,7 +31,7 @@ export default function CreateProject() {
   const mutation = useMutation({
     mutationFn: createProject,
     onSuccess: (data) => {
-      toast(`Project created successfully: ${data.id}`);
+      setProjectId(data.id);
     },
     onError: (error) => {
       toast.error("Error creating project", { description: error.message });
@@ -60,8 +63,24 @@ export default function CreateProject() {
     mutation.mutate({ formData, onUploadProgress });
   };
 
+  const router = useRouter();
+
   if (mutation.isPending) {
     return <CreateProjectProgress value={uploadProgress} />;
+  }
+
+  if (mutation.isSuccess && projectId) {
+    return (
+      <CreateProjectSuccess
+        projectId={projectId}
+        onDashboard={() => {
+          router.push("/dashboard");
+        }}
+        onProject={() => {
+          router.push(`/projects/${projectId}`);
+        }}
+      />
+    );
   }
 
   return (
