@@ -128,7 +128,7 @@ export default function WorkspaceSidebar(props: WorkspaceSidebarProps) {
         </div>
 
         <div className="flex flex-col items-center">
-          <UserAvatar user={props.user} />
+          <UserAvatar user={props.user} className="cursor-auto" />
         </div>
       </div>
 

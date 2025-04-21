@@ -1,4 +1,4 @@
-import { Cat, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import React from "react";
 import { ActiveUserViewModel, UserViewModel } from "@/lib/types";
 import UserAvatar from "@/components/common/UserAvatar";
@@ -37,7 +37,7 @@ export default function WorkspaceNavigationBar(
     return (
       visibleUsers.length > 0 && (
         <>
-          <div className="md:flex -space-x-2 mr-2 hidden">
+          <div className="sm:flex -space-x-2 mr-2 hidden">
             {visibleUsers.map((user) => (
               <UserAvatar
                 key={user.id}
@@ -49,7 +49,7 @@ export default function WorkspaceNavigationBar(
 
             {additionalUsersCount > 0 && getMoreUsers(additionalUsersCount)}
           </div>
-          <div className="md:hidden mr-2">
+          <div className="sm:hidden mr-2">
             {getMoreUsers(activeUsers.length)}
           </div>
         </>
@@ -74,10 +74,7 @@ export default function WorkspaceNavigationBar(
           </div>
         </div>
 
-        <div className="flex items-center justify-end">
-          {getActiveUsers()}
-          <UserAvatar user={props.currentUser} />
-        </div>
+        <div className="flex items-center justify-end">{getActiveUsers()}</div>
       </div>
     </div>
   );
