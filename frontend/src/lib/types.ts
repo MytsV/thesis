@@ -42,7 +42,7 @@ export interface ActiveUserViewModel {
   username: string;
   email: string;
   avatarUrl?: string;
-  outlineColor: string;
+  outlineColor?: string;
 }
 
 export interface FileViewModel {
