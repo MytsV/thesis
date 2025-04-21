@@ -59,7 +59,7 @@ export const LongFilenames: Story = {
     files: [
       new File(
         ["file content"],
-        "super-long-filename-which-might-cause-overflow.txt",
+        "super-long-filename-which-might-cause-overflow-and-cause-issues-with-the-display.txt",
         { type: "text/plain" },
       ),
       new File(["another file content"], "example2.txt", {

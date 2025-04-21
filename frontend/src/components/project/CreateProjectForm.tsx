@@ -59,18 +59,20 @@ export default function CreateProjectForm(props: CreateProjectFormProps) {
       return (
         <div
           key={`${file.name}-${index}`}
-          className="flex items-center justify-between"
+          className="flex items-center justify-between w-full"
         >
-          <div className="flex flex-row items-center space-x-2">
-            <FileIcon />
-            <span className="text-sm">{file.name}</span>
+          <div className="flex flex-row items-center space-x-2 min-w-0 flex-1">
+            <FileIcon className="flex-shrink-0" />
+            <span className="text-sm truncate overflow-hidden">
+              {file.name}
+            </span>
           </div>
           <div className="flex flex-row items-center space-x-2">
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-500 whitespace-nowrap">
               {formatBytes(file.size)}
             </span>
             <X
-              className="hover:text-primary/90 cursor-pointer"
+              className="hover:text-primary/90 cursor-pointer flex-shrink-0"
               onClick={() => props.onRemoveFile(file)}
             />
           </div>
