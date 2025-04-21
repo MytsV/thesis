@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { useDropzone } from "react-dropzone";
-import { File as FileIcon, Upload, X } from "lucide-react";
+import { ArrowLeft, File as FileIcon, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatBytes } from "@/lib/utils";
 
@@ -50,6 +50,7 @@ export interface CreateProjectFormProps extends CreateProjectDropzoneProps {
   files: File[];
   onRemoveFile: (file: File) => void;
   onSubmit: () => void;
+  onDashboard: () => void;
 }
 
 export default function CreateProjectForm(props: CreateProjectFormProps) {
@@ -85,6 +86,13 @@ export default function CreateProjectForm(props: CreateProjectFormProps) {
 
   return (
     <div className="flex grow h-full flex-col space-y-5">
+      <div
+        className="flex items-center space-x-2 cursor-pointer"
+        onClick={props.onDashboard}
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span className="text-sm">Back to dashboard</span>
+      </div>
       <h1 className="text-3xl font-medium">New Project</h1>
       <form
         className="w-full max-w-md flex flex-col space-y-5"

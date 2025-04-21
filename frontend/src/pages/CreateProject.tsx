@@ -93,6 +93,9 @@ export default function CreateProject() {
       onRemoveFile={onRemoveFile}
       onSubmit={onSubmit}
       onFileUpload={onFileUpload}
+      onDashboard={() => {
+        router.push("/dashboard");
+      }}
     />
   );
 }

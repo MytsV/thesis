@@ -48,6 +48,9 @@ export const Default: Story = {
     onSubmit: () => {
       alert("Form submitted");
     },
+    onDashboard: () => {
+      alert("Back to dashboard");
+    },
   },
 };
 
@@ -81,6 +84,9 @@ export const LongFilenames: Story = {
     },
     onSubmit: () => {
       alert("Form submitted");
+    },
+    onDashboard: () => {
+      alert("Back to dashboard");
     },
   },
 };
