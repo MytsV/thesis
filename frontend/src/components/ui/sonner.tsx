@@ -14,7 +14,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         classNames: {
           toast: "text-base",
           title: "text-base font-medium",
-          description: "text-sm",
+          description: "text-sm text-primary!",
           error: "[&>div>svg]:text-destructive",
         },
       }}
