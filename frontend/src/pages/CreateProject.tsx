@@ -3,8 +3,8 @@
 import CreateProjectForm from "@/components/project/CreateProjectForm";
 import { useState } from "react";
 import { toast } from "sonner";
-import axios from "axios";
-import { getApiUrl } from "@/lib/api";
+import { AxiosProgressEvent } from "axios";
+import { createProject } from "@/lib/api";
 import { useMutation } from "@tanstack/react-query";
 import CreateProjectProgress from "@/components/project/CreateProjectProgress";
 
@@ -16,33 +16,12 @@ export default function CreateProject() {
   const [files, setFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
-  const createProject = async (formData: FormData) => {
-    try {
-      const response = await axios.post(`${getApiUrl()}/projects/`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true,
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total,
-            );
-            setUploadProgress(percentCompleted);
-          }
-        },
-      });
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        if (error.response.data?.detail) {
-          throw new Error(error.response.data.detail);
-        } else {
-          throw new Error("An error occurred with the request");
-        }
-      } else {
-        throw new Error("An unexpected error occurred");
-      }
+  const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
+    if (progressEvent.total) {
+      const percentCompleted = Math.round(
+        (progressEvent.loaded * 100) / progressEvent.total,
+      );
+      setUploadProgress(percentCompleted);
     }
   };
 
@@ -78,7 +57,7 @@ export default function CreateProject() {
     files.forEach((file) => {
       formData.append("files", file);
     });
-    mutation.mutate(formData);
+    mutation.mutate({ formData, onUploadProgress });
   };
 
   if (mutation.isPending) {

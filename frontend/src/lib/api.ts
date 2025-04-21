@@ -6,6 +6,7 @@ import {
   UserLoginViewModel,
   UserViewModel,
 } from "@/lib/types";
+import axios, { AxiosProgressEvent } from "axios";
 
 export function getApiUrl(): string {
   if (typeof window === "undefined") {
@@ -134,4 +135,34 @@ export async function listProjects({
   }
 
   return response.json();
+}
+
+export interface CreateProjectRequest {
+  formData: FormData;
+  onUploadProgress: (progressEvent: AxiosProgressEvent) => void;
+}
+
+export async function createProject(
+  request: CreateProjectRequest,
+): Promise<ProjectViewModel> {
+  try {
+    const response = await axios.post(
+      `${getApiUrl()}/projects/`,
+      request.formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+        onUploadProgress: request.onUploadProgress,
+      },
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.detail) {
+      throw new Error(error.response.data.detail);
+    } else {
+      throw new Error("An unexpected error occurred");
+    }
+  }
 }
