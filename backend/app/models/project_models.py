@@ -40,7 +40,7 @@ class FileResponse(BaseModel):
         return cls(
             id=file.id,
             name=file.original_filename,
-            relative_path=file.file_path,
+            relative_path=file.file_path.replace("./", "/"),
             file_size=file.file_size,
             file_type=file.file_type,
         )

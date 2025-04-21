@@ -3,6 +3,7 @@ import os
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from starlette.staticfiles import StaticFiles
 
 from app.routes import auth, test, project
 from fastapi.middleware.cors import CORSMiddleware
@@ -52,3 +53,5 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
 )
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
