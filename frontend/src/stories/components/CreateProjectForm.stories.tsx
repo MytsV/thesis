@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import CreateProjectForm from "@/components/CreateProjectForm";
+import CreateProjectForm from "@/components/project/CreateProjectForm";
 import React from "react";
 
 const meta: Meta<typeof CreateProjectForm> = {
@@ -37,8 +37,8 @@ export const Default: Story = {
         alert(`File uploaded: ${file.name}`);
       });
     },
-    onSubmit: (title: string, description: string) => {
-      alert(`Title: ${title}, Description: ${description}`);
+    onSubmit: (data) => {
+      alert(`Title: ${data.title}, Description: ${data.description}`);
     },
   },
 };
@@ -63,8 +63,8 @@ export const LongFilenames: Story = {
         alert(`File uploaded: ${file.name}`);
       });
     },
-    onSubmit: (title: string, description: string) => {
-      alert(`Title: ${title}, Description: ${description}`);
+    onSubmit: (data) => {
+      alert(`Title: ${data.title}, Description: ${data.description}`);
     },
   },
 };

@@ -1,10 +1,10 @@
 "use client";
 
 import { useUser } from "@/lib/user-provision";
-import ProjectList from "@/components/ProjectList";
+import ProjectList from "@/components/project/ProjectList";
 import { useQuery } from "@tanstack/react-query";
 import { listProjects } from "@/lib/api";
-import ProjectCard from "@/components/ProjectCard";
+import ProjectCard from "@/components/project/ProjectCard";
 import { useCallback, useState } from "react";
 import { ProjectListTabs } from "@/lib/types";
 import { useRouter } from "next/navigation";

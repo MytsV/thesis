@@ -1,12 +1,13 @@
 "use client";
 
-import CreateProjectForm from "@/components/CreateProjectForm";
+import CreateProjectForm from "@/components/project/CreateProjectForm";
 import { useState } from "react";
 import { toast } from "sonner";
 import axios from "axios";
 import { getApiUrl } from "@/lib/api";
 import { useMutation } from "@tanstack/react-query";
 import { CreateProjectData } from "@/lib/types";
+import CreateProjectProgress from "@/components/project/CreateProjectProgress";
 
 const MAX_FILES = 3;
 
@@ -37,6 +38,9 @@ export default function CreateProject() {
     onSuccess: (data) => {
       toast(`Project created successfully: ${data.id}`);
     },
+    onError: (error) => {
+      toast.error("Error creating project", { description: error.message });
+    },
   });
 
   const onFileUpload = (acceptedFiles: File[]) => {
@@ -65,11 +69,7 @@ export default function CreateProject() {
   };
 
   if (mutation.isPending) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p>Uploading: {uploadProgress}%</p>
-      </div>
-    );
+    return <CreateProjectProgress value={uploadProgress} />;
   }
 
   return (
