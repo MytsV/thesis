@@ -71,10 +71,12 @@ export default function InfoTab({ project, onFileDownload }: InfoTabProps) {
         <FieldDescription icon={Text} title="Title" />
         <p>{project.title}</p>
       </div>
-      <div>
-        <FieldDescription icon={Text} title="Description" />
-        <p>{project.description}</p>
-      </div>
+      {project.description && (
+        <div>
+          <FieldDescription icon={Text} title="Description" />
+          <p>{project.description}</p>
+        </div>
+      )}
       <div>
         <FieldDescription icon={Clock} title="Created At" />
         <p>{formatDate(new Date(project.createdAt))}</p>
