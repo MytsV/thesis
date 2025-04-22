@@ -19,25 +19,26 @@ type Story = StoryObj<typeof UsersTab>;
 
 export const OwnerView: Story = {
   args: {
-    activeUsers: [
+    inviteUsername: "",
+    setInviteUsername: (username: string) => {
+      alert(`Set invite username to ${username}`);
+    },
+    users: [
       {
         id: 0,
         username: "ktestuser1",
-        email: "test1@example.com",
-        outlineColor: "#e64553",
+        color: "#e64553",
       },
       {
         id: 1,
         username: "testuser1",
-        email: "test1@example.com",
-        outlineColor: "#8839ef",
+        color: "#8839ef",
         avatarUrl:
           "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1143&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       },
       {
         id: 2,
         username: "ytestuser1",
-        email: "test1@example.com",
       },
     ],
     canInvite: true,

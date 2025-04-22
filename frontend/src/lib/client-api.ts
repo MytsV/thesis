@@ -199,3 +199,24 @@ export async function listSharedUsers(
 
   return response.json();
 }
+
+export async function shareProject(
+  projectId: string,
+  username: string,
+): Promise<void> {
+  const response = await fetch(
+    `${getApiUrl()}/projects/${projectId}/invite${buildQueryString({ username })}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to share project");
+  }
+}

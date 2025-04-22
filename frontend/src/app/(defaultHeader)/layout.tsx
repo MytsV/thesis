@@ -19,7 +19,6 @@ export default async function RootLayout({
           <UserProvider user={user}>{children}</UserProvider>
         </CustomQueryProvider>
       </main>
-      <Toaster />
     </>
   );
 }

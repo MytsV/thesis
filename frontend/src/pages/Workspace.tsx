@@ -15,9 +15,10 @@ import WorkspaceSidebar from "@/components/workspace/WorkspaceSidebar";
 import InfoTab from "@/components/workspace/InfoTab";
 import { useCallback, useEffect, useState } from "react";
 import { getApiUrl } from "@/lib/utils/api-utils";
-import { useQuery } from "@tanstack/react-query";
-import { listSharedUsers } from "@/lib/client-api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { listSharedUsers, shareProject } from "@/lib/client-api";
 import UsersTab from "@/components/workspace/UsersTab";
+import { toast } from "sonner";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;
@@ -72,6 +73,27 @@ function UsersTabPage({
   activeUsers,
   canInvite,
 }: UsersTabPageProps) {
+  const [inviteUsername, setInviteUsername] = useState<string>("");
+  const queryClient = useQueryClient();
+
+  const inviteMutation = useMutation({
+    mutationFn: () => shareProject(projectId, inviteUsername),
+    onSuccess: () => {
+      setInviteUsername("");
+      queryClient.invalidateQueries({ queryKey: ["sharedUsers"] });
+      toast("User invited successfully");
+    },
+    onError: (error: Error) => {
+      toast.error("Couldn't invite the user", { description: error.message });
+    },
+  });
+
+  const handleInvite = () => {
+    if (inviteUsername.trim()) {
+      inviteMutation.mutate();
+    }
+  };
+
   const sharedUsersQuery = useCallback(async () => {
     return listSharedUsers(projectId);
   }, [projectId]);
@@ -99,7 +121,15 @@ function UsersTabPage({
     }
   }
 
-  return <UsersTab users={allUsers} canInvite={canInvite} />;
+  return (
+    <UsersTab
+      users={allUsers}
+      canInvite={canInvite}
+      inviteUsername={inviteUsername}
+      setInviteUsername={setInviteUsername}
+      onInviteClick={handleInvite}
+    />
+  );
 }
 
 export default function Workspace(props: WorkspaceProps) {
