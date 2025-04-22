@@ -12,7 +12,7 @@ import React from "react";
 
 export interface InfoTabProps {
   project: DetailedProjectViewModel;
-  onFileDownload: (relativePath: string) => void;
+  onFileDownload: (fileName: string, relativePath: string) => void;
 }
 
 interface FieldDescriptionProps {
@@ -55,7 +55,7 @@ export default function InfoTab({ project, onFileDownload }: InfoTabProps) {
           </div>
           <div
             className="p-2 rounded-md hover:bg-gray-100 cursor-pointer"
-            onClick={() => onFileDownload(file.relativePath)}
+            onClick={() => onFileDownload(file.name, file.relativePath)}
           >
             <Download className="flex-shrink-0 h-5 w-5" />
           </div>
