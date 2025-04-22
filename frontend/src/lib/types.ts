@@ -42,9 +42,8 @@ export enum ProjectListTabs {
 export interface ActiveUserViewModel {
   id: number;
   username: string;
-  email: string;
   avatarUrl?: string;
-  outlineColor?: string;
+  color?: string;
 }
 
 export interface FileViewModel {

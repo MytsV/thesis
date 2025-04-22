@@ -115,9 +115,7 @@ async def remove_user_from_project(
 
 async def get_active_users(redis_client: redis.Redis, project_id: str) -> List[Dict]:
     """Get list of active users in a project"""
-    users_data = await redis_client.hgetall(
-        USER_PRESENCE_KEY.format(project_id=project_id)
-    )
+    users_data = redis_client.hgetall(USER_PRESENCE_KEY.format(project_id=project_id))
 
     result = []
     for user_id, user_json in users_data.items():

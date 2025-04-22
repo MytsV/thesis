@@ -1,4 +1,8 @@
-import { DetailedProjectViewModel, UserViewModel } from "@/lib/types";
+import {
+  ActiveUserViewModel,
+  DetailedProjectViewModel,
+  UserViewModel,
+} from "@/lib/types";
 import { cookies, headers } from "next/headers";
 import { getApiUrl } from "@/lib/utils/api-utils";
 
@@ -39,6 +43,31 @@ export async function getProjectDetails(
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.detail || "Failed to fetch project details");
+  }
+
+  return response.json();
+}
+
+export async function getActiveUsers(
+  project_id: string,
+): Promise<ActiveUserViewModel[]> {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get("session");
+
+  const response = await fetch(
+    `${getApiUrl()}/projects/${project_id}/active-users`,
+    {
+      method: "GET",
+      headers: {
+        ...(sessionCookie ? { Cookie: `session=${sessionCookie.value}` } : {}),
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch active users");
   }
 
   return response.json();

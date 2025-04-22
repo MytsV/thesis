@@ -19,10 +19,10 @@ export default function UsersTab(props: UsersTabProps) {
             <UserAvatar user={user} className="cursor-auto" />
             <span className="text-sm font-medium">{user.username}</span>
           </div>
-          {user.outlineColor && (
+          {user.color && (
             <div
               className="w-4 h-4 rounded-full"
-              style={{ backgroundColor: user.outlineColor }}
+              style={{ backgroundColor: user.color }}
             />
           )}
         </div>

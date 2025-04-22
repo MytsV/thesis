@@ -1,6 +1,7 @@
 from typing import List, Tuple, Optional
 from uuid import UUID
 
+import redis
 from fastapi import (
     Depends,
     APIRouter,
@@ -24,6 +25,9 @@ from starlette.status import (
 
 from app.auth.dependencies import get_current_user
 from app.models.user_models import UserDetailResponse
+from app.redis.models import UserPresenceResponse
+from app.redis.storage import get_redis
+from app.redis.users import get_active_users
 from app.utils.file_storage import LocalFileStorageService, FileStorageService
 from app.models.base_models import PaginatedResponse
 from app.models.project_models import (
@@ -368,3 +372,19 @@ async def invite_user(
     db.commit()
 
     return {"message": f"User '{username}' has been invited to the project"}
+
+
+@router.get("/{project_id}/active-users", response_model=List[UserPresenceResponse])
+async def get_project_active_users(
+    project_id: UUID,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    redis_client: redis.Redis = Depends(get_redis),
+):
+    """
+    Get list of active users in a project.
+    This REST endpoint is useful for getting the user list before connecting via WebSocket.
+    """
+    check_user_project_access(db, project_id, user.id)
+    active_users = await get_active_users(redis_client, str(project_id))
+    return active_users

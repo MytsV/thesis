@@ -1,5 +1,6 @@
 from typing import List
 
+from fastapi_camelcase import CamelModel
 from pydantic import BaseModel
 
 
@@ -45,11 +46,11 @@ class UserLeftEvent(BaseEvent):
 # Data stored in Redis
 
 
-class UserPresence(BaseModel):
+class UserPresence(CamelModel):
     username: str
     color: str
     joined_at: str
 
 
 class UserPresenceResponse(UserPresence):
-    user_id: int
+    id: int

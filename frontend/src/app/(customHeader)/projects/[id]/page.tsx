@@ -1,5 +1,5 @@
-import { getProjectDetails } from "@/lib/server-api";
-import { DetailedProjectViewModel } from "@/lib/types";
+import { getActiveUsers, getProjectDetails } from "@/lib/server-api";
+import { ActiveUserViewModel, DetailedProjectViewModel } from "@/lib/types";
 import { notFound } from "next/navigation";
 import Workspace from "@/pages/Workspace";
 
@@ -17,6 +17,15 @@ export default async function Page({
     notFound();
   }
 
-  console.log(projectDetails);
-  return <Workspace project={projectDetails} />;
+  let activeUsers: ActiveUserViewModel[] = [];
+  try {
+    activeUsers = await getActiveUsers(id);
+  } catch (error) {
+    console.error("Error fetching active users:", error);
+    notFound();
+  }
+
+  console.log(activeUsers);
+
+  return <Workspace project={projectDetails} activeUsers={activeUsers} />;
 }

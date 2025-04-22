@@ -39,7 +39,7 @@ export default function WorkspaceNavigationBar(
               <UserAvatar
                 key={user.id}
                 user={user}
-                outlineColor={user.outlineColor}
+                outlineColor={user.color}
                 className="border-2"
               />
             ))}

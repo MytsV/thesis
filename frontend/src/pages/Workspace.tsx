@@ -1,7 +1,7 @@
 "use client";
 
 import WorkspaceNavigationBar from "@/components/workspace/WorkspaceNavigationBar";
-import { DetailedProjectViewModel } from "@/lib/types";
+import { ActiveUserViewModel, DetailedProjectViewModel } from "@/lib/types";
 import { useUser } from "@/lib/user-provision";
 import { notFound } from "next/navigation";
 import WorkspaceSidebar from "@/components/workspace/WorkspaceSidebar";
@@ -9,6 +9,7 @@ import InfoTab from "@/components/workspace/InfoTab";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;
+  activeUsers: ActiveUserViewModel[];
 }
 
 export default function Workspace(props: WorkspaceProps) {
