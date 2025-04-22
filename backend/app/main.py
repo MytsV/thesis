@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.staticfiles import StaticFiles
 
-from app.routes import auth, test, project
+from app.routes import auth, test, project, project_session
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
@@ -42,6 +42,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 app.include_router(auth.router)
 app.include_router(test.router)
 app.include_router(project.router)
+app.include_router(project_session.router)
 
 origins_str = os.getenv("ALLOWED_ORIGINS")
 allow_origins = origins_str.split(",")
