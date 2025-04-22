@@ -37,7 +37,7 @@ async def get_user_color(
     """Assign a color to user, ensuring uniqueness within project."""
 
     presence_key = USER_PRESENCE_KEY.format(project_id=project_id)
-    current_users = await redis_client.hgetall(presence_key)
+    current_users = redis_client.hgetall(presence_key)
 
     taken_colors = set()
     for user_json in current_users.values():
@@ -61,9 +61,7 @@ async def add_user_to_project(
 ) -> None:
     """Add user to project presence and publish join notification"""
 
-    active_users = await redis_client.hlen(
-        USER_PRESENCE_KEY.format(project_id=project_id)
-    )
+    active_users = redis_client.hlen(USER_PRESENCE_KEY.format(project_id=project_id))
 
     if active_users >= MAX_USERS:
         raise HTTPException(
@@ -78,7 +76,7 @@ async def add_user_to_project(
             detail=f"Maximum of {MAX_USERS} concurrent users reached for this project",
         )
 
-    user_data = UserPresence(
+    user_presence = UserPresence(
         username=username, color=color, joined_at=redis_client.time()[0]
     )
 
@@ -86,13 +84,13 @@ async def add_user_to_project(
     user_id_field = str(user_id)
 
     # Set user presence with timeout
-    await redis_client.hset(presence_key, user_id_field, json.dumps(user_data))
+    redis_client.hset(presence_key, user_id_field, user_presence.model_dump_json())
 
-    await redis_client.hexpire(presence_key, PRESENCE_TIMEOUT, user_id_field)
+    redis_client.hexpire(presence_key, PRESENCE_TIMEOUT, user_id_field)
 
-    joined_event = UserJoinedEvent(user_id=user_id, username=username, color=color)
+    joined_event = UserJoinedEvent(id=user_id, username=username, color=color)
 
-    await redis_client.publish(
+    redis_client.publish(
         PROJECT_CHANNEL.format(project_id=project_id), joined_event.model_dump_json()
     )
 
@@ -102,13 +100,11 @@ async def remove_user_from_project(
 ) -> None:
     """Remove user from project presence and publish leave notification"""
 
-    await redis_client.hdel(
-        USER_PRESENCE_KEY.format(project_id=project_id), str(user_id)
-    )
+    redis_client.hdel(USER_PRESENCE_KEY.format(project_id=project_id), str(user_id))
 
-    left_event = UserLeftEvent(user_id=user_id)
+    left_event = UserLeftEvent(id=user_id)
 
-    await redis_client.publish(
+    redis_client.publish(
         PROJECT_CHANNEL.format(project_id=project_id), left_event.model_dump_json()
     )
 
@@ -121,8 +117,11 @@ async def get_active_users(redis_client: redis.Redis, project_id: str) -> List[D
     for user_id, user_json in users_data.items():
         try:
             user_data = json.loads(user_json)
-            response = UserPresenceResponse(user_id=int(user_id), **user_data)
-            result.append(response)
+            response = UserPresenceResponse(
+                id=int(user_id),
+                **user_data,
+            )
+            result.append(response.model_dump())
         except json.JSONDecodeError:
             pass
 
@@ -137,10 +136,10 @@ async def heartbeat_user_presence(
     presence_key = USER_PRESENCE_KEY.format(project_id=project_id)
     user_id_field = str(user_id)
 
-    user_exists = await redis_client.hexists(presence_key, user_id_field)
+    user_exists = redis_client.hexists(presence_key, user_id_field)
 
     if user_exists:
-        await redis_client.hexpire(
+        redis_client.hexpire(
             USER_PRESENCE_KEY.format(project_id=project_id),
             PRESENCE_TIMEOUT,
             user_id_field,

@@ -24,13 +24,15 @@ class HeartbeatAcknowledgmentEvent(BaseEvent):
 
 class UserJoinedEvent(BaseEvent):
     event: str = "user_joined"
-    user_id: int
+    id: int
     username: str
+    color: str
 
 
-class InitEventUser(BaseModel):
-    user_id: int
+class InitEventUser(CamelModel):
+    id: int
     username: str
+    color: str
 
 
 class InitEvent(BaseEvent):
@@ -40,7 +42,7 @@ class InitEvent(BaseEvent):
 
 class UserLeftEvent(BaseEvent):
     event: str = "user_left"
-    user_id: int
+    id: int
 
 
 # Data stored in Redis
@@ -49,7 +51,7 @@ class UserLeftEvent(BaseEvent):
 class UserPresence(CamelModel):
     username: str
     color: str
-    joined_at: str
+    joined_at: int
 
 
 class UserPresenceResponse(UserPresence):

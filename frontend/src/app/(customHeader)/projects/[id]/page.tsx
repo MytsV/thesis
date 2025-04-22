@@ -25,7 +25,5 @@ export default async function Page({
     notFound();
   }
 
-  console.log(activeUsers);
-
   return <Workspace project={projectDetails} activeUsers={activeUsers} />;
 }

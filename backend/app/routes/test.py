@@ -54,7 +54,6 @@ manager = ConnectionManager()
 
 @router.websocket("/ws/test")
 async def updates_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
-    print(websocket)
     user = await websocket_auth_required(websocket, db)
     if user is None:
         return

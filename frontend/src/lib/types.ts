@@ -62,3 +62,20 @@ export interface DetailedProjectViewModel {
   owner: UserViewModel;
   files: FileViewModel[];
 }
+
+export interface UserJoinedEvent {
+  event: "user_joined";
+  id: number;
+  username: string;
+  color: string;
+}
+
+export interface UserLeftEvent {
+  event: "user_left";
+  id: number;
+}
+
+export interface InitEvent {
+  event: "init";
+  users: ActiveUserViewModel[];
+}
