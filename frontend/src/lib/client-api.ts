@@ -180,3 +180,22 @@ export async function createProject(
     }
   }
 }
+
+export async function listSharedUsers(
+  projectId: string,
+): Promise<UserViewModel[]> {
+  const response = await fetch(
+    `${getApiUrl()}/projects/${projectId}/shared-users`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch shared users");
+  }
+
+  return response.json();
+}

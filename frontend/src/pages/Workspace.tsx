@@ -7,13 +7,17 @@ import {
   InitEvent,
   UserJoinedEvent,
   UserLeftEvent,
+  UserViewModel,
 } from "@/lib/types";
 import { useUser } from "@/lib/user-provision";
 import { notFound, useRouter } from "next/navigation";
 import WorkspaceSidebar from "@/components/workspace/WorkspaceSidebar";
 import InfoTab from "@/components/workspace/InfoTab";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getApiUrl } from "@/lib/utils/api-utils";
+import { useQuery } from "@tanstack/react-query";
+import { listSharedUsers } from "@/lib/client-api";
+import UsersTab from "@/components/workspace/UsersTab";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;
@@ -26,6 +30,19 @@ export default function Workspace(props: WorkspaceProps) {
     props.activeUsers,
   );
   const currentUser = useUser();
+
+  const sharedUsersQuery = useCallback(async () => {
+    return listSharedUsers(props.project.id);
+  }, [props.project.id]);
+
+  const {
+    data: sharedUsers,
+    error: sharedUsersError,
+    isLoading: sharedUsersLoading,
+  } = useQuery<UserViewModel[]>({
+    queryKey: ["sharedUsers"],
+    queryFn: sharedUsersQuery,
+  });
 
   const handleUserJoin = (data: UserJoinedEvent) => {
     setActiveUsers((prevUsers) => {
@@ -137,13 +154,32 @@ export default function Workspace(props: WorkspaceProps) {
     return notFound();
   }
 
+  const allUsers: ActiveUserViewModel[] = [...activeUsers];
+  if (sharedUsers && sharedUsers.length > 0) {
+    for (const user of sharedUsers) {
+      if (activeUsers.some((activeUser) => activeUser.id === user.id)) {
+        continue;
+      }
+      allUsers.push({
+        id: user.id,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+      });
+    }
+  }
+
   return (
     <div className="h-full grow flex">
       <WorkspaceSidebar
         infoTab={
           <InfoTab project={props.project} onFileDownload={onFileDownload} />
         }
-        usersTab={<div>Not implemented</div>}
+        usersTab={
+          <UsersTab
+            activeUsers={allUsers}
+            canInvite={props.project.owner.id === currentUser.id}
+          />
+        }
         viewsTab={<div>Not implemented</div>}
         chatTab={<div>Not implemented</div>}
         user={currentUser}
