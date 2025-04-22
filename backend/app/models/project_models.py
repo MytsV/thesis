@@ -33,7 +33,7 @@ class ProjectListResponse(CamelModel):
         from_attributes = True
 
 
-class FileResponse(BaseModel):
+class FileResponse(CamelModel):
     id: int
     name: str
     relative_path: str
@@ -54,7 +54,7 @@ class FileResponse(BaseModel):
         )
 
 
-class ProjectDetailResponse(BaseModel):
+class ProjectDetailResponse(CamelModel):
     id: uuid.UUID
     title: str
     description: str | None = None

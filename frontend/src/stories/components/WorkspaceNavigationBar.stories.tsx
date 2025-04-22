@@ -26,11 +26,6 @@ export const NoCollaboration: Story = {
       alert("Logo clicked");
     },
     projectName: "Test Project",
-    currentUser: {
-      id: 0,
-      username: "testuser",
-      email: "test@example.com",
-    },
   },
 };
 
@@ -40,11 +35,6 @@ export const FewConcurrentUsers: Story = {
       alert("Logo clicked");
     },
     projectName: "Test Project",
-    currentUser: {
-      id: 0,
-      username: "testuser",
-      email: "test@example.com",
-    },
     activeUsers: [
       {
         id: 0,
@@ -70,11 +60,6 @@ export const ManyConcurrentUsers: Story = {
       alert("Logo clicked");
     },
     projectName: "Test Project",
-    currentUser: {
-      id: 0,
-      username: "testuser",
-      email: "test@example.com",
-    },
     activeUsers: [
       {
         id: 0,
@@ -125,11 +110,6 @@ export const LongProjectName: Story = {
     },
     projectName:
       "A very long project name that might overflow and cause issues when displayed while rendering the component in the UI",
-    currentUser: {
-      id: 0,
-      username: "testuser",
-      email: "test@example.com",
-    },
     activeUsers: [
       {
         id: 0,

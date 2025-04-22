@@ -1,13 +1,11 @@
-import { Info } from "lucide-react";
 import React from "react";
-import { ActiveUserViewModel, UserViewModel } from "@/lib/types";
+import { ActiveUserViewModel } from "@/lib/types";
 import UserAvatar from "@/components/common/UserAvatar";
 import WebsiteLogo from "@/components/common/WebsiteLogo";
 
 export interface WorkspaceNavigationBarProps {
   onLogoClick: () => void;
   projectName: string;
-  currentUser: UserViewModel;
   activeUsers?: ActiveUserViewModel[];
 }
 

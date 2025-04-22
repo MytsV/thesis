@@ -77,7 +77,7 @@ export default function InfoTab({ project, onFileDownload }: InfoTabProps) {
       </div>
       <div>
         <FieldDescription icon={Clock} title="Created At" />
-        <p>{formatDate(project.createdAt)}</p>
+        <p>{formatDate(new Date(project.createdAt))}</p>
       </div>
       <div>
         <FieldDescription icon={User} title="Author" />

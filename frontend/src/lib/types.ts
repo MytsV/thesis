@@ -59,7 +59,7 @@ export interface DetailedProjectViewModel {
   id: string;
   title: string;
   description: string;
-  createdAt: Date;
+  createdAt: string;
   owner: UserViewModel;
   files: FileViewModel[];
 }

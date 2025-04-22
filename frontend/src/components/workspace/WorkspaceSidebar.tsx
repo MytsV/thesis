@@ -79,7 +79,7 @@ export default function WorkspaceSidebar(props: WorkspaceSidebarProps) {
   };
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-auto">
       <div className="flex flex-col justify-between h-full py-4 w-16 border-r">
         <div className="flex flex-col items-center space-y-4">
           <SidebarIcon
