@@ -7,13 +7,7 @@ import {
   UserViewModel,
 } from "@/lib/types";
 import axios, { AxiosProgressEvent } from "axios";
-
-export function getApiUrl(): string {
-  if (typeof window === "undefined") {
-    return process.env.API_URL!;
-  }
-  return process.env.NEXT_PUBLIC_API_URL!;
-}
+import { getApiUrl } from "@/lib/utils/api-utils";
 
 function buildQueryString(params: Record<string, any>): string {
   // Filter out undefined and null values

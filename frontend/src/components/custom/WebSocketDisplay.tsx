@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getApiUrl } from "@/lib/api";
+import { getApiUrl } from "@/lib/utils/api-utils";
 
 export default function WebSocketDisplay() {
   const [message, setMessage] = useState<string>("");

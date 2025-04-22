@@ -2,7 +2,7 @@
 
 import LoginForm from "@/components/LoginForm";
 import { LoginCredentials } from "@/lib/types";
-import { loginUser } from "@/lib/api";
+import { loginUser } from "@/lib/client-api";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 

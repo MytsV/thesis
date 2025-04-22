@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useDropzone } from "react-dropzone";
 import { ArrowLeft, File as FileIcon, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatBytes } from "@/lib/utils";
+import { formatBytes } from "@/lib/utils/ui-utils";
 
 interface CreateProjectDropzoneProps {
   onFileUpload: (acceptedFiles: File[]) => void;

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import RegisterForm from "@/components/RegisterForm";
-import { registerUser } from "@/lib/api";
+import { registerUser } from "@/lib/client-api";
 import { RegisterData } from "@/lib/types";
 import { toast } from "sonner";
 

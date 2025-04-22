@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getApiUrl } from "@/lib/api";
+import { getApiUrl } from "@/lib/utils/api-utils";
 
 const protectedPaths = ["/dashboard", "/projects"];
 const authPaths = ["/login", "/register"];

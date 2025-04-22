@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { getUserServer } from "@/lib/auth";
+import { getUserServer } from "@/lib/server-api";
 import Header from "@/pages/Header";
 import { Toaster } from "@/components/ui/sonner";
 import { UserProvider } from "@/lib/user-provision";

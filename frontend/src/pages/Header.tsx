@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { UserViewModel } from "@/lib/types";
 import NavigationBar from "@/components/NavigationBar";
-import { logoutUser } from "@/lib/api";
+import { logoutUser } from "@/lib/client-api";
 
 export interface HeaderProps {
   user?: UserViewModel;

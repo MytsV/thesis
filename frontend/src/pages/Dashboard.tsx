@@ -3,7 +3,7 @@
 import { useUser } from "@/lib/user-provision";
 import ProjectList from "@/components/project/ProjectList";
 import { useQuery } from "@tanstack/react-query";
-import { listProjects, listSharedProjects } from "@/lib/api";
+import { listProjects, listSharedProjects } from "@/lib/client-api";
 import ProjectCard from "@/components/project/ProjectCard";
 import { useCallback, useState } from "react";
 import { ProjectListTabs } from "@/lib/types";

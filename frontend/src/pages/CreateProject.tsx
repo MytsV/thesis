@@ -4,7 +4,7 @@ import CreateProjectForm from "@/components/project/CreateProjectForm";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AxiosProgressEvent } from "axios";
-import { createProject } from "@/lib/api";
+import { createProject } from "@/lib/client-api";
 import { useMutation } from "@tanstack/react-query";
 import CreateProjectProgress from "@/components/project/CreateProjectProgress";
 import CreateProjectSuccess from "@/components/project/CreateProjectSuccess";
