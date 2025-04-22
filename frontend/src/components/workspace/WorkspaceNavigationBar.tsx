@@ -56,7 +56,7 @@ export default function WorkspaceNavigationBar(
 
   return (
     <div className="w-full h-14 border-b shadow-xs">
-      <div className="grid grid-cols-3 items-center h-full max-w-7xl mx-auto px-4">
+      <div className="grid grid-cols-3 items-center h-full px-4">
         <div className="flex items-center">
           <WebsiteLogo onLogoClick={props.onLogoClick} />
         </div>
