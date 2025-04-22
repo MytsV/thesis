@@ -9,7 +9,7 @@ import {
   UserLeftEvent,
 } from "@/lib/types";
 import { useUser } from "@/lib/user-provision";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import WorkspaceSidebar from "@/components/workspace/WorkspaceSidebar";
 import InfoTab from "@/components/workspace/InfoTab";
 import { useEffect, useState } from "react";
@@ -98,6 +98,41 @@ export default function Workspace(props: WorkspaceProps) {
     };
   }, []);
 
+  const router = useRouter();
+
+  const onLogoClick = () => {
+    router.push("/");
+  };
+
+  const onFileDownload = async (fileName: string, relativePath: string) => {
+    try {
+      const apiUrl = getApiUrl();
+      const fileUrl = `${apiUrl}${relativePath}`;
+
+      const response = await fetch(fileUrl);
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to download file: ${response.status} ${response.statusText}`,
+        );
+      }
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = fileName;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      // TODO: handle error
+    }
+  };
+
   if (!currentUser) {
     return notFound();
   }
@@ -105,14 +140,16 @@ export default function Workspace(props: WorkspaceProps) {
   return (
     <div className="h-full grow flex">
       <WorkspaceSidebar
-        infoTab={<InfoTab project={props.project} onFileDownload={() => {}} />}
+        infoTab={
+          <InfoTab project={props.project} onFileDownload={onFileDownload} />
+        }
         usersTab={<div>Not implemented</div>}
         viewsTab={<div>Not implemented</div>}
         chatTab={<div>Not implemented</div>}
         user={currentUser}
       />
       <WorkspaceNavigationBar
-        onLogoClick={() => {}}
+        onLogoClick={onLogoClick}
         projectName={props.project.title}
         activeUsers={activeUsers.filter((user) => user.id !== currentUser.id)}
       />
