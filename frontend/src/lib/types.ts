@@ -8,8 +8,9 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface UserViewModel extends UserLoginViewModel {
+export interface UserViewModel {
   id: number;
+  username: string;
   avatarUrl?: string;
 }
 

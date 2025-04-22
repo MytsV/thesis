@@ -99,7 +99,7 @@ export const Integration: Story = {
     ),
     usersTab: (
       <UsersTab
-        activeUsers={mockActiveUsers}
+        users={mockActiveUsers}
         onInviteClick={() => {
           alert("Invite user clicked");
         }}

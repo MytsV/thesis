@@ -24,16 +24,57 @@ export interface WorkspaceProps {
   activeUsers: ActiveUserViewModel[];
 }
 
-export default function Workspace(props: WorkspaceProps) {
-  const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [activeUsers, setActiveUsers] = useState<ActiveUserViewModel[]>(
-    props.activeUsers,
-  );
-  const currentUser = useUser();
+interface InfoTabPageProps {
+  project: DetailedProjectViewModel;
+}
 
+function InfoTabPage({ project }: InfoTabPageProps) {
+  const onFileDownload = async (fileName: string, relativePath: string) => {
+    try {
+      const apiUrl = getApiUrl();
+      const fileUrl = `${apiUrl}${relativePath}`;
+
+      const response = await fetch(fileUrl);
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to download file: ${response.status} ${response.statusText}`,
+        );
+      }
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = fileName;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      // TODO: handle error
+    }
+  };
+
+  return <InfoTab project={project} onFileDownload={onFileDownload} />;
+}
+
+interface UsersTabPageProps {
+  projectId: string;
+  activeUsers: ActiveUserViewModel[];
+  canInvite: boolean;
+}
+
+function UsersTabPage({
+  projectId,
+  activeUsers,
+  canInvite,
+}: UsersTabPageProps) {
   const sharedUsersQuery = useCallback(async () => {
-    return listSharedUsers(props.project.id);
-  }, [props.project.id]);
+    return listSharedUsers(projectId);
+  }, [projectId]);
 
   const {
     data: sharedUsers,
@@ -43,6 +84,29 @@ export default function Workspace(props: WorkspaceProps) {
     queryKey: ["sharedUsers"],
     queryFn: sharedUsersQuery,
   });
+
+  const allUsers: ActiveUserViewModel[] = [...activeUsers];
+  if (sharedUsers && sharedUsers.length > 0) {
+    for (const user of sharedUsers) {
+      if (activeUsers.some((activeUser) => activeUser.id === user.id)) {
+        continue;
+      }
+      allUsers.push({
+        id: user.id,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+      });
+    }
+  }
+
+  return <UsersTab users={allUsers} canInvite={canInvite} />;
+}
+
+export default function Workspace(props: WorkspaceProps) {
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [activeUsers, setActiveUsers] = useState<ActiveUserViewModel[]>(
+    props.activeUsers,
+  );
 
   const handleUserJoin = (data: UserJoinedEvent) => {
     setActiveUsers((prevUsers) => {
@@ -115,68 +179,21 @@ export default function Workspace(props: WorkspaceProps) {
     };
   }, []);
 
+  const currentUser = useUser();
   const router = useRouter();
-
-  const onLogoClick = () => {
-    router.push("/");
-  };
-
-  const onFileDownload = async (fileName: string, relativePath: string) => {
-    try {
-      const apiUrl = getApiUrl();
-      const fileUrl = `${apiUrl}${relativePath}`;
-
-      const response = await fetch(fileUrl);
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to download file: ${response.status} ${response.statusText}`,
-        );
-      }
-
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = objectUrl;
-      link.download = fileName;
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      URL.revokeObjectURL(objectUrl);
-    } catch (error) {
-      // TODO: handle error
-    }
-  };
 
   if (!currentUser) {
     return notFound();
   }
 
-  const allUsers: ActiveUserViewModel[] = [...activeUsers];
-  if (sharedUsers && sharedUsers.length > 0) {
-    for (const user of sharedUsers) {
-      if (activeUsers.some((activeUser) => activeUser.id === user.id)) {
-        continue;
-      }
-      allUsers.push({
-        id: user.id,
-        username: user.username,
-        avatarUrl: user.avatarUrl,
-      });
-    }
-  }
-
   return (
     <div className="h-full grow flex">
       <WorkspaceSidebar
-        infoTab={
-          <InfoTab project={props.project} onFileDownload={onFileDownload} />
-        }
+        infoTab={<InfoTabPage project={props.project} />}
         usersTab={
-          <UsersTab
-            activeUsers={allUsers}
+          <UsersTabPage
+            activeUsers={activeUsers}
+            projectId={props.project.id}
             canInvite={props.project.owner.id === currentUser.id}
           />
         }
@@ -185,7 +202,9 @@ export default function Workspace(props: WorkspaceProps) {
         user={currentUser}
       />
       <WorkspaceNavigationBar
-        onLogoClick={onLogoClick}
+        onLogoClick={() => {
+          router.push("/");
+        }}
         projectName={props.project.title}
         activeUsers={activeUsers.filter((user) => user.id !== currentUser.id)}
       />
