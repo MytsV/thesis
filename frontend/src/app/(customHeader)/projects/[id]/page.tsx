@@ -1,6 +1,7 @@
 import { getProjectDetails } from "@/lib/server-api";
 import { DetailedProjectViewModel } from "@/lib/types";
 import { notFound } from "next/navigation";
+import Workspace from "@/pages/Workspace";
 
 export default async function Page({
   params,
@@ -17,10 +18,5 @@ export default async function Page({
   }
 
   console.log(projectDetails);
-  return (
-    <div>
-      <h1>Project Details {id}</h1>
-      <p>Details about the project will go here.</p>
-    </div>
-  );
+  return <Workspace project={projectDetails} />;
 }
