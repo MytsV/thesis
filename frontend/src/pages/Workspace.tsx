@@ -80,7 +80,10 @@ function UsersTabPage({
     mutationFn: () => shareProject(projectId, inviteUsername),
     onSuccess: () => {
       setInviteUsername("");
-      queryClient.invalidateQueries({ queryKey: ["sharedUsers"] });
+      queryClient.invalidateQueries({
+        queryKey: ["sharedUsers"],
+        refetchType: "active",
+      });
       toast("User invited successfully");
     },
     onError: (error: Error) => {
@@ -101,7 +104,7 @@ function UsersTabPage({
   const {
     data: sharedUsers,
     error: sharedUsersError,
-    isLoading: sharedUsersLoading,
+    isFetching: sharedUsersLoading,
   } = useQuery<UserViewModel[]>({
     queryKey: ["sharedUsers"],
     queryFn: sharedUsersQuery,
@@ -128,6 +131,7 @@ function UsersTabPage({
       inviteUsername={inviteUsername}
       setInviteUsername={setInviteUsername}
       onInviteClick={handleInvite}
+      isLoading={sharedUsersLoading || inviteMutation.isPending}
     />
   );
 }

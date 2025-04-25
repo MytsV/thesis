@@ -28,7 +28,6 @@ export const Default: Story = {
       owner: {
         id: 0,
         username: "testuser",
-        email: "test@example.com",
       },
       files: [
         {

@@ -3,6 +3,7 @@ import UserAvatar from "@/components/common/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 interface UsersTabProps {
   users: ActiveUserViewModel[];
@@ -10,9 +11,18 @@ interface UsersTabProps {
   inviteUsername: string;
   setInviteUsername: (username: string) => void;
   onInviteClick?: () => void;
+  isLoading?: boolean;
 }
 
 export default function UsersTab(props: UsersTabProps) {
+  if (props.isLoading) {
+    return (
+      <div className="flex flex-col h-full justify-center items-center">
+        <Spinner />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col space-y-4">
       <h1 className="text-xl font-medium">Sharing</h1>

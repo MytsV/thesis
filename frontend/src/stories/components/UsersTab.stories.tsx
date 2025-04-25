@@ -47,3 +47,18 @@ export const OwnerView: Story = {
     },
   },
 };
+
+export const Loading: Story = {
+  args: {
+    inviteUsername: "",
+    setInviteUsername: (username: string) => {
+      alert(`Set invite username to ${username}`);
+    },
+    users: [],
+    canInvite: true,
+    onInviteClick: () => {
+      alert("Invite user clicked");
+    },
+    isLoading: true,
+  },
+};
