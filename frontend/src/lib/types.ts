@@ -80,3 +80,14 @@ export interface InitEvent {
   event: "init";
   users: ActiveUserViewModel[];
 }
+
+export interface ViewViewModel {
+  id: string;
+  name: string;
+  type: ViewType;
+}
+
+export enum ViewType {
+  SIMPLE_TABLE = "simple_table",
+  CHART = "chart",
+}
