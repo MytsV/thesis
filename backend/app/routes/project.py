@@ -1,3 +1,4 @@
+import pathlib
 from typing import List, Tuple, Optional
 from uuid import UUID
 
@@ -38,7 +39,8 @@ from app.models.project_models import (
 )
 from app.sqla.database import get_db
 from app.sqla.file_repository import FileRepository
-from app.sqla.models import Project, User, ProjectShare
+from app.sqla.models import Project, User, ProjectShare, File, FileColumn, FileRow
+from app.utils.parsing import ParsedFile, parse_csv, parse_excel
 
 
 def get_storage_service():
@@ -57,6 +59,41 @@ router = APIRouter(prefix="/projects")
 MAX_FILES = 3
 
 
+async def process_file(upload_file: UploadFile) -> ParsedFile:
+    """Process an uploaded file and parse its content."""
+    await upload_file.seek(0)
+    content = await upload_file.read()
+
+    file_extension = pathlib.Path(upload_file.filename).suffix.lower()
+
+    try:
+        if file_extension == ".csv":
+            return parse_csv(content.decode("utf-8"))
+        elif file_extension in [".xls", ".xlsx"]:
+            return parse_excel(content)
+        else:
+            raise ValueError(f"Unsupported file type: {file_extension}")
+    except Exception as e:
+        raise ValueError(f"Error parsing file {upload_file.filename}: {str(e)}")
+
+
+async def save_parsed_file_data(db: Session, file_id: int, parsed_file: ParsedFile):
+    """Save parsed file data (columns and rows) to the database."""
+    for column in parsed_file.columns:
+        db_column = FileColumn(
+            file_id=file_id,
+            column_name=column.column_name,
+            column_type=column.column_type,
+        )
+        db.add(db_column)
+
+    for row_data in parsed_file.rows:
+        db_row = FileRow(file_id=file_id, row_data=row_data)
+        db.add(db_row)
+
+    db.commit()
+
+
 @router.post("/", response_model=ProjectCreateResponse)
 async def create_project(
     title: str = Form(..., min_length=3, max_length=100),
@@ -66,31 +103,57 @@ async def create_project(
     file_repository: FileRepository = Depends(get_file_repository),
     user: User = Depends(get_current_user),
 ):
-    if len(files) > MAX_FILES:
-        raise HTTPException(
-            status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Maximum 3 files allowed per project",
-        )
+    try:
+        if len(files) > MAX_FILES:
+            raise HTTPException(
+                status_code=HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Maximum 3 files allowed per project",
+            )
 
-    if title.strip() == "":
-        raise HTTPException(
-            status_code=HTTP_422_UNPROCESSABLE_ENTITY, detail="Title cannot be empty"
-        )
+        if title.strip() == "":
+            raise HTTPException(
+                status_code=HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Title cannot be empty",
+            )
 
-    project = Project(title=title, description=description, owner_id=user.id)
-    db.add(project)
-    db.commit()
-    db.refresh(project)
+        project = Project(title=title, description=description, owner_id=user.id)
+        db.add(project)
 
-    # TODO: validate files
-    for file in files:
-        await file_repository.create_file(project.id, file)
+        db.flush()
 
-    # TODO: process files
+        processed_files = []
+        file_errors = []
 
-    # TODO: delete the project if file processing fails (rollback)
-    # TODO: close the project after creation
-    return project
+        # TODO: process files in a background task, mark project as unavailable before the processing is finished
+        for file in files:
+            try:
+                db_file = await file_repository.create_file(project.id, file)
+                parsed_file = await process_file(file)
+                await save_parsed_file_data(db, db_file.id, parsed_file)
+
+                processed_files.append(db_file)
+            except Exception as e:
+                file_errors.append({"filename": file.filename, "error": str(e)})
+
+        if file_errors:
+            db.rollback()
+
+            # TODO: delete files from storage
+
+            raise HTTPException(
+                status_code=HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"Failed to process all files: {file_errors}",
+            )
+
+        db.commit()
+
+        return project
+    except Exception as _:
+        db.rollback()
+
+        # TODO: delete files from storage
+
+        raise
 
 
 @router.get(path="", response_model=PaginatedResponse[ProjectListResponse])

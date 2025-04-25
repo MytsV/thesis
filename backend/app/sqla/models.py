@@ -1,9 +1,18 @@
 import datetime
 import uuid
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
-from sqlalchemy import String, Integer, DateTime, ForeignKey, Text, func
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import (
+    String,
+    Integer,
+    DateTime,
+    ForeignKey,
+    Text,
+    func,
+    JSON,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import relationship, Mapped, mapped_column, validates
 from app.sqla.database import Base
 
 
@@ -78,3 +87,34 @@ class File(Base):
     )
 
     project: Mapped["Project"] = relationship(back_populates="files")
+    columns: Mapped[List["FileColumn"]] = relationship(
+        back_populates="file", cascade="all, delete-orphan"
+    )
+    rows: Mapped[List["FileRow"]] = relationship(
+        back_populates="file", cascade="all, delete-orphan"
+    )
+
+
+class FileColumn(Base):
+    __tablename__ = "file_columns"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
+    column_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    column_type: Mapped[str] = mapped_column(String(100), nullable=False)
+
+    file: Mapped["File"] = relationship(back_populates="columns")
+
+    __table_args__ = (
+        UniqueConstraint("file_id", "column_name", name="uq_file_column_name"),
+    )
+
+
+class FileRow(Base):
+    __tablename__ = "file_rows"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
+    row_data: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False)
+
+    file: Mapped["File"] = relationship(back_populates="rows")

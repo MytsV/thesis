@@ -1,8 +1,10 @@
+from pathlib import Path
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
 from app.utils.file_storage import FileStorageService
 from app.sqla.models import File
@@ -17,6 +19,8 @@ class FileRepository:
 
     async def create_file(self, project_id: UUID, upload_file: UploadFile) -> File:
         """Create a new file record associated with a project."""
+        await self._validate_file(upload_file)
+
         # Save the file using the storage service
         storage_filename, file_path, file_type, file_size = (
             await self.storage_service.save_file(upload_file, project_id)
@@ -33,10 +37,19 @@ class FileRepository:
         )
 
         self.db.add(file)
-        self.db.commit()
-        self.db.refresh(file)
+        self.db.flush()
 
         return file
+
+    async def _validate_file(self, upload_file: UploadFile):
+        file_extension = Path(upload_file.filename).suffix.lower()
+        valid_extensions = [".csv", ".xls", ".xlsx"]
+
+        if file_extension not in valid_extensions:
+            raise HTTPException(
+                status_code=HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"Unsupported file type. Supported types: {', '.join(valid_extensions)}",
+            )
 
     def get_project_files(self, project_id: int) -> List[File]:
         """Get all files for a project."""

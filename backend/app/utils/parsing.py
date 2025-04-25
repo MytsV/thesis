@@ -47,7 +47,7 @@ def __extract_columns(df: pd.DataFrame) -> List[ParsedColumn]:
         "is_integer_dtype": "int",
         "is_float_dtype": "float",
         "is_bool_dtype": "boolean",
-        "is_datetime64_dtype": "datetime"
+        "is_datetime64_dtype": "datetime",
     }
 
     for column_name, dtype in df.dtypes.items():
@@ -59,12 +59,7 @@ def __extract_columns(df: pd.DataFrame) -> List[ParsedColumn]:
                 column_type = our_type
                 break
 
-        columns.append(
-            ParsedColumn(
-                column_name=column_name,
-                column_type=column_type
-            )
-        )
+        columns.append(ParsedColumn(column_name=column_name, column_type=column_type))
 
     return columns
 
@@ -78,7 +73,7 @@ def __convert_value(value):
         np.integer: int,
         np.floating: float,
         np.bool_: bool,
-        pd.Timestamp: lambda x: x.to_pydatetime()
+        pd.Timestamp: lambda x: x.to_pydatetime(),
     }
 
     for val_type, converter in type_conversions.items():
@@ -94,10 +89,7 @@ def __extract_rows(df: pd.DataFrame) -> List[Dict[str, Any]]:
     rows = []
 
     for _, row in df.iterrows():
-        row_dict = {
-            col_name: __convert_value(value)
-            for col_name, value in row.items()
-        }
+        row_dict = {col_name: __convert_value(value) for col_name, value in row.items()}
         rows.append(row_dict)
 
     return rows
@@ -105,7 +97,7 @@ def __extract_rows(df: pd.DataFrame) -> List[Dict[str, Any]]:
 
 def parse_csv(content: str) -> ParsedFile:
     csv_file = io.StringIO(content)
-    df = pd.read_csv(csv_file, dtype=str)
+    df = pd.read_csv(csv_file)
     return __parse_dataframe(df)
 
 
