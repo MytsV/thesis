@@ -57,6 +57,10 @@ class Project(Base):
         back_populates="project", cascade="all, delete-orphan"
     )
 
+    views: Mapped[List["View"]] = relationship(
+        back_populates="project", cascade="all, delete-orphan"
+    )
+
 
 class ProjectShare(Base):
     __tablename__ = "project_shares"
@@ -118,3 +122,37 @@ class FileRow(Base):
     row_data: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False)
 
     file: Mapped["File"] = relationship(back_populates="rows")
+
+
+class View(Base):
+    """Base class for all view types in the project."""
+
+    __tablename__ = "views"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("projects.id"), nullable=False
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    view_type: Mapped[str] = mapped_column(String(50), nullable=False)
+
+    project: Mapped["Project"] = relationship(back_populates="views")
+
+    __mapper_args__ = {
+        "polymorphic_identity": "view",
+        "polymorphic_on": view_type,
+    }
+
+
+class SimpleTableView(View):
+    """A simple table view that displays data from a file."""
+
+    __tablename__ = "simple_table_views"
+
+    id: Mapped[uuid.UUID] = mapped_column(ForeignKey("views.id"), primary_key=True)
+    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
+    file: Mapped["File"] = relationship()
+
+    __mapper_args__ = {
+        "polymorphic_identity": "simple_table",
+    }
