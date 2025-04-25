@@ -91,7 +91,18 @@ async def save_parsed_file_data(db: Session, file_id: int, parsed_file: ParsedFi
         db_row = FileRow(file_id=file_id, row_data=row_data)
         db.add(db_row)
 
-    db.commit()
+    db.flush()
+
+
+async def cleanup_saved_files(
+    storage_service: FileStorageService, file_paths: List[str]
+):
+    """Delete all files in the provided paths list."""
+    for file_path in file_paths:
+        try:
+            await storage_service.delete_file(file_path)
+        except Exception as e:
+            print(f"Failed to delete file {file_path}: {str(e)}")
 
 
 @router.post("/", response_model=ProjectCreateResponse)
@@ -103,6 +114,8 @@ async def create_project(
     file_repository: FileRepository = Depends(get_file_repository),
     user: User = Depends(get_current_user),
 ):
+    saved_file_paths = []  # Track files saved to storage for cleanup on error
+
     try:
         if len(files) > MAX_FILES:
             raise HTTPException(
@@ -128,6 +141,8 @@ async def create_project(
         for file in files:
             try:
                 db_file = await file_repository.create_file(project.id, file)
+                saved_file_paths.append(db_file.file_path)
+
                 parsed_file = await process_file(file)
                 await save_parsed_file_data(db, db_file.id, parsed_file)
 
@@ -138,7 +153,7 @@ async def create_project(
         if file_errors:
             db.rollback()
 
-            # TODO: delete files from storage
+            await cleanup_saved_files(file_repository.storage_service, saved_file_paths)
 
             raise HTTPException(
                 status_code=HTTP_422_UNPROCESSABLE_ENTITY,
@@ -151,7 +166,7 @@ async def create_project(
     except Exception as _:
         db.rollback()
 
-        # TODO: delete files from storage
+        await cleanup_saved_files(file_repository.storage_service, saved_file_paths)
 
         raise
 
