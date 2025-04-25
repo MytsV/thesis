@@ -35,7 +35,6 @@ export const Default: Story = {
     user: {
       id: 0,
       username: "testuser",
-      email: "test@example.com",
     },
   },
 };
@@ -45,7 +44,7 @@ const mockProject = {
   title: "Test Project",
   description:
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-  createdAt: new Date(Date.now()),
+  createdAt: new Date(Date.now()).toString(),
   owner: {
     id: 0,
     username: "testuser",
@@ -103,6 +102,11 @@ export const Integration: Story = {
         onInviteClick={() => {
           alert("Invite user clicked");
         }}
+        canInvite={true}
+        inviteUsername=""
+        setInviteUsername={(username: string) => {
+          alert(`Set invite username to ${username}`);
+        }}
       />
     ),
     viewsTab: <div className="p-4">Views Tab Content</div>,
@@ -110,7 +114,6 @@ export const Integration: Story = {
     user: {
       id: 0,
       username: "testuser",
-      email: "test@example.com",
     },
   },
 };
