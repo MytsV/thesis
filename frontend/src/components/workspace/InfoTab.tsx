@@ -9,6 +9,7 @@ import {
   Download,
 } from "lucide-react";
 import React from "react";
+import dynamic from "next/dynamic";
 
 export interface InfoTabProps {
   project: DetailedProjectViewModel;
@@ -29,15 +30,7 @@ function FieldDescription(props: FieldDescriptionProps) {
   );
 }
 
-function formatDate(date: Date): string {
-  return date.toLocaleString(undefined, {
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+const DateView = dynamic(() => import("../common/DateView"), { ssr: false });
 
 export default function InfoTab({ project, onFileDownload }: InfoTabProps) {
   const displayFiles = () => {
@@ -79,7 +72,7 @@ export default function InfoTab({ project, onFileDownload }: InfoTabProps) {
       )}
       <div>
         <FieldDescription icon={Clock} title="Created At" />
-        <p>{formatDate(new Date(project.createdAt))}</p>
+        <DateView date={new Date(project.createdAt)} />
       </div>
       <div>
         <FieldDescription icon={User} title="Author" />
