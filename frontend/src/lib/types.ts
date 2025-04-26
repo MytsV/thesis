@@ -91,3 +91,21 @@ export enum ViewType {
   SIMPLE_TABLE = "simple_table",
   CHART = "chart",
 }
+
+export enum ColumnType {
+  STRING = "string",
+  INT = "int",
+  FLOAT = "float",
+  BOOLEAN = "boolean",
+  DATETIME = "datetime",
+}
+
+export interface ColumnViewModel {
+  name: string;
+  type: ColumnType;
+}
+
+export interface RowViewModel {
+  id: string;
+  data: Record<string, any>;
+}
