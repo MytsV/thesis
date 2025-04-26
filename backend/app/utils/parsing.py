@@ -1,4 +1,5 @@
 import io
+from datetime import datetime
 from typing import Dict, Any, Literal, List
 
 import numpy as np
@@ -73,7 +74,8 @@ def __convert_value(value):
         np.integer: int,
         np.floating: float,
         np.bool_: bool,
-        pd.Timestamp: lambda x: x.to_pydatetime(),
+        pd.Timestamp: lambda x: x.isoformat(),
+        datetime: lambda x: x.isoformat(),
     }
 
     for val_type, converter in type_conversions.items():
