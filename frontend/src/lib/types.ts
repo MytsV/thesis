@@ -46,6 +46,8 @@ export interface ActiveUserViewModel {
   username: string;
   avatarUrl?: string;
   color?: string;
+  current_view_id?: string;
+  focused_row_id?: string;
 }
 
 export interface FileViewModel {
@@ -80,6 +82,18 @@ export interface UserLeftEvent {
 export interface InitEvent {
   event: "init";
   users: ActiveUserViewModel[];
+}
+
+export interface UserFocusChangedEvent {
+  event: "user_focus_changed";
+  id: number;
+  focused_row_id: string;
+}
+
+export interface UserViewChangedEvent {
+  event: "user_view_changed";
+  id: number;
+  current_view_id: string;
 }
 
 export interface ViewViewModel {

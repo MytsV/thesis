@@ -10,6 +10,8 @@ from app.redis.models import (
     UserJoinedEvent,
     UserLeftEvent,
     UserPresenceResponse,
+    UserViewChangedEvent,
+    UserFocusChangedEvent,
 )
 
 USER_PRESENCE_KEY = "presence:project:{project_id}:users"
@@ -144,3 +146,69 @@ async def heartbeat_user_presence(
             PRESENCE_TIMEOUT,
             user_id_field,
         )
+
+
+async def update_user_view(
+    redis_client: redis.Redis,
+    project_id: str,
+    user_id: int,
+    current_view_id: str | None,
+) -> None:
+    """Update the view a user is currently on and publish update notification"""
+
+    presence_key = USER_PRESENCE_KEY.format(project_id=project_id)
+    user_id_field = str(user_id)
+
+    if not redis_client.hexists(presence_key, user_id_field):
+        return
+
+    user_json = redis_client.hget(presence_key, user_id_field)
+    user_data = json.loads(user_json)
+
+    user_data["current_view_id"] = current_view_id
+
+    redis_client.hset(presence_key, user_id_field, json.dumps(user_data))
+
+    redis_client.hexpire(presence_key, PRESENCE_TIMEOUT, user_id_field)
+
+    view_changed_event = UserViewChangedEvent(
+        id=user_id, current_view_id=current_view_id
+    )
+
+    redis_client.publish(
+        PROJECT_CHANNEL.format(project_id=project_id),
+        view_changed_event.model_dump_json(),
+    )
+
+
+async def update_user_focus(
+    redis_client: redis.Redis,
+    project_id: str,
+    user_id: int,
+    focused_row_id: Optional[str],
+) -> None:
+    """Update the row a user is focused on and publish update notification"""
+
+    presence_key = USER_PRESENCE_KEY.format(project_id=project_id)
+    user_id_field = str(user_id)
+
+    if not redis_client.hexists(presence_key, user_id_field):
+        return
+
+    user_json = redis_client.hget(presence_key, user_id_field)
+    user_data = json.loads(user_json)
+
+    user_data["focused_row_id"] = focused_row_id
+
+    redis_client.hset(presence_key, user_id_field, json.dumps(user_data))
+
+    redis_client.hexpire(presence_key, PRESENCE_TIMEOUT, user_id_field)
+
+    focus_changed_event = UserFocusChangedEvent(
+        id=user_id, focused_row_id=focused_row_id
+    )
+
+    redis_client.publish(
+        PROJECT_CHANNEL.format(project_id=project_id),
+        focus_changed_event.model_dump_json(),
+    )

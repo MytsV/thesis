@@ -8,8 +8,10 @@ import {
   FileViewModel,
   InitEvent,
   RowViewModel,
+  UserFocusChangedEvent,
   UserJoinedEvent,
   UserLeftEvent,
+  UserViewChangedEvent,
   UserViewModel,
   ViewType,
   ViewViewModel,
@@ -18,7 +20,7 @@ import { useUser } from "@/lib/user-provision";
 import { notFound, useRouter } from "next/navigation";
 import WorkspaceSidebar from "@/components/workspace/WorkspaceSidebar";
 import InfoTab from "@/components/workspace/InfoTab";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getApiUrl } from "@/lib/utils/api-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -40,7 +42,7 @@ import {
 } from "@/components/ui/dialog";
 import CreateSimpleTableView from "@/components/workspace/CreateSimpleTableView";
 import SimpleTableView from "@/components/workspace/SimpleTableView";
-import {Spinner} from "@/components/ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;
@@ -225,6 +227,7 @@ interface ViewsTabPageProps {
   files: FileViewModel[];
   onViewClick: (view: ViewViewModel) => void;
   currentView: ViewViewModel | null;
+  activeUsers: ActiveUserViewModel[];
 }
 
 function ViewsTabPage(props: ViewsTabPageProps) {
@@ -252,6 +255,22 @@ function ViewsTabPage(props: ViewsTabPageProps) {
     queryFn: viewsQuery,
   });
 
+  const groupUsersByViewId = (users: ActiveUserViewModel[]) => {
+    const result: Record<string, ActiveUserViewModel[]> = {};
+
+    users.forEach((user) => {
+      if (user.current_view_id) {
+        if (!result[user.current_view_id]) {
+          result[user.current_view_id] = [];
+        }
+
+        result[user.current_view_id].push(user);
+      }
+    });
+
+    return result;
+  };
+
   return (
     <>
       <CreateSimpleTableViewDialog
@@ -266,6 +285,7 @@ function ViewsTabPage(props: ViewsTabPageProps) {
         viewTypesMeta={viewTypesMeta}
         onViewClick={props.onViewClick}
         currentViewId={props.currentView?.id}
+        users={groupUsersByViewId(props.activeUsers)}
       />
     </>
   );
@@ -273,6 +293,9 @@ function ViewsTabPage(props: ViewsTabPageProps) {
 
 interface SimpleTableViewPageProps {
   view: ViewViewModel;
+  onFocusChange: (rowId: string) => void;
+  activeUsers: ActiveUserViewModel[];
+  currentUser: UserViewModel;
 }
 
 function SimpleTableViewPage(props: SimpleTableViewPageProps) {
@@ -304,22 +327,40 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
     queryFn: rowsQuery,
   });
 
+  const currentRowId = useRef<string | null>(null);
+
+  const onRowHover = async (rowId: string) => {
+    if (rowId === currentRowId.current) return;
+    currentRowId.current = rowId;
+    props.onFocusChange(rowId);
+  };
+
   if (!columns || !rows) {
-    return <Spinner/>;
+    return <Spinner />;
   }
+
+  const highlight: Record<string, string> = {};
+  props.activeUsers.forEach((user) => {
+    if (user.id !== props.currentUser.id && user.focused_row_id && user.color) {
+      highlight[user.focused_row_id] = user.color;
+    }
+  });
 
   return (
     <SimpleTableView
       columns={columns}
       rows={rows}
-      highlight={{}}
-      onRowHover={() => {}}
+      highlight={highlight}
+      onRowHover={onRowHover}
     />
   );
 }
 
 interface CurrentViewProps {
   view: ViewViewModel | null;
+  onFocusChange: (rowId: string) => void;
+  activeUsers: ActiveUserViewModel[];
+  currentUser: UserViewModel;
 }
 
 function CurrentView(props: CurrentViewProps) {
@@ -329,17 +370,75 @@ function CurrentView(props: CurrentViewProps) {
 
   switch (props.view.viewType) {
     case ViewType.SIMPLE_TABLE:
-      return <SimpleTableViewPage view={props.view} />;
+      return (
+        <SimpleTableViewPage
+          view={props.view}
+          onFocusChange={props.onFocusChange}
+          activeUsers={props.activeUsers}
+          currentUser={props.currentUser}
+        />
+      );
     default:
       return <div className="text-sm">Unknown view type</div>;
   }
 }
 
+function throttle<T extends (...args: any[]) => void>(
+  func: T,
+  wait: number,
+): (...args: Parameters<T>) => void {
+  let lastCall = 0;
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  let lastArgs: Parameters<T> | null = null;
+
+  return (...args: Parameters<T>) => {
+    const now = Date.now();
+    lastArgs = args;
+
+    if (now - lastCall >= wait) {
+      lastCall = now;
+      func(...args);
+    } else if (!timeout) {
+      timeout = setTimeout(
+        () => {
+          lastCall = Date.now();
+          if (lastArgs) {
+            func(...lastArgs);
+          }
+          timeout = null;
+        },
+        wait - (now - lastCall),
+      );
+    }
+  };
+}
+
 export default function Workspace(props: WorkspaceProps) {
+  // TODO: refactor into a custom hook
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [activeUsers, setActiveUsers] = useState<ActiveUserViewModel[]>(
     props.activeUsers,
   );
+
+  const handleUserFocusChanged = (data: UserFocusChangedEvent) => {
+    setActiveUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.id === data.id
+          ? { ...user, focused_row_id: data.focused_row_id }
+          : user,
+      ),
+    );
+  };
+
+  const handleUserViewChanged = (data: UserViewChangedEvent) => {
+    setActiveUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.id === data.id
+          ? { ...user, current_view_id: data.current_view_id }
+          : user,
+      ),
+    );
+  };
 
   const handleUserJoin = (data: UserJoinedEvent) => {
     setActiveUsers((prevUsers) => {
@@ -372,6 +471,8 @@ export default function Workspace(props: WorkspaceProps) {
     user_joined: handleUserJoin,
     user_left: handleUserLeft,
     init: handleInitEvent,
+    user_focus_changed: handleUserFocusChanged,
+    user_view_changed: handleUserViewChanged,
   };
 
   const handleMessage = (event: MessageEvent) => {
@@ -387,6 +488,28 @@ export default function Workspace(props: WorkspaceProps) {
       console.error("Error parsing message:", e);
     }
   };
+
+  const onViewChange = throttle((view: ViewViewModel) => {
+    if (socket) {
+      socket.send(
+        JSON.stringify({
+          event: "view_change",
+          view_id: view.id,
+        }),
+      );
+    }
+  }, 250);
+
+  const onFocusChange = throttle((rowId: string) => {
+    if (socket) {
+      socket.send(
+        JSON.stringify({
+          event: "focus_change",
+          row_id: rowId,
+        }),
+      );
+    }
+  }, 100);
 
   useEffect(() => {
     const ws = new WebSocket(
@@ -417,6 +540,12 @@ export default function Workspace(props: WorkspaceProps) {
 
   const [currentView, setCurrentView] = useState<ViewViewModel | null>(null);
 
+  useEffect(() => {
+    if (currentView) {
+      onViewChange(currentView);
+    }
+  }, [currentView]);
+
   if (!currentUser) {
     return notFound();
   }
@@ -438,6 +567,7 @@ export default function Workspace(props: WorkspaceProps) {
             files={props.project.files}
             onViewClick={setCurrentView}
             currentView={currentView}
+            activeUsers={activeUsers}
           />
         }
         chatTab={<div>Not implemented</div>}
@@ -453,7 +583,12 @@ export default function Workspace(props: WorkspaceProps) {
           activeUsers={activeUsers.filter((user) => user.id !== currentUser.id)}
         />
         <div className="w-full flex grow items-center justify-center p-4">
-          <CurrentView view={currentView} />
+          <CurrentView
+            view={currentView}
+            onFocusChange={onFocusChange}
+            activeUsers={activeUsers}
+            currentUser={currentUser}
+          />
         </div>
       </div>
     </div>

@@ -20,6 +20,8 @@ from app.redis.users import (
     heartbeat_user_presence,
     PROJECT_CHANNEL,
     get_active_users,
+    update_user_view,
+    update_user_focus,
 )
 from app.routes.project import check_user_project_access
 from app.sqla.database import get_db
@@ -314,6 +316,77 @@ class CollaborationManager:
 collaboration_manager = CollaborationManager()
 
 
+# TODO: refactor
+async def handle_message(
+    message: dict,
+    websocket: WebSocket,
+    project_id: UUID,
+    user: User,
+    redis_client: redis.Redis,
+):
+    """Handle incoming WebSocket messages based on their type."""
+    message_type = message.get("event")
+
+    message_handlers = {
+        "heartbeat": handle_heartbeat_message,
+        "view_change": handle_view_change_message,
+        "focus_change": handle_focus_change_message,
+    }
+
+    handler = message_handlers.get(message_type)
+    if handler:
+        await handler(
+            message=message,
+            websocket=websocket,
+            project_id=project_id,
+            user=user,
+            redis_client=redis_client,
+        )
+    else:
+        logger.warning(
+            f"Unknown message type '{message_type}' received from user {user.id}"
+        )
+
+
+async def handle_heartbeat_message(
+    message: dict,
+    websocket: WebSocket,
+    project_id: UUID,
+    user: User,
+    redis_client: redis.Redis,
+):
+    """Handle heartbeat messages to keep the user presence alive."""
+    await heartbeat_user_presence(redis_client, str(project_id), user.id)
+
+    # Send acknowledgment back to client
+    heartbeat_ack_event = HeartbeatAcknowledgmentEvent()
+    await websocket.send_text(heartbeat_ack_event.model_dump_json())
+
+
+async def handle_view_change_message(
+    message: dict,
+    websocket: WebSocket,
+    project_id: UUID,
+    user: User,
+    redis_client: redis.Redis,
+):
+    """Handle messages when a user changes their view."""
+    current_view_id = message.get("view_id")
+    await update_user_view(redis_client, str(project_id), user.id, current_view_id)
+
+
+async def handle_focus_change_message(
+    message: dict,
+    websocket: WebSocket,
+    project_id: UUID,
+    user: User,
+    redis_client: redis.Redis,
+):
+    """Handle messages when a user changes their focus to a specific row."""
+    focused_row_id = message.get("row_id")
+    await update_user_focus(redis_client, str(project_id), user.id, focused_row_id)
+
+
 @router.websocket("/ws/projects/{project_id}/collaborate")
 async def project_collaboration(
     websocket: WebSocket,
@@ -337,6 +410,7 @@ async def project_collaboration(
 
         # Send initial state
         active_users = await get_active_users(redis_client, str(project_id))
+        print(active_users)
         init_event = InitEvent(users=active_users)
         await websocket.send_text(init_event.model_dump_json())
 
@@ -346,9 +420,13 @@ async def project_collaboration(
                 data = await websocket.receive_text()
                 try:
                     message = json.loads(data)
-                    if message.get("type") == "heartbeat":
-                        heartbeat_ack_event = HeartbeatAcknowledgmentEvent()
-                        await websocket.send_text(heartbeat_ack_event.model_dump_json())
+                    await handle_message(
+                        message=message,
+                        websocket=websocket,
+                        project_id=project_id,
+                        user=user,
+                        redis_client=redis_client,
+                    )
                 except json.JSONDecodeError:
                     logger.warning(f"Invalid JSON received from user {user.id}")
 

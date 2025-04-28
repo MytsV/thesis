@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi_camelcase import CamelModel
 from pydantic import BaseModel
@@ -33,6 +33,8 @@ class InitEventUser(CamelModel):
     id: int
     username: str
     color: str
+    current_view_id: str | None = None
+    focused_row_id: str | None = None
 
 
 class InitEvent(BaseEvent):
@@ -48,10 +50,24 @@ class UserLeftEvent(BaseEvent):
 # Data stored in Redis
 
 
-class UserPresence(CamelModel):
+class UserPresence(BaseModel):
     username: str
     color: str
     joined_at: int
+    current_view_id: str | None = None
+    focused_row_id: str | None = None
+
+
+class UserViewChangedEvent(BaseEvent):
+    id: int
+    current_view_id: str | None
+    event: str = "user_view_changed"
+
+
+class UserFocusChangedEvent(BaseEvent):
+    id: int
+    focused_row_id: str | None
+    event: str = "user_focus_changed"
 
 
 class UserPresenceResponse(UserPresence):
