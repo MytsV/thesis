@@ -96,7 +96,7 @@ function CreateViewButton({
 }) {
   return (
     <Popover>
-      <PopoverTrigger>
+      <PopoverTrigger asChild>
         <Button className="w-full">Create</Button>
       </PopoverTrigger>
       <PopoverContent className="popover-content-width-same-as-its-trigger">
@@ -142,7 +142,7 @@ export default function ViewsTab({
         <ViewCard
           key={view.id}
           view={view}
-          icon={viewTypesMeta.find((meta) => meta.type === view.type)?.icon}
+          icon={viewTypesMeta.find((meta) => meta.type === view.viewType)?.icon}
           users={users[view.id]}
           isActive={currentViewId === view.id}
           onClick={() => onViewClick(view.id)}

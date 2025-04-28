@@ -85,7 +85,11 @@ export interface InitEvent {
 export interface ViewViewModel {
   id: string;
   name: string;
-  type: ViewType;
+  viewType: ViewType;
+}
+
+export interface ListViewsResponse {
+  views: ViewViewModel[];
 }
 
 export enum ViewType {
@@ -109,4 +113,9 @@ export interface ColumnViewModel {
 export interface RowViewModel {
   id: string;
   data: Record<string, any>;
+}
+
+export interface ViewCreateRequest {
+  name: string;
+  fileId: number;
 }

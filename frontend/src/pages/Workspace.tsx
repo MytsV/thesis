@@ -4,21 +4,39 @@ import WorkspaceNavigationBar from "@/components/workspace/WorkspaceNavigationBa
 import {
   ActiveUserViewModel,
   DetailedProjectViewModel,
+  FileViewModel,
   InitEvent,
   UserJoinedEvent,
   UserLeftEvent,
   UserViewModel,
+  ViewType,
+  ViewViewModel,
 } from "@/lib/types";
 import { useUser } from "@/lib/user-provision";
 import { notFound, useRouter } from "next/navigation";
 import WorkspaceSidebar from "@/components/workspace/WorkspaceSidebar";
 import InfoTab from "@/components/workspace/InfoTab";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getApiUrl } from "@/lib/utils/api-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { listSharedUsers, shareProject } from "@/lib/client-api";
+import {
+  createView,
+  listSharedUsers,
+  listViews,
+  shareProject,
+} from "@/lib/client-api";
 import UsersTab from "@/components/workspace/UsersTab";
 import { toast } from "sonner";
+import ViewsTab, { ViewTypeMeta } from "@/components/workspace/ViewsTab";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import CreateSimpleTableView from "@/components/workspace/CreateSimpleTableView";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;
@@ -136,6 +154,116 @@ function UsersTabPage({
   );
 }
 
+interface CreateSimpleTableViewProps {
+  availableFiles: FileViewModel[];
+  projectId: string;
+  openViewType: ViewType | null;
+  setOpenViewType: (viewType: ViewType | null) => void;
+}
+
+function CreateSimpleTableViewDialog(props: CreateSimpleTableViewProps) {
+  const [name, setName] = useState<string>("");
+  const [selectedFileId, setSelectedFileId] = useState<number | null>(null);
+  const queryClient = useQueryClient();
+
+  const createMutation = useMutation({
+    mutationFn: (fileId: number) => {
+      return createView(props.projectId, { name, fileId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["views"],
+        refetchType: "active",
+      });
+      toast("View created successfully");
+    },
+    onError: (error: Error) => {
+      toast.error("Couldn't create a view", { description: error.message });
+    },
+  });
+
+  const onSubmit = () => {
+    if (!selectedFileId) {
+      toast.error("Please select a file");
+      return;
+    }
+    createMutation.mutate(selectedFileId);
+    props.setOpenViewType(null);
+  };
+
+  return (
+    <Dialog
+      open={props.openViewType === ViewType.SIMPLE_TABLE}
+      onOpenChange={(open) => {
+        if (!open) {
+          props.setOpenViewType(null);
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Simple Table View</DialogTitle>
+        </DialogHeader>
+        <CreateSimpleTableView
+          availableFiles={props.availableFiles}
+          setName={setName}
+          onFileSelect={setSelectedFileId}
+          onSubmit={onSubmit}
+          name={name}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+interface ViewsTabPageProps {
+  projectId: string;
+  files: FileViewModel[];
+}
+
+function ViewsTabPage(props: ViewsTabPageProps) {
+  const [openViewType, setOpenViewType] = useState<ViewType | null>(null);
+
+  const viewTypesMeta: ViewTypeMeta[] = [
+    {
+      type: ViewType.SIMPLE_TABLE,
+      name: "Simple Table",
+      icon: <span>📑</span>,
+    },
+  ];
+
+  const viewsQuery = useCallback(async () => {
+    const response = await listViews(props.projectId);
+    return response.views;
+  }, [props.projectId]);
+
+  const {
+    data: views,
+    error: viewsError,
+    isFetching: viewsLoading,
+  } = useQuery<ViewViewModel[]>({
+    queryKey: ["views"],
+    queryFn: viewsQuery,
+  });
+
+  return (
+    <>
+      <CreateSimpleTableViewDialog
+        availableFiles={props.files}
+        projectId={props.projectId}
+        openViewType={openViewType}
+        setOpenViewType={setOpenViewType}
+      />
+      <ViewsTab
+        onCreateClick={(viewType) => setOpenViewType(viewType)}
+        views={views ?? []}
+        viewTypesMeta={viewTypesMeta}
+        onViewClick={() => {}}
+      />
+    </>
+  );
+}
+
 export default function Workspace(props: WorkspaceProps) {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [activeUsers, setActiveUsers] = useState<ActiveUserViewModel[]>(
@@ -231,7 +359,12 @@ export default function Workspace(props: WorkspaceProps) {
             canInvite={props.project.owner.id === currentUser.id}
           />
         }
-        viewsTab={<div>Not implemented</div>}
+        viewsTab={
+          <ViewsTabPage
+            projectId={props.project.id}
+            files={props.project.files}
+          />
+        }
         chatTab={<div>Not implemented</div>}
         user={currentUser}
       />

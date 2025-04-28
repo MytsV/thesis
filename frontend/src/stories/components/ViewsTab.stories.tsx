@@ -39,17 +39,17 @@ export const Default: Story = {
       {
         id: "b2ec1a23-1f90-4c11-ba71-83819de1b521",
         name: "View 1",
-        type: ViewType.SIMPLE_TABLE,
+        viewType: ViewType.SIMPLE_TABLE,
       },
       {
         id: "d4c6a8be-7aae-4cfb-929f-7f294e7f9e75",
         name: "Really long view name that should be truncated or else it will overflow",
-        type: ViewType.CHART,
+        viewType: ViewType.CHART,
       },
       {
         id: "081ffacb-1776-4d2d-966c-891702c3d1c3",
         name: "View 3",
-        type: ViewType.CHART,
+        viewType: ViewType.CHART,
       },
     ],
     currentViewId: "b2ec1a23-1f90-4c11-ba71-83819de1b521",

@@ -1,10 +1,13 @@
 import {
+  ListViewsResponse,
   LoginCredentials,
   PaginatedResponse,
   ProjectViewModel,
   RegisterData,
   UserLoginViewModel,
   UserViewModel,
+  ViewCreateRequest,
+  ViewViewModel,
 } from "@/lib/types";
 import axios, { AxiosProgressEvent } from "axios";
 import { getApiUrl } from "@/lib/utils/api-utils";
@@ -195,6 +198,44 @@ export async function listSharedUsers(
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.detail || "Failed to fetch shared users");
+  }
+
+  return response.json();
+}
+
+export async function listViews(projectId: string): Promise<ListViewsResponse> {
+  const response = await fetch(`${getApiUrl()}/views/project/${projectId}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch views");
+  }
+
+  return response.json();
+}
+
+export async function createView(
+  projectId: string,
+  request: ViewCreateRequest,
+) {
+  const response = await fetch(
+    `${getApiUrl()}/views/project/${projectId}/simple-table`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to create view");
   }
 
   return response.json();
