@@ -447,6 +447,7 @@ export default function Workspace(props: WorkspaceProps) {
           onLogoClick={() => {
             router.push("/");
           }}
+          viewName={currentView?.name}
           projectName={props.project.title}
           activeUsers={activeUsers.filter((user) => user.id !== currentUser.id)}
         />
