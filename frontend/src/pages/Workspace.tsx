@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/dialog";
 import CreateSimpleTableView from "@/components/workspace/CreateSimpleTableView";
 import SimpleTableView from "@/components/workspace/SimpleTableView";
+import {Spinner} from "@/components/ui/spinner";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;
@@ -304,7 +305,7 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
   });
 
   if (!columns || !rows) {
-    return <div>Loading...</div>;
+    return <Spinner/>;
   }
 
   return (
