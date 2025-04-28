@@ -106,13 +106,21 @@ export enum ColumnType {
 }
 
 export interface ColumnViewModel {
-  name: string;
-  type: ColumnType;
+  columnName: string;
+  columnType: ColumnType;
+}
+
+export interface ListColumnsResponse {
+  columns: ColumnViewModel[];
 }
 
 export interface RowViewModel {
   id: string;
   data: Record<string, any>;
+}
+
+export interface ListRowsResponse {
+  rows: RowViewModel[];
 }
 
 export interface ViewCreateRequest {

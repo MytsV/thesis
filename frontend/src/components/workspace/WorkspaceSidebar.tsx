@@ -133,7 +133,7 @@ export default function WorkspaceSidebar(props: WorkspaceSidebarProps) {
       </div>
 
       <div
-        className={`fixed left-16 top-0 h-full bg-white border-l border-gray-200 shadow-sm transition-all duration-300 flex ${
+        className={`z-10 fixed left-16 top-0 h-full bg-white border-l border-gray-200 shadow-sm transition-all duration-300 flex ${
           isExpanded ? "md:w-120 w-[calc(100%-4rem)]" : "w-0"
         }`}
       >

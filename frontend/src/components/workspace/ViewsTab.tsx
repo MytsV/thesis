@@ -26,7 +26,7 @@ export interface ViewsTabProps {
   views: ViewViewModel[];
   users?: Record<string, ActiveUserViewModel[]>;
   viewTypesMeta: ViewTypeMeta[];
-  onViewClick: (viewId: string) => void;
+  onViewClick: (view: ViewViewModel) => void;
 }
 
 interface ViewCardProps {
@@ -145,7 +145,7 @@ export default function ViewsTab({
           icon={viewTypesMeta.find((meta) => meta.type === view.viewType)?.icon}
           users={users[view.id]}
           isActive={currentViewId === view.id}
-          onClick={() => onViewClick(view.id)}
+          onClick={() => onViewClick(view)}
         />
       ))}
     </div>

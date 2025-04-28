@@ -40,17 +40,17 @@ export default function SimpleTableView(props: SimpleTableViewProps) {
 
   const columnDefs: ColDef[] = props.columns.map((column) => {
     return {
-      headerName: column.name,
+      headerName: column.columnName,
       sortable: true,
       resizable: true,
       valueGetter: (params) => {
-        const value = params.data.data[column.name];
-        if (column.type in typeParser) {
-          return typeParser[column.type](value);
+        const value = params.data.data[column.columnName];
+        if (column.columnType in typeParser) {
+          return typeParser[column.columnType](value);
         }
         return value;
       },
-      filter: typeFilter[column.type],
+      filter: typeFilter[column.columnType],
     };
   });
 

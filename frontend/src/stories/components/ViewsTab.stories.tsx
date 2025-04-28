@@ -53,8 +53,8 @@ export const Default: Story = {
       },
     ],
     currentViewId: "b2ec1a23-1f90-4c11-ba71-83819de1b521",
-    onViewClick: (viewId) => {
-      alert("View clicked with ID: " + viewId);
+    onViewClick: (view) => {
+      alert("View clicked with ID: " + view.id);
     },
     users: {
       "b2ec1a23-1f90-4c11-ba71-83819de1b521": [

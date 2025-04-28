@@ -1,4 +1,6 @@
 import {
+  ListColumnsResponse,
+  ListRowsResponse,
   ListViewsResponse,
   LoginCredentials,
   PaginatedResponse,
@@ -260,4 +262,34 @@ export async function shareProject(
     const error = await response.json();
     throw new Error(error.detail || "Failed to share project");
   }
+}
+
+export async function listViewColumns(
+  viewId: string,
+): Promise<ListColumnsResponse> {
+  const response = await fetch(`${getApiUrl()}/views/${viewId}/schema`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch columns");
+  }
+
+  return response.json();
+}
+
+export async function listViewRows(viewId: string): Promise<ListRowsResponse> {
+  const response = await fetch(`${getApiUrl()}/views/${viewId}/rows`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch rows");
+  }
+
+  return response.json();
 }

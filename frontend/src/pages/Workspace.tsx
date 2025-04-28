@@ -3,9 +3,11 @@
 import WorkspaceNavigationBar from "@/components/workspace/WorkspaceNavigationBar";
 import {
   ActiveUserViewModel,
+  ColumnViewModel,
   DetailedProjectViewModel,
   FileViewModel,
   InitEvent,
+  RowViewModel,
   UserJoinedEvent,
   UserLeftEvent,
   UserViewModel,
@@ -22,6 +24,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createView,
   listSharedUsers,
+  listViewColumns,
+  listViewRows,
   listViews,
   shareProject,
 } from "@/lib/client-api";
@@ -33,10 +37,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import CreateSimpleTableView from "@/components/workspace/CreateSimpleTableView";
+import SimpleTableView from "@/components/workspace/SimpleTableView";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;
@@ -219,6 +222,8 @@ function CreateSimpleTableViewDialog(props: CreateSimpleTableViewProps) {
 interface ViewsTabPageProps {
   projectId: string;
   files: FileViewModel[];
+  onViewClick: (view: ViewViewModel) => void;
+  currentView: ViewViewModel | null;
 }
 
 function ViewsTabPage(props: ViewsTabPageProps) {
@@ -258,10 +263,75 @@ function ViewsTabPage(props: ViewsTabPageProps) {
         onCreateClick={(viewType) => setOpenViewType(viewType)}
         views={views ?? []}
         viewTypesMeta={viewTypesMeta}
-        onViewClick={() => {}}
+        onViewClick={props.onViewClick}
+        currentViewId={props.currentView?.id}
       />
     </>
   );
+}
+
+interface SimpleTableViewPageProps {
+  view: ViewViewModel;
+}
+
+function SimpleTableViewPage(props: SimpleTableViewPageProps) {
+  const columnsQuery = useCallback(async () => {
+    const response = await listViewColumns(props.view.id);
+    return response.columns;
+  }, [props.view.id]);
+
+  const {
+    data: columns,
+    error: columnsError,
+    isFetching: columnsLoading,
+  } = useQuery<ColumnViewModel[]>({
+    queryKey: ["columns", props.view.id],
+    queryFn: columnsQuery,
+  });
+
+  const rowsQuery = useCallback(async () => {
+    const response = await listViewRows(props.view.id);
+    return response.rows;
+  }, [props.view.id]);
+
+  const {
+    data: rows,
+    error: rowsError,
+    isFetching: rowsLoading,
+  } = useQuery<RowViewModel[]>({
+    queryKey: ["rows", props.view.id],
+    queryFn: rowsQuery,
+  });
+
+  if (!columns || !rows) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <SimpleTableView
+      columns={columns}
+      rows={rows}
+      highlight={{}}
+      onRowHover={() => {}}
+    />
+  );
+}
+
+interface CurrentViewProps {
+  view: ViewViewModel | null;
+}
+
+function CurrentView(props: CurrentViewProps) {
+  if (!props.view) {
+    return <div className="text-sm">Please select a view</div>;
+  }
+
+  switch (props.view.viewType) {
+    case ViewType.SIMPLE_TABLE:
+      return <SimpleTableViewPage view={props.view} />;
+    default:
+      return <div className="text-sm">Unknown view type</div>;
+  }
 }
 
 export default function Workspace(props: WorkspaceProps) {
@@ -344,6 +414,8 @@ export default function Workspace(props: WorkspaceProps) {
   const currentUser = useUser();
   const router = useRouter();
 
+  const [currentView, setCurrentView] = useState<ViewViewModel | null>(null);
+
   if (!currentUser) {
     return notFound();
   }
@@ -363,18 +435,25 @@ export default function Workspace(props: WorkspaceProps) {
           <ViewsTabPage
             projectId={props.project.id}
             files={props.project.files}
+            onViewClick={setCurrentView}
+            currentView={currentView}
           />
         }
         chatTab={<div>Not implemented</div>}
         user={currentUser}
       />
-      <WorkspaceNavigationBar
-        onLogoClick={() => {
-          router.push("/");
-        }}
-        projectName={props.project.title}
-        activeUsers={activeUsers.filter((user) => user.id !== currentUser.id)}
-      />
+      <div className="flex flex-col w-full h-auto">
+        <WorkspaceNavigationBar
+          onLogoClick={() => {
+            router.push("/");
+          }}
+          projectName={props.project.title}
+          activeUsers={activeUsers.filter((user) => user.id !== currentUser.id)}
+        />
+        <div className="w-full flex grow items-center justify-center p-4">
+          <CurrentView view={currentView} />
+        </div>
+      </div>
     </div>
   );
 }
