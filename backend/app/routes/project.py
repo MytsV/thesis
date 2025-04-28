@@ -178,6 +178,7 @@ async def list_user_projects(
     page_size: int = Query(10, ge=1, le=100),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    redis_client: redis.Redis = Depends(get_redis),
 ):
     offset = (page - 1) * page_size
 
@@ -204,17 +205,21 @@ async def list_user_projects(
         results = results[:page_size]
 
     # Create response objects directly from query results
-    projects = [
-        ProjectListResponse(
-            id=project.id,
-            title=project.title,
-            description=project.description,
-            created_at=project.created_at,
-            owner_id=project.owner_id,
-            is_shared=is_shared,
+    projects = []
+
+    for project, is_shared in results:
+        active_users = await get_active_users(redis_client, str(project.id))
+        projects.append(
+            ProjectListResponse(
+                id=project.id,
+                title=project.title,
+                description=project.description,
+                created_at=project.created_at,
+                owner_id=project.owner_id,
+                is_shared=is_shared,
+                active_user_count=len(active_users),
+            )
         )
-        for project, is_shared in results
-    ]
 
     return PaginatedResponse(data=projects, has_next_page=has_next_page)
 
@@ -225,6 +230,7 @@ async def list_shared_projects(
     page_size: int = Query(10, ge=1, le=100),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    redis_client: redis.Redis = Depends(get_redis),
 ):
     """
     Get all projects that are shared with the current user.
@@ -251,6 +257,7 @@ async def list_shared_projects(
     shared_projects = []
 
     for project, owner_username in results:
+        active_users = await get_active_users(redis_client, str(project.id))
         shared_projects.append(
             ProjectListResponse(
                 id=project.id,
@@ -260,6 +267,7 @@ async def list_shared_projects(
                 owner_id=project.owner_id,
                 owner_username=owner_username,
                 is_shared=True,
+                active_user_count=len(active_users),
             )
         )
 

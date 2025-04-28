@@ -44,6 +44,9 @@ export default function Dashboard() {
         onClick={() => {
           router.push(`/projects/${project.id}`);
         }}
+        liveCollaboratorsCount={
+          project.activeUserCount !== 0 ? project.activeUserCount : undefined
+        }
       />
     ));
   };

@@ -27,7 +27,7 @@ class ProjectListResponse(CamelModel):
     owner_id: int
     owner_username: str | None = None
     is_shared: bool = False
-    # TODO: add fields coming from Redis
+    active_user_count: int = 0
 
     class Config:
         from_attributes = True

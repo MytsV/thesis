@@ -33,6 +33,7 @@ export interface ProjectViewModel {
   ownerId: number;
   ownerUsername?: string;
   isShared: boolean;
+  activeUserCount?: number;
 }
 
 export enum ProjectListTabs {
