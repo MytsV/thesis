@@ -509,7 +509,7 @@ export default function Workspace(props: WorkspaceProps) {
         }),
       );
     }
-  }, 100);
+  }, 250);
 
   useEffect(() => {
     const ws = new WebSocket(

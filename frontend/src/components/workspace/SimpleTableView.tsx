@@ -7,6 +7,7 @@ import {
   themeQuartz,
 } from "ag-grid-community";
 import { Spinner } from "@/components/ui/spinner";
+import { useMemo } from "react";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -38,21 +39,25 @@ export default function SimpleTableView(props: SimpleTableViewProps) {
     [ColumnType.DATETIME]: "agDateColumnFilter",
   };
 
-  const columnDefs: ColDef[] = props.columns.map((column) => {
-    return {
-      headerName: column.columnName,
-      sortable: true,
-      resizable: true,
-      valueGetter: (params) => {
-        const value = params.data.data[column.columnName];
-        if (column.columnType in typeParser) {
-          return typeParser[column.columnType](value);
-        }
-        return value;
-      },
-      filter: typeFilter[column.columnType],
-    };
-  });
+  const columnDefs: ColDef[] = useMemo(
+    () =>
+      props.columns.map((column) => {
+        return {
+          headerName: column.columnName,
+          sortable: true,
+          resizable: true,
+          valueGetter: (params) => {
+            const value = params.data.data[column.columnName];
+            if (column.columnType in typeParser) {
+              return typeParser[column.columnType](value);
+            }
+            return value;
+          },
+          filter: typeFilter[column.columnType],
+        };
+      }),
+    [props.columns],
+  );
 
   const theme = themeQuartz.withParams({
     accentColor: "var(--color-primary)",
@@ -80,7 +85,6 @@ export default function SimpleTableView(props: SimpleTableViewProps) {
         onCellMouseOver={(event) => {
           props.onRowHover(event.data.id);
         }}
-        suppressRowHoverHighlight={true}
       />
     </div>
   );
