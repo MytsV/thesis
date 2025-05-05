@@ -80,6 +80,7 @@ export default function SimpleTableView(props: SimpleTableViewProps) {
         onCellMouseOver={(event) => {
           props.onRowHover(event.data.id);
         }}
+        suppressRowHoverHighlight={true}
       />
     </div>
   );

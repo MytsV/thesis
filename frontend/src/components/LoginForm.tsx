@@ -48,7 +48,7 @@ export default function LoginForm(props: LoginFormProps) {
         </Button>
       </form>
       <span className="cursor-pointer" onClick={() => props.onRegister()}>
-        Don't have an account? Sign up
+        Don&apos;t have an account? Sign up
       </span>
     </div>
   );

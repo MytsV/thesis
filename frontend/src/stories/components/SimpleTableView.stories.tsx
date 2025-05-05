@@ -22,11 +22,11 @@ export default meta;
 type Story = StoryObj<typeof SimpleTableView>;
 
 const columns = [
-  { name: "productName", type: ColumnType.STRING },
-  { name: "quantity", type: ColumnType.INT },
-  { name: "price", type: ColumnType.FLOAT },
-  { name: "isInStock", type: ColumnType.BOOLEAN },
-  { name: "lastUpdated", type: ColumnType.DATETIME },
+  { columnName: "productName", columnType: ColumnType.STRING },
+  { columnName: "quantity", columnType: ColumnType.INT },
+  { columnName: "price", columnType: ColumnType.FLOAT },
+  { columnName: "isInStock", columnType: ColumnType.BOOLEAN },
+  { columnName: "lastUpdated", columnType: ColumnType.DATETIME },
 ];
 
 function generateMockData(count: number): RowViewModel[] {

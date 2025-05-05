@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import ProjectList, { ProjectListTabs } from "@/components/project/ProjectList";
+import ProjectList from "@/components/project/ProjectList";
 import ProjectCard from "@/components/project/ProjectCard";
 
 const meta: Meta<typeof ProjectList> = {

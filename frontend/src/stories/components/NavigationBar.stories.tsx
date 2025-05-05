@@ -36,7 +36,6 @@ export const Authenticated: Story = {
     user: {
       id: 1,
       username: "testuser",
-      email: "testuser@mail.com",
     },
     onLogout: () => {
       alert("Logout clicked");
@@ -52,7 +51,6 @@ export const LongUsername: Story = {
     user: {
       id: 1,
       username: "testuserwithalongusernamethatmightoverflow",
-      email: "testuser@mail.com",
     },
     onLogout: () => {
       alert("Logout clicked");

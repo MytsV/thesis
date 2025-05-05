@@ -14,7 +14,7 @@ export default function Register() {
       await registerUser(data);
       // TODO: display success toast
       router.push("/login");
-    } catch (error) {
+    } catch (error: any) {
       toast.error(error.message);
     }
   };

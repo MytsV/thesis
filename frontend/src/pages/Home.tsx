@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Landing from "@/components/Landing";
 import { useUser } from "@/lib/user-provision";
 
-export const Home = () => {
+export default function Home() {
   const router = useRouter();
   const user = useUser();
 
@@ -28,4 +28,4 @@ export const Home = () => {
       isAuthenticated={user !== undefined}
     />
   );
-};
+}

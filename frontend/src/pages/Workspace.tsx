@@ -128,7 +128,7 @@ function UsersTabPage({
   const {
     data: sharedUsers,
     error: sharedUsersError,
-    isFetching: sharedUsersLoading,
+    isLoading: sharedUsersLoading,
   } = useQuery<UserViewModel[]>({
     queryKey: ["sharedUsers"],
     queryFn: sharedUsersQuery,
@@ -329,7 +329,7 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
 
   const currentRowId = useRef<string | null>(null);
 
-  const onRowHover = async (rowId: string) => {
+  const onRowClicked = async (rowId: string) => {
     if (rowId === currentRowId.current) return;
     currentRowId.current = rowId;
     props.onFocusChange(rowId);
@@ -351,7 +351,7 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
       columns={columns}
       rows={rows}
       highlight={highlight}
-      onRowHover={onRowHover}
+      onRowHover={onRowClicked}
     />
   );
 }

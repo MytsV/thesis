@@ -16,7 +16,7 @@ export default function Login() {
       const redirectUrl = searchParams?.get("returnUrl") ?? "/dashboard";
       router.push(redirectUrl);
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       toast.error(error.message);
       // TODO: handle errors with toasts
     }

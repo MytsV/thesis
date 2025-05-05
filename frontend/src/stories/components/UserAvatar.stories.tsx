@@ -15,7 +15,6 @@ export const NoAvatarUrl: Story = {
     user: {
       id: 0,
       username: "testuser",
-      email: "test@example.com",
     },
   },
 };
@@ -25,7 +24,6 @@ export const Enlarged: Story = {
     user: {
       id: 0,
       username: "testuser",
-      email: "test@example.com",
     },
     className: "w-20 h-20 text-2xl",
   },
@@ -36,7 +34,6 @@ export const AvatarUrl: Story = {
     user: {
       id: 0,
       username: "testuser",
-      email: "test@example.com",
       avatarUrl:
         "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1143&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
@@ -48,7 +45,6 @@ export const AvatarUrlOutlined: Story = {
     user: {
       id: 0,
       username: "testuser",
-      email: "test@example.com",
       avatarUrl:
         "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1143&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
@@ -61,7 +57,6 @@ export const NoAvatarUrlOutlined: Story = {
     user: {
       id: 0,
       username: "testuser",
-      email: "test@example.com",
     },
     outlineColor: "#8c84e3",
   },

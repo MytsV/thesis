@@ -21,7 +21,6 @@ export async function getUserServer(): Promise<UserViewModel | undefined> {
   return {
     id: parseInt(userId),
     username: username,
-    email: email,
   };
 }
 
