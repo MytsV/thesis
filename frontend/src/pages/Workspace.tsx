@@ -6,12 +6,7 @@ import {
   ColumnViewModel,
   DetailedProjectViewModel,
   FileViewModel,
-  InitEvent,
   RowViewModel,
-  UserFocusChangedEvent,
-  UserJoinedEvent,
-  UserLeftEvent,
-  UserViewChangedEvent,
   UserViewModel,
   ViewType,
   ViewViewModel,
@@ -43,6 +38,7 @@ import {
 import CreateSimpleTableView from "@/components/workspace/CreateSimpleTableView";
 import SimpleTableView from "@/components/workspace/SimpleTableView";
 import { Spinner } from "@/components/ui/spinner";
+import { useWorkspace } from "@/lib/use-workspace";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;
@@ -383,157 +379,13 @@ function CurrentView(props: CurrentViewProps) {
   }
 }
 
-function throttle<T extends (...args: any[]) => void>(
-  func: T,
-  wait: number,
-): (...args: Parameters<T>) => void {
-  let lastCall = 0;
-  let timeout: ReturnType<typeof setTimeout> | null = null;
-  let lastArgs: Parameters<T> | null = null;
-
-  return (...args: Parameters<T>) => {
-    const now = Date.now();
-    lastArgs = args;
-
-    if (now - lastCall >= wait) {
-      lastCall = now;
-      func(...args);
-    } else if (!timeout) {
-      timeout = setTimeout(
-        () => {
-          lastCall = Date.now();
-          if (lastArgs) {
-            func(...lastArgs);
-          }
-          timeout = null;
-        },
-        wait - (now - lastCall),
-      );
-    }
-  };
-}
-
 export default function Workspace(props: WorkspaceProps) {
   // TODO: refactor into a custom hook
-  const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [activeUsers, setActiveUsers] = useState<ActiveUserViewModel[]>(
-    props.activeUsers,
-  );
 
-  const handleUserFocusChanged = (data: UserFocusChangedEvent) => {
-    setActiveUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === data.id
-          ? { ...user, focused_row_id: data.focused_row_id }
-          : user,
-      ),
-    );
-  };
-
-  const handleUserViewChanged = (data: UserViewChangedEvent) => {
-    setActiveUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === data.id
-          ? { ...user, current_view_id: data.current_view_id }
-          : user,
-      ),
-    );
-  };
-
-  const handleUserJoin = (data: UserJoinedEvent) => {
-    setActiveUsers((prevUsers) => {
-      const userExists = prevUsers.some((user) => user.id === data.id);
-      if (userExists) {
-        return prevUsers;
-      }
-      return [
-        ...prevUsers,
-        {
-          id: data.id,
-          username: data.username,
-          color: data.color,
-        },
-      ];
-    });
-  };
-
-  const handleInitEvent = (data: InitEvent) => {
-    setActiveUsers(data.users);
-  };
-
-  const handleUserLeft = (data: UserLeftEvent) => {
-    setActiveUsers((prevUsers) =>
-      prevUsers.filter((user) => user.id !== data.id),
-    );
-  };
-
-  const messageHandlers: Record<string, (data: any) => void> = {
-    user_joined: handleUserJoin,
-    user_left: handleUserLeft,
-    init: handleInitEvent,
-    user_focus_changed: handleUserFocusChanged,
-    user_view_changed: handleUserViewChanged,
-  };
-
-  const handleMessage = (event: MessageEvent) => {
-    try {
-      const data = JSON.parse(event.data);
-      const handler = messageHandlers[data.event];
-      if (handler) {
-        handler(data);
-      } else {
-        console.error("Unknown event received", data.event);
-      }
-    } catch (e) {
-      console.error("Error parsing message:", e);
-    }
-  };
-
-  const onViewChange = throttle((view: ViewViewModel) => {
-    if (socket) {
-      socket.send(
-        JSON.stringify({
-          event: "view_change",
-          view_id: view.id,
-        }),
-      );
-    }
-  }, 250);
-
-  const onFocusChange = throttle((rowId: string) => {
-    if (socket) {
-      socket.send(
-        JSON.stringify({
-          event: "focus_change",
-          row_id: rowId,
-        }),
-      );
-    }
-  }, 250);
-
-  useEffect(() => {
-    const ws = new WebSocket(
-      `ws://${getApiUrl().replace("http://", "")}/ws/projects/${props.project.id}/collaborate`,
-    );
-
-    ws.onopen = () => {
-      setSocket(ws);
-    };
-
-    ws.onmessage = handleMessage;
-
-    ws.onerror = (error) => {
-      // TODO: handle websocket error
-    };
-
-    ws.onclose = () => {
-      setSocket(null);
-    };
-
-    return () => {
-      ws.close();
-    };
-  }, []);
+  const { activeUsers, changeView, changeFocus } = useWorkspace({
+    projectId: props.project.id,
+    initialUsers: props.activeUsers,
+  });
 
   const currentUser = useUser();
   const router = useRouter();
@@ -542,7 +394,7 @@ export default function Workspace(props: WorkspaceProps) {
 
   useEffect(() => {
     if (currentView) {
-      onViewChange(currentView);
+      changeView(currentView);
     }
   }, [currentView]);
 
@@ -585,7 +437,7 @@ export default function Workspace(props: WorkspaceProps) {
         <div className="w-full flex grow items-center justify-center p-4">
           <CurrentView
             view={currentView}
-            onFocusChange={onFocusChange}
+            onFocusChange={changeFocus}
             activeUsers={activeUsers}
             currentUser={currentUser}
           />

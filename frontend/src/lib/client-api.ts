@@ -1,4 +1,5 @@
 import {
+  ActiveUserViewModel,
   ListColumnsResponse,
   ListRowsResponse,
   ListViewsResponse,
@@ -13,6 +14,7 @@ import {
 } from "@/lib/types";
 import axios, { AxiosProgressEvent } from "axios";
 import { buildQueryString, getApiUrl } from "@/lib/utils/api-utils";
+import { cookies } from "next/headers";
 
 export async function loginUser(
   credentials: LoginCredentials,
@@ -263,6 +265,25 @@ export async function listViewRows(viewId: string): Promise<ListRowsResponse> {
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.detail || "Failed to fetch rows");
+  }
+
+  return response.json();
+}
+
+export async function getActiveUsers(
+  project_id: string,
+): Promise<ActiveUserViewModel[]> {
+  const response = await fetch(
+    `${getApiUrl()}/projects/${project_id}/active-users`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch active users");
   }
 
   return response.json();
