@@ -1,9 +1,18 @@
+from datetime import datetime
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.params import Path
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from starlette.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_201_CREATED
+from starlette.status import (
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+    HTTP_201_CREATED,
+    HTTP_409_CONFLICT,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+)
 
 from app.auth.dependencies import get_current_user
 from app.models.view_models import (
@@ -13,6 +22,8 @@ from app.models.view_models import (
     SimpleTableViewRead,
     SimpleTableViewCreate,
     FileRowResponse,
+    CellUpdateRequest,
+    CellUpdateResponse,
 )
 from app.sqla.database import get_db
 from app.sqla.models import (
@@ -127,7 +138,10 @@ async def get_view_rows(
 
     rows = db.query(FileRow).filter(FileRow.file_id == simple_view.file_id).all()
 
-    response_rows = [FileRowResponse(id=row.id, data=row.row_data) for row in rows]
+    response_rows = [
+        FileRowResponse(id=row.id, data=row.row_data, version=row.version)
+        for row in rows
+    ]
 
     return TableRowsResponse(rows=response_rows)
 
@@ -173,3 +187,145 @@ async def create_simple_table_view(
     db.refresh(view)
 
     return view
+
+
+def validate_cell_value(value: Any, column_type: str) -> Any:
+    """
+    Validate and convert the provided value to match the column's data type.
+    Raises an exception if validation fails.
+    """
+    try:
+        if column_type == "string":
+            return str(value)
+        elif column_type == "int":
+            return int(value)
+        elif column_type == "float":
+            return float(value)
+        elif column_type == "boolean":
+            if isinstance(value, str):
+                if value.lower() in ["true", "yes", "1"]:
+                    return True
+                elif value.lower() in ["false", "no", "0"]:
+                    return False
+                raise ValueError("Invalid boolean value")
+            return bool(value)
+        elif column_type == "datetime":
+            if isinstance(value, str):
+                return datetime.fromisoformat(value).isoformat()
+            raise ValueError("Datetime must be a string in ISO format")
+        else:
+            # For unrecognized types, pass through the value
+            return value
+    except (ValueError, TypeError) as e:
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail=f"Invalid value for column type '{column_type}': {str(e)}",
+        )
+
+
+@router.put("/{view_id}/rows/{row_id}/cell", response_model=CellUpdateResponse)
+async def update_cell(
+    view_id: UUID = Path(...),
+    row_id: UUID = Path(...),
+    cell_data: CellUpdateRequest = ...,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Update a single cell in a row with validation and concurrency control.
+    """
+    view, _, _ = check_view_exists_and_access(db, view_id, current_user.id)
+
+    if view.view_type != "simple_table":
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail="Cell updates are only available for simple table views",
+        )
+
+    simple_view = (
+        db.query(SimpleTableView).filter(SimpleTableView.id == view_id).first()
+    )
+    if not simple_view:
+        raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND,
+            detail="Simple table view not found",
+        )
+
+    # Find the row to update
+    row = (
+        db.query(FileRow)
+        .filter(FileRow.id == row_id, FileRow.file_id == simple_view.file_id)
+        .first()
+    )
+
+    if not row:
+        raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND,
+            detail="Row not found",
+        )
+
+    # Verify the row version matches to prevent concurrent updates
+    if row.version != cell_data.row_version:
+        raise HTTPException(
+            status_code=HTTP_409_CONFLICT,
+            detail="Row has been modified by another user. Please refresh and try again.",
+        )
+
+    # Get column information for type validation
+    column = (
+        db.query(FileColumn)
+        .filter(
+            FileColumn.file_id == simple_view.file_id,
+            FileColumn.column_name == cell_data.column_name,
+        )
+        .first()
+    )
+
+    if not column:
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail=f"Column '{cell_data.column_name}' not found",
+        )
+
+    # Validate the value type
+    validated_value = validate_cell_value(cell_data.value, column.column_type)
+
+    row_data = dict(row.row_data)
+    row_data[cell_data.column_name] = validated_value
+
+    try:
+        result = (
+            db.query(FileRow)
+            .filter(FileRow.id == row_id, FileRow.version == cell_data.row_version)
+            .update(
+                {
+                    "row_data": row_data,
+                    "version": FileRow.version + 1,
+                }
+            )
+        )
+
+        if result == 0:
+            # No rows were updated - another concurrent update happened
+            db.rollback()
+            raise HTTPException(
+                status_code=HTTP_409_CONFLICT,
+                detail="Row was modified by another user while processing your request",
+            )
+
+        db.commit()
+
+        return CellUpdateResponse(success=True)
+
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail=f"Database integrity error: {str(e)}",
+        )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}",
+        )

@@ -1,5 +1,5 @@
 from fastapi_camelcase import CamelModel
-from pydantic import UUID4
+from pydantic import UUID4, BaseModel
 from typing import List, Dict, Any
 
 
@@ -61,8 +61,19 @@ class TableSchemaResponse(CamelModel):
 
 class FileRowResponse(CamelModel):
     id: UUID4
+    version: int
     data: Dict[str, Any]
 
 
 class TableRowsResponse(CamelModel):
     rows: List[FileRowResponse]
+
+
+class CellUpdateRequest(CamelModel):
+    column_name: str
+    value: Any
+    row_version: int
+
+
+class CellUpdateResponse(CamelModel):
+    success: bool

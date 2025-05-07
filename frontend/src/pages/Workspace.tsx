@@ -25,6 +25,8 @@ import {
   listViewRows,
   listViews,
   shareProject,
+  updateCell,
+  UpdateCellRequest,
 } from "@/lib/client-api";
 import UsersTab from "@/components/workspace/UsersTab";
 import { toast } from "sonner";
@@ -36,7 +38,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import CreateSimpleTableView from "@/components/workspace/CreateSimpleTableView";
-import SimpleTableView from "@/components/workspace/SimpleTableView";
+import SimpleTableView, {
+  CellEditData,
+} from "@/components/workspace/SimpleTableView";
 import { Spinner } from "@/components/ui/spinner";
 import { useWorkspace } from "@/lib/use-workspace";
 
@@ -323,6 +327,25 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
     queryFn: rowsQuery,
   });
 
+  const updateCellMutation = useMutation({
+    mutationFn: (data: UpdateCellRequest) => {
+      return updateCell(data);
+    },
+    onError: (error: Error) => {
+      toast.error("Couldn't update the cell", { description: error.message });
+    },
+  });
+
+  const onCellEdit = (data: CellEditData) => {
+    updateCellMutation.mutate({
+      value: data.newValue,
+      viewId: props.view.id,
+      rowId: data.rowId,
+      columnName: data.columnName,
+      rowVersion: data.rowVersion,
+    });
+  };
+
   const currentRowId = useRef<string | null>(null);
 
   const onRowClicked = async (rowId: string) => {
@@ -348,6 +371,7 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
       rows={rows}
       highlight={highlight}
       onRowHover={onRowClicked}
+      onCellEdit={onCellEdit}
     />
   );
 }

@@ -270,21 +270,35 @@ export async function listViewRows(viewId: string): Promise<ListRowsResponse> {
   return response.json();
 }
 
-export async function getActiveUsers(
-  project_id: string,
-): Promise<ActiveUserViewModel[]> {
+export interface UpdateCellRequest {
+  value: any;
+  viewId: string;
+  rowId: string;
+  columnName: string;
+  rowVersion: number;
+}
+
+export async function updateCell({
+  value,
+  viewId,
+  rowId,
+  columnName,
+  rowVersion,
+}: UpdateCellRequest): Promise<void> {
   const response = await fetch(
-    `${getApiUrl()}/projects/${project_id}/active-users`,
+    `${getApiUrl()}/views/${viewId}/rows/${rowId}/cell`,
     {
-      method: "GET",
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ value, columnName, rowVersion }),
       credentials: "include",
     },
   );
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.detail || "Failed to fetch active users");
+    throw new Error(error.detail || "Failed to update cell");
   }
-
-  return response.json();
 }

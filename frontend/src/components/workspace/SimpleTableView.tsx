@@ -11,11 +11,19 @@ import { useMemo } from "react";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
+export interface CellEditData {
+  columnName: string;
+  newValue: any;
+  rowId: string;
+  rowVersion: number;
+}
+
 export interface SimpleTableViewProps {
   columns: ColumnViewModel[];
   rows: RowViewModel[];
   highlight: Record<string, string>;
   onRowHover: (rowId: string) => void;
+  onCellEdit: (data: CellEditData) => void;
 }
 
 function LoadingOverlay() {
@@ -46,6 +54,7 @@ export default function SimpleTableView(props: SimpleTableViewProps) {
           headerName: column.columnName,
           sortable: true,
           resizable: true,
+          editable: true,
           valueGetter: (params) => {
             const value = params.data.data[column.columnName];
             if (column.columnType in typeParser) {
@@ -81,6 +90,19 @@ export default function SimpleTableView(props: SimpleTableViewProps) {
               backgroundColor: `${highlight}10`,
             };
           }
+        }}
+        onCellEditingStopped={(event) => {
+          const columnName = event.column.getColDef().headerName;
+          if (!columnName) {
+            console.error("Column name is undefined");
+            return;
+          }
+          props.onCellEdit({
+            rowId: event.data.id,
+            columnName,
+            newValue: event.newValue,
+            rowVersion: event.data.version,
+          });
         }}
         onCellMouseOver={(event) => {
           props.onRowHover(event.data.id);

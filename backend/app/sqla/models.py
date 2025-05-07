@@ -120,6 +120,7 @@ class FileRow(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
     row_data: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False)
+    version: Mapped[int] = mapped_column(default=1, nullable=False)
 
     file: Mapped["File"] = relationship(back_populates="rows")
 
