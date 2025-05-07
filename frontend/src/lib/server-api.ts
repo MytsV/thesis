@@ -1,10 +1,13 @@
 import {
   ActiveUserViewModel,
   DetailedProjectViewModel,
+  PaginatedResponse,
+  ProjectViewModel,
   UserViewModel,
 } from "@/lib/types";
 import { cookies, headers } from "next/headers";
-import { getApiUrl } from "@/lib/utils/api-utils";
+import { buildQueryString, getApiUrl } from "@/lib/utils/api-utils";
+import { ListProjectsRequest } from "@/lib/client-api";
 
 export async function getUserServer(): Promise<UserViewModel | undefined> {
   const headersList = await headers();
@@ -42,6 +45,32 @@ export async function getProjectDetails(
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.detail || "Failed to fetch project details");
+  }
+
+  return response.json();
+}
+
+export async function listProjects({
+  page,
+  pageSize,
+}: ListProjectsRequest): Promise<PaginatedResponse<ProjectViewModel>> {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get("session");
+
+  const response = await fetch(
+    `${getApiUrl()}/projects${buildQueryString({ page, pageSize })}`,
+    {
+      method: "GET",
+      headers: {
+        ...(sessionCookie ? { Cookie: `session=${sessionCookie.value}` } : {}),
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch projects");
   }
 
   return response.json();

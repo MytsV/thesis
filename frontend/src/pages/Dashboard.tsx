@@ -8,8 +8,7 @@ import ProjectCard from "@/components/project/ProjectCard";
 import { useCallback, useState } from "react";
 import { ProjectListTabs } from "@/lib/types";
 import { useRouter } from "next/navigation";
-
-const PAGE_SIZE = 6;
+import { PROJECT_PAGE_SIZE } from "@/lib/constants";
 
 export default function Dashboard() {
   const user = useUser();
@@ -18,8 +17,8 @@ export default function Dashboard() {
 
   const runQuery = useCallback(async () => {
     if (tab === ProjectListTabs.SHARED)
-      return listSharedProjects({ page, pageSize: PAGE_SIZE });
-    return listProjects({ page, pageSize: PAGE_SIZE });
+      return listSharedProjects({ page, pageSize: PROJECT_PAGE_SIZE });
+    return listProjects({ page, pageSize: PROJECT_PAGE_SIZE });
   }, [page, tab]);
 
   const { data, error, isLoading } = useQuery({
