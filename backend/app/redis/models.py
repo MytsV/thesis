@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from fastapi_camelcase import CamelModel
 from pydantic import BaseModel
@@ -72,3 +72,15 @@ class UserFocusChangedEvent(BaseEvent):
 
 class UserPresenceResponse(UserPresence):
     id: int
+
+
+class RowUpdateInfo(BaseModel):
+    row_id: str
+    column_name: str
+    value: Any
+    row_version: int
+    view_id: str
+
+
+class RowUpdateEvent(RowUpdateInfo):
+    event: str = "row_update"

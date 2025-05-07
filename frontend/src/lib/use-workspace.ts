@@ -3,12 +3,15 @@ import { useEffect, useState } from "react";
 import {
   ActiveUserViewModel,
   InitEvent,
+  RowUpdateEvent,
+  RowViewModel,
   UserFocusChangedEvent,
   UserJoinedEvent,
   UserLeftEvent,
   UserViewChangedEvent,
   ViewViewModel,
 } from "@/lib/types";
+import { useQueryClient } from "@tanstack/react-query";
 
 function throttle<T extends (...args: any[]) => void>(
   func: T,
@@ -50,6 +53,30 @@ export function useWorkspace(params: UseWorkspaceParams) {
   const [activeUsers, setActiveUsers] = useState<ActiveUserViewModel[]>(
     params.initialUsers,
   );
+
+  const queryClient = useQueryClient();
+
+  const handleRowUpdate = (event: RowUpdateEvent) => {
+    queryClient.setQueryData(
+      ["rows", event.view_id],
+      (oldRows: RowViewModel[]) => {
+        if (!oldRows) return oldRows;
+        return oldRows.map((row) => {
+          if (row.id === event.row_id) {
+            return {
+              ...row,
+              data: {
+                ...row.data,
+                [event.column_name]: event.value,
+              },
+              version: event.row_version,
+            };
+          }
+          return row;
+        });
+      },
+    );
+  };
 
   const handleUserJoin = (data: UserJoinedEvent) => {
     setActiveUsers((prevUsers) => {
@@ -104,6 +131,7 @@ export function useWorkspace(params: UseWorkspaceParams) {
     init: handleInitEvent,
     user_focus_changed: handleUserFocusChanged,
     user_view_changed: handleUserViewChanged,
+    row_update: handleRowUpdate,
   };
 
   const handleMessage = (event: MessageEvent) => {

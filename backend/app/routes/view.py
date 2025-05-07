@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
+import redis
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.params import Path
 from sqlalchemy.exc import IntegrityError
@@ -25,6 +26,9 @@ from app.models.view_models import (
     CellUpdateRequest,
     CellUpdateResponse,
 )
+from app.redis.models import RowUpdateInfo
+from app.redis.storage import get_redis
+from app.redis.views import update_row
 from app.sqla.database import get_db
 from app.sqla.models import (
     User,
@@ -230,6 +234,7 @@ async def update_cell(
     cell_data: CellUpdateRequest = ...,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    redis_client: redis.Redis = Depends(get_redis),
 ):
     """
     Update a single cell in a row with validation and concurrency control.
@@ -314,6 +319,20 @@ async def update_cell(
             )
 
         db.commit()
+
+        event_info = RowUpdateInfo(
+            row_id=str(row.id),
+            column_name=cell_data.column_name,
+            value=validated_value,
+            row_version=row.version,
+            view_id=str(view_id),
+        )
+
+        update_row(
+            redis_client,
+            event_info,
+            simple_view.project_id,
+        )
 
         return CellUpdateResponse(success=True)
 

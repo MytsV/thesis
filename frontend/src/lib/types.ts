@@ -96,6 +96,15 @@ export interface UserViewChangedEvent {
   current_view_id: string;
 }
 
+export interface RowUpdateEvent {
+  event: "row_update";
+  view_id: string;
+  row_id: string;
+  row_version: number;
+  column_name: string;
+  value: string;
+}
+
 export interface ViewViewModel {
   id: string;
   name: string;
