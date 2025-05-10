@@ -77,3 +77,24 @@ class CellUpdateRequest(CamelModel):
 
 class CellUpdateResponse(CamelModel):
     success: bool
+
+
+class SortModelItem(CamelModel):
+    column_name: str
+    sort_direction: str | None = None
+
+
+class SortModelUpdate(CamelModel):
+    sort_model: List[SortModelItem]
+
+
+class FilterModelUpdate(CamelModel):
+    filter_model: Dict[str, Any]
+
+
+class SortModelResponse(CamelModel):
+    sort_model: List[SortModelItem] | None
+
+
+class FilterModelResponse(CamelModel):
+    filter_model: Dict[str, Any] | None

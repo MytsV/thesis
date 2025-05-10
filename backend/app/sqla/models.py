@@ -1,6 +1,6 @@
 import datetime
 import uuid
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 
 from sqlalchemy import (
     String,
@@ -153,6 +153,11 @@ class SimpleTableView(View):
     id: Mapped[uuid.UUID] = mapped_column(ForeignKey("views.id"), primary_key=True)
     file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
     file: Mapped["File"] = relationship()
+    filter_model: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=True)
+    sort_model: Mapped[List[Dict[str, Any]]] = mapped_column(
+        JSON,
+        nullable=True,
+    )
 
     __mapper_args__ = {
         "polymorphic_identity": "simple_table",

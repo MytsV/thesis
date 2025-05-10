@@ -25,6 +25,11 @@ from app.models.view_models import (
     FileRowResponse,
     CellUpdateRequest,
     CellUpdateResponse,
+    SortModelResponse,
+    SortModelItem,
+    SortModelUpdate,
+    FilterModelResponse,
+    FilterModelUpdate,
 )
 from app.redis.models import RowUpdateInfo
 from app.redis.storage import get_redis
@@ -348,3 +353,151 @@ async def update_cell(
             status_code=HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred: {str(e)}",
         )
+
+
+@router.get("/{view_id}/sort-model", response_model=SortModelResponse)
+async def get_view_sort_model(
+    view_id: UUID = Path(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    view, _, _ = check_view_exists_and_access(db, view_id, current_user.id)
+
+    if view.view_type != "simple_table":
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail="Sort model is only available for simple table views",
+        )
+
+    simple_view = (
+        db.query(SimpleTableView).filter(SimpleTableView.id == view_id).first()
+    )
+    if not simple_view:
+        raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND, detail="Simple table view not found"
+        )
+
+    sort_model = None
+    if simple_view.sort_model:
+        sort_model = [SortModelItem(**item) for item in simple_view.sort_model]
+
+    return SortModelResponse(sort_model=sort_model)
+
+
+@router.put("/{view_id}/sort-model", response_model=SortModelResponse)
+async def update_view_sort_model(
+    view_id: UUID = Path(...),
+    sort_data: SortModelUpdate = ...,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Update the sort model for a simple table view.
+    Available for the owner and shared users.
+    """
+    view, _, _ = check_view_exists_and_access(db, view_id, current_user.id)
+
+    if view.view_type != "simple_table":
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail="Sort model is only available for simple table views",
+        )
+
+    simple_view = (
+        db.query(SimpleTableView).filter(SimpleTableView.id == view_id).first()
+    )
+    if not simple_view:
+        raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND, detail="Simple table view not found"
+        )
+
+    # Validate column names exist
+    columns = (
+        db.query(FileColumn).filter(FileColumn.file_id == simple_view.file_id).all()
+    )
+    column_names = {col.column_name for col in columns}
+
+    for sort_item in sort_data.sort_model:
+        if sort_item.column_name not in column_names:
+            raise HTTPException(
+                status_code=HTTP_400_BAD_REQUEST,
+                detail=f"Column '{sort_item.column_name}' not found in the table",
+            )
+        if sort_item.sort_direction and sort_item.sort_direction not in ["asc", "desc"]:
+            raise HTTPException(
+                status_code=HTTP_400_BAD_REQUEST,
+                detail=f"Invalid sort direction '{sort_item.sort_direction}'. Must be 'asc' or 'desc'",
+            )
+
+    # Convert to dict for JSON storage
+    sort_model_dict = [item.model_dump() for item in sort_data.sort_model]
+
+    simple_view.sort_model = sort_model_dict
+    db.commit()
+    db.refresh(simple_view)
+
+    return SortModelResponse(sort_model=sort_data.sort_model)
+
+
+@router.get("/{view_id}/filter-model", response_model=FilterModelResponse)
+async def get_view_filter_model(
+    view_id: UUID = Path(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get the filter model for a simple table view.
+    Available for the owner and shared users.
+    """
+    view, _, _ = check_view_exists_and_access(db, view_id, current_user.id)
+
+    if view.view_type != "simple_table":
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail="Filter model is only available for simple table views",
+        )
+
+    simple_view = (
+        db.query(SimpleTableView).filter(SimpleTableView.id == view_id).first()
+    )
+    if not simple_view:
+        raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND, detail="Simple table view not found"
+        )
+
+    return FilterModelResponse(filter_model=simple_view.filter_model)
+
+
+@router.put("/{view_id}/filter-model", response_model=FilterModelResponse)
+async def update_view_filter_model(
+    view_id: UUID = Path(...),
+    filter_data: FilterModelUpdate = ...,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Update the filter model for a simple table view.
+    Available for the owner and shared users.
+    """
+    view, _, _ = check_view_exists_and_access(db, view_id, current_user.id)
+
+    if view.view_type != "simple_table":
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail="Filter model is only available for simple table views",
+        )
+
+    simple_view = (
+        db.query(SimpleTableView).filter(SimpleTableView.id == view_id).first()
+    )
+    if not simple_view:
+        raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND, detail="Simple table view not found"
+        )
+
+    # Store the filter model as-is since it's an arbitrary dictionary
+    simple_view.filter_model = filter_data.filter_model
+    db.commit()
+    db.refresh(simple_view)
+
+    return FilterModelResponse(filter_model=filter_data.filter_model)
