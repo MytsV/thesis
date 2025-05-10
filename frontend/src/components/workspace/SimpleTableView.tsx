@@ -2,12 +2,20 @@ import { AgGridReact } from "ag-grid-react";
 import { ColumnType, ColumnViewModel, RowViewModel } from "@/lib/types";
 import {
   AllCommunityModule,
+  CellEditingStoppedEvent,
   ColDef,
   ModuleRegistry,
   themeQuartz,
 } from "ag-grid-community";
 import { Spinner } from "@/components/ui/spinner";
-import { useMemo } from "react";
+import React, {RefObject, useMemo} from "react";
+import { Save } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -19,11 +27,14 @@ export interface CellEditData {
 }
 
 export interface SimpleTableViewProps {
+  ref: RefObject<AgGridReact> | null;
+  viewName: string;
   columns: ColumnViewModel[];
   rows: RowViewModel[];
   highlight: Record<string, string>;
   onRowHover: (rowId: string) => void;
   onCellEdit: (data: CellEditData) => void;
+  onSave: () => void;
 }
 
 function LoadingOverlay() {
@@ -73,9 +84,35 @@ export default function SimpleTableView(props: SimpleTableViewProps) {
     fontFamily: "inherit",
   });
 
+  const onCellEditingStopped = (event: CellEditingStoppedEvent) => {
+    const columnName = event.column.getColDef().headerName;
+    if (!columnName) {
+      console.error("Column name is undefined");
+      return;
+    }
+    props.onCellEdit({
+      rowId: event.data.id,
+      columnName,
+      newValue: event.newValue,
+      rowVersion: event.data.version,
+    });
+  };
+
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full space-y-4">
+      <div className="flex space-x-2 items-center">
+        <h1 className="font-medium text-xl">{props.viewName}</h1>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger className="cursor-pointer" onClick={props.onSave}>
+              <Save />
+            </TooltipTrigger>
+            <TooltipContent>Save current filters and sorting</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
       <AgGridReact
+        ref={props.ref}
         columnDefs={columnDefs}
         rowData={props.rows}
         loadingOverlayComponent={LoadingOverlay}
@@ -91,18 +128,15 @@ export default function SimpleTableView(props: SimpleTableViewProps) {
             };
           }
         }}
-        onCellEditingStopped={(event) => {
-          const columnName = event.column.getColDef().headerName;
-          if (!columnName) {
-            console.error("Column name is undefined");
-            return;
-          }
-          props.onCellEdit({
-            rowId: event.data.id,
-            columnName,
-            newValue: event.newValue,
-            rowVersion: event.data.version,
+        onCellEditingStopped={onCellEditingStopped}
+        onSortChanged={(event) => {
+          event.columns?.forEach((column) => {
+            console.log(column.getSort());
           });
+        }}
+        onFilterChanged={(event) => {
+          console.log(event.api.getFilterModel());
+          console.log(event.api.getColumnState());
         }}
         onCellMouseOver={(event) => {
           props.onRowHover(event.data.id);

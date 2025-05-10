@@ -91,6 +91,8 @@ function generateMockData(count: number): RowViewModel[] {
 
 export const Default: Story = {
   args: {
+    ref: null,
+    viewName: "Product Inventory",
     columns: columns,
     rows: generateMockData(100),
     highlight: {
@@ -100,6 +102,9 @@ export const Default: Story = {
     },
     onRowHover: (rowId: string) => {
       alert("Row hovered with ID: " + rowId);
+    },
+    onSave: () => {
+      alert("Save button clicked");
     },
   },
 };
