@@ -159,3 +159,11 @@ export interface SortModelItem {
   columnName: string;
   sortDirection: "asc" | "desc" | null;
 }
+
+export interface FilterModelResponse {
+  filterModel: FilterModel | null;
+}
+
+export interface SortModelResponse {
+  sortModel: SortModelItem[] | null;
+}

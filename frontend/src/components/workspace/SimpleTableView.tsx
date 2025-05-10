@@ -4,6 +4,7 @@ import {
   AllCommunityModule,
   CellEditingStoppedEvent,
   ColDef,
+  GridReadyEvent,
   ModuleRegistry,
   themeQuartz,
 } from "ag-grid-community";
@@ -35,6 +36,7 @@ export interface SimpleTableViewProps {
   onRowHover: (rowId: string) => void;
   onCellEdit: (data: CellEditData) => void;
   onSave?: () => void;
+  onGridReady?: (event: GridReadyEvent) => void;
 }
 
 function LoadingOverlay() {
@@ -99,7 +101,7 @@ export default function SimpleTableView(props: SimpleTableViewProps) {
   };
 
   return (
-    <div className="w-full h-full space-y-4">
+    <div className="flex flex-col w-full h-full space-y-4">
       <div className="flex space-x-2 items-center">
         <h1 className="font-medium text-xl">{props.viewName}</h1>
         <TooltipProvider>
@@ -115,37 +117,40 @@ export default function SimpleTableView(props: SimpleTableViewProps) {
           </Tooltip>
         </TooltipProvider>
       </div>
-      <AgGridReact
-        ref={props.ref}
-        columnDefs={columnDefs}
-        rowData={props.rows}
-        loadingOverlayComponent={LoadingOverlay}
-        theme={theme}
-        pagination={true}
-        paginationAutoPageSize={true}
-        getRowStyle={(params) => {
-          const highlight = props.highlight[params.data.id];
-          if (highlight) {
-            return {
-              border: `2px solid ${highlight}`,
-              backgroundColor: `${highlight}10`,
-            };
-          }
-        }}
-        onCellEditingStopped={onCellEditingStopped}
-        onSortChanged={(event) => {
-          event.columns?.forEach((column) => {
-            console.log(column.getSort());
-          });
-        }}
-        onFilterChanged={(event) => {
-          console.log(event.api.getFilterModel());
-          console.log(event.api.getColumnState());
-        }}
-        onCellMouseOver={(event) => {
-          props.onRowHover(event.data.id);
-        }}
-      />
+      <div className="grow">
+        <AgGridReact
+          ref={props.ref}
+          columnDefs={columnDefs}
+          rowData={props.rows}
+          loadingOverlayComponent={LoadingOverlay}
+          theme={theme}
+          pagination={true}
+          paginationAutoPageSize={true}
+          getRowStyle={(params) => {
+            const highlight = props.highlight[params.data.id];
+            if (highlight) {
+              return {
+                border: `2px solid ${highlight}`,
+                backgroundColor: `${highlight}10`,
+              };
+            }
+          }}
+          onCellEditingStopped={onCellEditingStopped}
+          onSortChanged={(event) => {
+            event.columns?.forEach((column) => {
+              console.log(column.getSort());
+            });
+          }}
+          onFilterChanged={(event) => {
+            console.log(event.api.getFilterModel());
+            console.log(event.api.getColumnState());
+          }}
+          onCellMouseOver={(event) => {
+            props.onRowHover(event.data.id);
+          }}
+          onGridReady={props.onGridReady}
+        />
+      </div>
     </div>
   );
 }

@@ -22,6 +22,8 @@ import { getApiUrl } from "@/lib/utils/api-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createView,
+  getViewFilterModel,
+  getViewSortModel,
   listSharedUsers,
   listViewColumns,
   listViewRows,
@@ -48,6 +50,7 @@ import SimpleTableView, {
 import { Spinner } from "@/components/ui/spinner";
 import { useWorkspace } from "@/lib/use-workspace";
 import { AgGridReact } from "ag-grid-react";
+import { GridApi, GridReadyEvent } from "ag-grid-community";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;
@@ -334,6 +337,86 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
     queryFn: rowsQuery,
   });
 
+  const sortModelQuery = useCallback(async () => {
+    const response = await getViewSortModel(props.view.id);
+    return response.sortModel;
+  }, [props.view.id]);
+
+  const {
+    data: sortModel,
+    error: sortModelError,
+    isFetching: sortModelLoading,
+  } = useQuery<SortModelItem[] | null>({
+    queryKey: ["sortModel", props.view.id],
+    queryFn: sortModelQuery,
+  });
+
+  const filterModelQuery = useCallback(async () => {
+    const response = await getViewFilterModel(props.view.id);
+    return response.filterModel;
+  }, [props.view.id]);
+
+  const {
+    data: filterModel,
+    error: filterModelError,
+    isFetching: filterModelLoading,
+  } = useQuery<FilterModel | null>({
+    queryKey: ["filterModel", props.view.id],
+    queryFn: filterModelQuery,
+  });
+
+  const updateGridState = useCallback(
+    (api: GridApi) => {
+      const columns = api.getColumns();
+
+      if (filterModel) {
+        const transformedFilterModel: FilterModel = {};
+
+        Object.entries(filterModel).forEach(([columnName, filter]) => {
+          const column = columns?.find(
+            (col) => col.getColDef().headerName === columnName,
+          );
+          const colId = column?.getColId();
+
+          if (colId) {
+            transformedFilterModel[colId] = filter;
+          }
+        });
+
+        api.setFilterModel(transformedFilterModel);
+      }
+
+      if (sortModel) {
+        const transformedSortModel = sortModel.map((item) => {
+          const column = columns?.find(
+            (col) => col.getColDef().headerName === item.columnName,
+          );
+          return {
+            colId: column?.getColId() ?? "",
+            sort: item.sortDirection,
+          };
+        });
+
+        api.applyColumnState({
+          state: transformedSortModel,
+          applyOrder: true,
+        });
+      }
+    },
+    [sortModel, filterModel],
+  );
+
+  useEffect(() => {
+    const api = gridRef.current?.api;
+    if (!api) return;
+
+    updateGridState(api);
+  }, [filterModel, sortModel]);
+
+  const onGridReady = (event: GridReadyEvent) => {
+    updateGridState(event.api);
+  };
+
   const updateCellMutation = useMutation({
     mutationFn: (data: UpdateCellRequest) => {
       return updateCell(data);
@@ -369,7 +452,7 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
         description: error.message,
       });
     },
-  onSuccess: () => {
+    onSuccess: () => {
       toast("Sort model updated successfully");
     },
   });
@@ -390,11 +473,23 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
   const onSave = () => {
     const api = gridRef.current?.api;
     if (!api) return;
-    updateFilterModelMutation.mutate(api.getFilterModel());
-
+    const filterModel = api.getFilterModel();
     const sortModel: SortModelItem[] = [];
 
+    const transformedFilterModel: FilterModel = {};
     const columns = api.getColumns();
+
+    Object.entries(filterModel).forEach(([colId, filter]) => {
+      const column = columns?.find((col) => col.getColId() === colId);
+      const columnName = column?.getColDef().headerName;
+
+      if (columnName) {
+        transformedFilterModel[columnName] = filter;
+      }
+    });
+
+    updateFilterModelMutation.mutate(transformedFilterModel);
+
     columns?.forEach((column) => {
       const sort = column.getSort();
       const name = column.getColDef().headerName;
@@ -420,7 +515,8 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
     }
   });
 
-  const isSavable = !updateSortModelMutation.isPending && !updateFilterModelMutation.isPending;
+  const isSavable =
+    !updateSortModelMutation.isPending && !updateFilterModelMutation.isPending;
 
   return (
     <SimpleTableView
@@ -432,6 +528,7 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
       highlight={highlight}
       onRowHover={onRowClicked}
       onCellEdit={onCellEdit}
+      onGridReady={onGridReady}
     />
   );
 }

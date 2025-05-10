@@ -1,5 +1,7 @@
 import {
   ActiveUserViewModel,
+  FilterModel,
+  FilterModelResponse,
   ListColumnsResponse,
   ListRowsResponse,
   ListViewsResponse,
@@ -8,6 +10,7 @@ import {
   ProjectViewModel,
   RegisterData,
   SortModelItem,
+  SortModelResponse,
   UserLoginViewModel,
   UserViewModel,
   ViewCreateRequest,
@@ -340,4 +343,36 @@ export async function updateViewFilterModel(
     const error = await response.json();
     throw new Error(error.detail || "Failed to update filter model");
   }
+}
+
+export async function getViewFilterModel(
+  viewId: string,
+): Promise<FilterModelResponse> {
+  const response = await fetch(`${getApiUrl()}/views/${viewId}/filter-model`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch filter model");
+  }
+
+  return response.json();
+}
+
+export async function getViewSortModel(
+  viewId: string,
+): Promise<SortModelResponse> {
+  const response = await fetch(`${getApiUrl()}/views/${viewId}/sort-model`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch sort model");
+  }
+
+  return response.json();
 }
