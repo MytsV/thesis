@@ -7,6 +7,7 @@ import {
   PaginatedResponse,
   ProjectViewModel,
   RegisterData,
+  SortModelItem,
   UserLoginViewModel,
   UserViewModel,
   ViewCreateRequest,
@@ -300,5 +301,43 @@ export async function updateCell({
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.detail || "Failed to update cell");
+  }
+}
+
+export async function updateViewSortModel(
+  viewId: string,
+  sortModel: SortModelItem[],
+): Promise<void> {
+  const response = await fetch(`${getApiUrl()}/views/${viewId}/sort-model`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ sortModel }),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to update sort model");
+  }
+}
+
+export async function updateViewFilterModel(
+  viewId: string,
+  filterModel: Record<string, any>,
+): Promise<void> {
+  const response = await fetch(`${getApiUrl()}/views/${viewId}/filter-model`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ filterModel }),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to update filter model");
   }
 }

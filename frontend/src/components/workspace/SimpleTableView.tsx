@@ -8,7 +8,7 @@ import {
   themeQuartz,
 } from "ag-grid-community";
 import { Spinner } from "@/components/ui/spinner";
-import React, {RefObject, useMemo} from "react";
+import React, { RefObject, useMemo } from "react";
 import { Save } from "lucide-react";
 import {
   Tooltip,
@@ -27,14 +27,14 @@ export interface CellEditData {
 }
 
 export interface SimpleTableViewProps {
-  ref: RefObject<AgGridReact> | null;
+  ref: RefObject<AgGridReact | null>;
   viewName: string;
   columns: ColumnViewModel[];
   rows: RowViewModel[];
   highlight: Record<string, string>;
   onRowHover: (rowId: string) => void;
   onCellEdit: (data: CellEditData) => void;
-  onSave: () => void;
+  onSave?: () => void;
 }
 
 function LoadingOverlay() {
@@ -104,8 +104,12 @@ export default function SimpleTableView(props: SimpleTableViewProps) {
         <h1 className="font-medium text-xl">{props.viewName}</h1>
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger className="cursor-pointer" onClick={props.onSave}>
-              <Save />
+            <TooltipTrigger
+              disabled={props.onSave === undefined}
+              className="cursor-pointer"
+              onClick={props.onSave}
+            >
+              <Save className="h-5 w-5" />
             </TooltipTrigger>
             <TooltipContent>Save current filters and sorting</TooltipContent>
           </Tooltip>

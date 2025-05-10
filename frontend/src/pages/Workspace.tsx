@@ -6,7 +6,9 @@ import {
   ColumnViewModel,
   DetailedProjectViewModel,
   FileViewModel,
+  FilterModel,
   RowViewModel,
+  SortModelItem,
   UserViewModel,
   ViewType,
   ViewViewModel,
@@ -27,6 +29,8 @@ import {
   shareProject,
   updateCell,
   UpdateCellRequest,
+  updateViewFilterModel,
+  updateViewSortModel,
 } from "@/lib/client-api";
 import UsersTab from "@/components/workspace/UsersTab";
 import { toast } from "sonner";
@@ -43,6 +47,7 @@ import SimpleTableView, {
 } from "@/components/workspace/SimpleTableView";
 import { Spinner } from "@/components/ui/spinner";
 import { useWorkspace } from "@/lib/use-workspace";
+import { AgGridReact } from "ag-grid-react";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;
@@ -299,6 +304,8 @@ interface SimpleTableViewPageProps {
 }
 
 function SimpleTableViewPage(props: SimpleTableViewPageProps) {
+  const gridRef = useRef<AgGridReact>(null);
+
   const columnsQuery = useCallback(async () => {
     const response = await listViewColumns(props.view.id);
     return response.columns;
@@ -354,6 +361,54 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
     props.onFocusChange(rowId);
   };
 
+  const updateSortModelMutation = useMutation({
+    mutationFn: (sortModel: SortModelItem[]) =>
+      updateViewSortModel(props.view.id, sortModel),
+    onError: (error: Error) => {
+      toast.error("Couldn't update the sort model", {
+        description: error.message,
+      });
+    },
+  onSuccess: () => {
+      toast("Sort model updated successfully");
+    },
+  });
+
+  const updateFilterModelMutation = useMutation({
+    mutationFn: (filterModel: FilterModel) =>
+      updateViewFilterModel(props.view.id, filterModel),
+    onError: (error: Error) => {
+      toast.error("Couldn't update the filter model", {
+        description: error.message,
+      });
+    },
+    onSuccess: () => {
+      toast("Filter model updated successfully");
+    },
+  });
+
+  const onSave = () => {
+    const api = gridRef.current?.api;
+    if (!api) return;
+    updateFilterModelMutation.mutate(api.getFilterModel());
+
+    const sortModel: SortModelItem[] = [];
+
+    const columns = api.getColumns();
+    columns?.forEach((column) => {
+      const sort = column.getSort();
+      const name = column.getColDef().headerName;
+      if (sort && name) {
+        sortModel.push({
+          columnName: name,
+          sortDirection: sort,
+        });
+      }
+    });
+
+    updateSortModelMutation.mutate(sortModel);
+  };
+
   if (!columns || !rows) {
     return <Spinner />;
   }
@@ -365,8 +420,13 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
     }
   });
 
+  const isSavable = !updateSortModelMutation.isPending && !updateFilterModelMutation.isPending;
+
   return (
     <SimpleTableView
+      onSave={isSavable ? onSave : undefined}
+      viewName={props.view.name}
+      ref={gridRef}
       columns={columns}
       rows={rows}
       highlight={highlight}
@@ -454,7 +514,6 @@ export default function Workspace(props: WorkspaceProps) {
           onLogoClick={() => {
             router.push("/");
           }}
-          viewName={currentView?.name}
           projectName={props.project.title}
           activeUsers={activeUsers.filter((user) => user.id !== currentUser.id)}
         />

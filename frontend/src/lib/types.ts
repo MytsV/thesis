@@ -1,3 +1,5 @@
+import { FilterModel as AgGridFilterModel } from "ag-grid-community";
+
 export interface UserLoginViewModel {
   username: string;
   email: string;
@@ -149,4 +151,11 @@ export interface ListRowsResponse {
 export interface ViewCreateRequest {
   name: string;
   fileId: number;
+}
+
+export interface FilterModel extends AgGridFilterModel {}
+
+export interface SortModelItem {
+  columnName: string;
+  sortDirection: "asc" | "desc" | null;
 }

@@ -91,7 +91,6 @@ function generateMockData(count: number): RowViewModel[] {
 
 export const Default: Story = {
   args: {
-    ref: null,
     viewName: "Product Inventory",
     columns: columns,
     rows: generateMockData(100),
