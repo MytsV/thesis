@@ -2,9 +2,11 @@ import { getApiUrl } from "@/lib/utils/api-utils";
 import { useEffect, useState } from "react";
 import {
   ActiveUserViewModel,
+  FilterModel,
   InitEvent,
   RowUpdateEvent,
   RowViewModel,
+  SortModelItem,
   UserFocusChangedEvent,
   UserJoinedEvent,
   UserLeftEvent,
@@ -166,6 +168,23 @@ export function useWorkspace(params: UseWorkspaceParams) {
     );
   }, 250);
 
+  const changeFilterSort = throttle(
+    (viewId: string, filterModel: FilterModel, sortModel: SortModelItem[]) => {
+      socket?.send(
+        JSON.stringify({
+          event: "filter_sort_update",
+          filter_model: filterModel,
+          view_id: viewId,
+          sort_model: sortModel.map((item) => ({
+            column_name: item.columnName,
+            sort_direction: item.sortDirection,
+          })),
+        }),
+      );
+    },
+    250,
+  );
+
   useEffect(() => {
     const ws = new WebSocket(
       `ws://${getApiUrl().replace("http://", "")}/ws/projects/${params.projectId}/collaborate`,
@@ -178,7 +197,7 @@ export function useWorkspace(params: UseWorkspaceParams) {
     ws.onmessage = handleMessage;
 
     ws.onerror = (error) => {
-      // TODO: handle websocket error
+      // TODO: handle app.websocket error
     };
 
     ws.onclose = () => {
@@ -194,6 +213,7 @@ export function useWorkspace(params: UseWorkspaceParams) {
     socket,
     changeView,
     changeFocus,
+    changeFilterSort,
     activeUsers,
   };
 }

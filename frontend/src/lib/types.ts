@@ -167,3 +167,15 @@ export interface FilterModelResponse {
 export interface SortModelResponse {
   sortModel: SortModelItem[] | null;
 }
+
+interface SortUpdateItem {
+  column_name: string;
+  sort_direction: "asc" | "desc" | null;
+}
+
+export interface FilterSortUpdateEvent {
+  event: "filter_sort_update";
+  filter_model: FilterModel;
+  sort_model: SortUpdateItem[];
+  view_id: string;
+}

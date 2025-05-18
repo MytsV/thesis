@@ -51,6 +51,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { useWorkspace } from "@/lib/use-workspace";
 import { AgGridReact } from "ag-grid-react";
 import { GridApi, GridReadyEvent } from "ag-grid-community";
+import { transformFilterModel, getSortModel } from "@/lib/utils/ui-utils";
+import { useSubscription } from "@/lib/use-subscription";
+import { sort } from "semver";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;
@@ -98,12 +101,16 @@ interface UsersTabPageProps {
   projectId: string;
   activeUsers: ActiveUserViewModel[];
   canInvite: boolean;
+  onUserClick: (user: ActiveUserViewModel) => void;
+  subscriptionUserId?: number;
 }
 
 function UsersTabPage({
   projectId,
   activeUsers,
   canInvite,
+  onUserClick,
+  subscriptionUserId,
 }: UsersTabPageProps) {
   const [inviteUsername, setInviteUsername] = useState<string>("");
   const queryClient = useQueryClient();
@@ -164,6 +171,8 @@ function UsersTabPage({
       setInviteUsername={setInviteUsername}
       onInviteClick={handleInvite}
       isLoading={sharedUsersLoading || inviteMutation.isPending}
+      onUserClick={onUserClick}
+      subscriptionUserId={subscriptionUserId}
     />
   );
 }
@@ -304,6 +313,10 @@ interface SimpleTableViewPageProps {
   onFocusChange: (rowId: string) => void;
   activeUsers: ActiveUserViewModel[];
   currentUser: UserViewModel;
+  onOptionsChange: (
+    filterModel: FilterModel,
+    sortModel: SortModelItem[],
+  ) => void;
 }
 
 function SimpleTableViewPage(props: SimpleTableViewPageProps) {
@@ -349,6 +362,8 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
   } = useQuery<SortModelItem[] | null>({
     queryKey: ["sortModel", props.view.id],
     queryFn: sortModelQuery,
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
   });
 
   const filterModelQuery = useCallback(async () => {
@@ -363,6 +378,8 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
   } = useQuery<FilterModel | null>({
     queryKey: ["filterModel", props.view.id],
     queryFn: filterModelQuery,
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
   });
 
   const updateGridState = useCallback(
@@ -396,6 +413,8 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
             sort: item.sortDirection,
           };
         });
+
+        api.resetColumnState();
 
         api.applyColumnState({
           state: transformedSortModel,
@@ -474,34 +493,25 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
     const api = gridRef.current?.api;
     if (!api) return;
     const filterModel = api.getFilterModel();
-    const sortModel: SortModelItem[] = [];
-
-    const transformedFilterModel: FilterModel = {};
     const columns = api.getColumns();
 
-    Object.entries(filterModel).forEach(([colId, filter]) => {
-      const column = columns?.find((col) => col.getColId() === colId);
-      const columnName = column?.getColDef().headerName;
+    updateFilterModelMutation.mutate(
+      transformFilterModel(filterModel, columns),
+    );
+    updateSortModelMutation.mutate(getSortModel(columns));
+  };
 
-      if (columnName) {
-        transformedFilterModel[columnName] = filter;
-      }
-    });
+  const onOptionsChange = () => {
+    const api = gridRef.current?.api;
+    if (!api) return;
 
-    updateFilterModelMutation.mutate(transformedFilterModel);
+    const filterModel = api.getFilterModel();
+    const columns = api.getColumns();
 
-    columns?.forEach((column) => {
-      const sort = column.getSort();
-      const name = column.getColDef().headerName;
-      if (sort && name) {
-        sortModel.push({
-          columnName: name,
-          sortDirection: sort,
-        });
-      }
-    });
-
-    updateSortModelMutation.mutate(sortModel);
+    props.onOptionsChange(
+      transformFilterModel(filterModel, columns),
+      getSortModel(columns),
+    );
   };
 
   if (!columns || !rows) {
@@ -529,6 +539,7 @@ function SimpleTableViewPage(props: SimpleTableViewPageProps) {
       onRowHover={onRowClicked}
       onCellEdit={onCellEdit}
       onGridReady={onGridReady}
+      onOptionsChange={onOptionsChange}
     />
   );
 }
@@ -538,6 +549,10 @@ interface CurrentViewProps {
   onFocusChange: (rowId: string) => void;
   activeUsers: ActiveUserViewModel[];
   currentUser: UserViewModel;
+  onOptionsChange: (
+    filterModel: FilterModel,
+    sortModel: SortModelItem[],
+  ) => void;
 }
 
 function CurrentView(props: CurrentViewProps) {
@@ -549,6 +564,7 @@ function CurrentView(props: CurrentViewProps) {
     case ViewType.SIMPLE_TABLE:
       return (
         <SimpleTableViewPage
+          onOptionsChange={props.onOptionsChange}
           view={props.view}
           onFocusChange={props.onFocusChange}
           activeUsers={props.activeUsers}
@@ -561,11 +577,14 @@ function CurrentView(props: CurrentViewProps) {
 }
 
 export default function Workspace(props: WorkspaceProps) {
-  // TODO: refactor into a custom hook
+  const { activeUsers, changeView, changeFocus, changeFilterSort } =
+    useWorkspace({
+      projectId: props.project.id,
+      initialUsers: props.activeUsers,
+    });
 
-  const { activeUsers, changeView, changeFocus } = useWorkspace({
+  const { subscribe, unsubscribe, subscriptionId } = useSubscription({
     projectId: props.project.id,
-    initialUsers: props.activeUsers,
   });
 
   const currentUser = useUser();
@@ -577,7 +596,31 @@ export default function Workspace(props: WorkspaceProps) {
     if (currentView) {
       changeView(currentView);
     }
+    unsubscribe();
   }, [currentView]);
+
+  const subscribeToUser = useCallback(
+    (user: ActiveUserViewModel) => {
+      if (!currentView) {
+        toast.error("Please select a view to subscribe");
+        return;
+      }
+      if (user.id === currentUser?.id) {
+        toast.error("You cannot select yourself");
+        return;
+      }
+      if (!user.color) {
+        toast.error("User is offline");
+        return;
+      }
+      if (user.current_view_id !== currentView?.id) {
+        toast.error("User is not in the same view");
+        return;
+      }
+      subscribe(currentView.id, user.id);
+    },
+    [currentView, currentUser],
+  );
 
   if (!currentUser) {
     return notFound();
@@ -592,6 +635,8 @@ export default function Workspace(props: WorkspaceProps) {
             activeUsers={activeUsers}
             projectId={props.project.id}
             canInvite={props.project.owner.id === currentUser.id}
+            onUserClick={subscribeToUser}
+            subscriptionUserId={subscriptionId}
           />
         }
         viewsTab={
@@ -620,6 +665,10 @@ export default function Workspace(props: WorkspaceProps) {
             onFocusChange={changeFocus}
             activeUsers={activeUsers}
             currentUser={currentUser}
+            onOptionsChange={(filterModel, sortModel) => {
+              if (!currentView) return;
+              changeFilterSort(currentView.id, filterModel, sortModel);
+            }}
           />
         </div>
       </div>

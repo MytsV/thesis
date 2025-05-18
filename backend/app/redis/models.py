@@ -1,4 +1,4 @@
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Dict
 
 from fastapi_camelcase import CamelModel
 from pydantic import BaseModel
@@ -84,3 +84,18 @@ class RowUpdateInfo(BaseModel):
 
 class RowUpdateEvent(RowUpdateInfo):
     event: str = "row_update"
+
+
+class SortModelItem(BaseModel):
+    column_name: str
+    sort_direction: str | None = None
+
+
+class FilterSortPreference(BaseModel):
+    filter_model: Dict[str, Any]
+    sort_model: List[SortModelItem]
+
+
+class FilterSortUpdateEvent(FilterSortPreference):
+    event: str = "filter_sort_update"
+    view_id: str

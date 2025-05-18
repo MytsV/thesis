@@ -45,6 +45,10 @@ export const OwnerView: Story = {
     onInviteClick: () => {
       alert("Invite user clicked");
     },
+    onUserClick: (user) => {
+      alert(`User clicked: ${user.username}`);
+    },
+    subscriptionUserId: 1,
   },
 };
 
@@ -60,5 +64,8 @@ export const Loading: Story = {
       alert("Invite user clicked");
     },
     isLoading: true,
+    onUserClick: (user) => {
+      alert(`User clicked: ${user.username}`);
+    },
   },
 };

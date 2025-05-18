@@ -1,5 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { FilterModel, SortModelItem } from "@/lib/types";
+import { Column } from "ag-grid-community";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -24,4 +26,39 @@ export function formatBytes(bytes: number): string {
   const cleanValue = formattedValue.replace(/\.0$/, "");
 
   return `${prefix}${cleanValue} ${suffixes[safeUnitIndex]}`;
+}
+
+export function transformFilterModel(
+  filterModel: FilterModel,
+  columns: Column[] | null,
+): Record<string, unknown> {
+  const transformedFilterModel: FilterModel = {};
+
+  Object.entries(filterModel).forEach(([colId, filter]) => {
+    const column = columns?.find((col) => col.getColId() === colId);
+    const columnName = column?.getColDef().headerName;
+
+    if (columnName) {
+      transformedFilterModel[columnName] = filter;
+    }
+  });
+
+  return transformedFilterModel;
+}
+
+export function getSortModel(columns: Column[] | null): SortModelItem[] {
+  const sortModel: SortModelItem[] = [];
+
+  columns?.forEach((column) => {
+    const sort = column.getSort();
+    const name = column.getColDef().headerName;
+    if (sort && name) {
+      sortModel.push({
+        columnName: name,
+        sortDirection: sort,
+      });
+    }
+  });
+
+  return sortModel;
 }

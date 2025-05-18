@@ -1,6 +1,6 @@
 import json
 import random
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any
 
 import redis
 from fastapi import HTTPException
@@ -12,10 +12,17 @@ from app.redis.models import (
     UserPresenceResponse,
     UserViewChangedEvent,
     UserFocusChangedEvent,
+    SortModelItem,
+    FilterSortPreference,
+    FilterSortUpdateEvent,
 )
 
 USER_PRESENCE_KEY = "presence:project:{project_id}:users"
 PROJECT_CHANNEL = "project:{project_id}:updates"
+USER_FILTER_SORT_KEY = "options:project:{project_id}:view:{view_id}:user:{user_id}"
+SUBSCRIPTION_CHANNEL = (
+    "options:project:{project_id}:view:{view_id}:user:{user_id}:updates"
+)
 
 PRESENCE_TIMEOUT = 30
 
@@ -212,3 +219,50 @@ async def update_user_focus(
         PROJECT_CHANNEL.format(project_id=project_id),
         focus_changed_event.model_dump_json(),
     )
+
+
+async def save_user_filter_sort(
+    redis_client: redis.Redis,
+    project_id: str,
+    view_id: str,
+    user_id: int,
+    filter_model: Dict[str, Any],
+    sort_model: List[SortModelItem],
+) -> None:
+    preference = FilterSortPreference(
+        filter_model=filter_model,
+        sort_model=sort_model,
+    )
+
+    key = USER_FILTER_SORT_KEY.format(
+        project_id=project_id, view_id=view_id, user_id=user_id
+    )
+
+    redis_client.set(key, preference.model_dump_json())
+    redis_client.expire(key, 300)  # Expire in 5 minutes
+
+    update_event = FilterSortUpdateEvent(
+        filter_model=filter_model,
+        sort_model=sort_model,
+        view_id=view_id,
+    )
+
+    redis_client.publish(
+        SUBSCRIPTION_CHANNEL.format(
+            project_id=project_id, view_id=view_id, user_id=user_id
+        ),
+        update_event.model_dump_json(),
+    )
+
+
+async def get_user_filter_sort(
+    redis_client: redis.Redis, project_id: str, view_id: str, user_id: int
+) -> Optional[FilterSortPreference]:
+    key = USER_FILTER_SORT_KEY.format(
+        project_id=project_id, view_id=view_id, user_id=user_id
+    )
+
+    data = redis_client.get(key)
+    if data:
+        return FilterSortPreference.model_validate_json(data)
+    return None

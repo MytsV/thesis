@@ -37,6 +37,7 @@ export interface SimpleTableViewProps {
   onCellEdit: (data: CellEditData) => void;
   onSave?: () => void;
   onGridReady?: (event: GridReadyEvent) => void;
+  onOptionsChange?: () => void;
 }
 
 function LoadingOverlay() {
@@ -136,15 +137,8 @@ export default function SimpleTableView(props: SimpleTableViewProps) {
             }
           }}
           onCellEditingStopped={onCellEditingStopped}
-          onSortChanged={(event) => {
-            event.columns?.forEach((column) => {
-              console.log(column.getSort());
-            });
-          }}
-          onFilterChanged={(event) => {
-            console.log(event.api.getFilterModel());
-            console.log(event.api.getColumnState());
-          }}
+          onSortChanged={() => props.onOptionsChange?.()}
+          onFilterChanged={() => props.onOptionsChange?.()}
           onCellMouseOver={(event) => {
             props.onRowHover(event.data.id);
           }}
