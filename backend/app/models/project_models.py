@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from fastapi_camelcase import CamelModel
 from pydantic import BaseModel
@@ -61,6 +61,34 @@ class ProjectDetailResponse(CamelModel):
     created_at: datetime
     owner: UserDetailResponse
     files: List[FileResponse]
+
+    class Config:
+        from_attributes = True
+
+
+class UserChatResponse(CamelModel):
+    id: int
+    username: str
+
+    class Config:
+        from_attributes = True
+
+
+class ViewChatResponse(CamelModel):
+    id: uuid.UUID
+    name: str
+    view_type: str
+
+    class Config:
+        from_attributes = True
+
+
+class ChatMessageResponse(CamelModel):
+    id: uuid.UUID
+    content: str
+    created_at: int
+    user: UserChatResponse
+    view: Optional[ViewChatResponse] = None
 
     class Config:
         from_attributes = True

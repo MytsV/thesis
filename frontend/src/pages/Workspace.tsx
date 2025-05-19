@@ -3,6 +3,7 @@
 import WorkspaceNavigationBar from "@/components/workspace/WorkspaceNavigationBar";
 import {
   ActiveUserViewModel,
+  ChatMessageViewModel,
   ColumnViewModel,
   DetailedProjectViewModel,
   FileViewModel,
@@ -24,6 +25,7 @@ import {
   createView,
   getViewFilterModel,
   getViewSortModel,
+  listChatMessages,
   listSharedUsers,
   listViewColumns,
   listViewRows,
@@ -54,6 +56,7 @@ import { GridApi, GridReadyEvent } from "ag-grid-community";
 import { transformFilterModel, getSortModel } from "@/lib/utils/ui-utils";
 import { useSubscription } from "@/lib/use-subscription";
 import { sort } from "semver";
+import ChatTab from "@/components/workspace/ChatTab";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;
@@ -145,7 +148,7 @@ function UsersTabPage({
     error: sharedUsersError,
     isLoading: sharedUsersLoading,
   } = useQuery<UserViewModel[]>({
-    queryKey: ["sharedUsers"],
+    queryKey: ["sharedUsers", projectId],
     queryFn: sharedUsersQuery,
   });
 
@@ -268,7 +271,7 @@ function ViewsTabPage(props: ViewsTabPageProps) {
     error: viewsError,
     isFetching: viewsLoading,
   } = useQuery<ViewViewModel[]>({
-    queryKey: ["views"],
+    queryKey: ["views", props.projectId],
     queryFn: viewsQuery,
   });
 
@@ -305,6 +308,38 @@ function ViewsTabPage(props: ViewsTabPageProps) {
         users={groupUsersByViewId(props.activeUsers)}
       />
     </>
+  );
+}
+
+interface ChatTabPageProps {
+  projectId: string;
+  currentUser: UserViewModel;
+  onViewClick: (view: ViewViewModel) => void;
+  onSendMessage: (message: string) => void;
+}
+
+function ChatTabPage(props: ChatTabPageProps) {
+  const messagesQuery = useCallback(async () => {
+    const response = await listChatMessages(props.projectId);
+    return response;
+  }, [props.projectId]);
+
+  const {
+    data: messages,
+    error: messagesError,
+    isFetching: messagesLoading,
+  } = useQuery<ChatMessageViewModel[]>({
+    queryKey: ["messages", props.projectId],
+    queryFn: messagesQuery,
+  });
+
+  return (
+    <ChatTab
+      onSendMessage={props.onSendMessage}
+      onViewClicked={props.onViewClick}
+      messages={messages ?? []}
+      currentUserId={props.currentUser.id}
+    />
   );
 }
 
@@ -577,11 +612,16 @@ function CurrentView(props: CurrentViewProps) {
 }
 
 export default function Workspace(props: WorkspaceProps) {
-  const { activeUsers, changeView, changeFocus, changeFilterSort } =
-    useWorkspace({
-      projectId: props.project.id,
-      initialUsers: props.activeUsers,
-    });
+  const {
+    activeUsers,
+    changeView,
+    changeFocus,
+    changeFilterSort,
+    sendChatMessage,
+  } = useWorkspace({
+    projectId: props.project.id,
+    initialUsers: props.activeUsers,
+  });
 
   const { subscribe, unsubscribe, subscriptionId } = useSubscription({
     projectId: props.project.id,
@@ -648,7 +688,16 @@ export default function Workspace(props: WorkspaceProps) {
             activeUsers={activeUsers}
           />
         }
-        chatTab={<div>Not implemented</div>}
+        chatTab={
+          <ChatTabPage
+            currentUser={currentUser}
+            projectId={props.project.id}
+            onViewClick={setCurrentView}
+            onSendMessage={(message) => {
+              sendChatMessage(message, currentView?.id);
+            }}
+          />
+        }
         user={currentUser}
       />
       <div className="flex flex-col w-full h-auto">

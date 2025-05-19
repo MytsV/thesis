@@ -1,4 +1,6 @@
+from datetime import datetime
 from typing import List, Optional, Any, Dict
+from uuid import UUID
 
 from fastapi_camelcase import CamelModel
 from pydantic import BaseModel
@@ -99,3 +101,18 @@ class FilterSortPreference(BaseModel):
 class FilterSortUpdateEvent(FilterSortPreference):
     event: str = "filter_sort_update"
     view_id: str
+
+
+class ChatMessageInfo(BaseModel):
+    message_id: UUID
+    content: str
+    user_id: int
+    user_username: str
+    view_id: Optional[UUID] = None
+    view_name: Optional[str] = None
+    view_type: Optional[str] = None
+    created_at: datetime
+
+
+class ChatMessageEvent(BaseEvent, ChatMessageInfo):
+    event: str = "chat_message"

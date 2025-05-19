@@ -162,3 +162,25 @@ class SimpleTableView(View):
     __mapper_args__ = {
         "polymorphic_identity": "simple_table",
     }
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("projects.id"), nullable=False
+    )
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    view_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("views.id"), nullable=True
+    )
+
+    user: Mapped["User"] = relationship("User")
+    project: Mapped["Project"] = relationship("Project")
+    view: Mapped[Optional["View"]] = relationship("View")

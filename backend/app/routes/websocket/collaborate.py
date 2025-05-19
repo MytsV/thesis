@@ -50,7 +50,11 @@ async def collaborate(
         await websocket.send_text(init_event.model_dump_json())
 
         message_handler = CollaborationMessageHandler(
-            websocket, project_id, user, redis_client
+            websocket=websocket,
+            project_id=project_id,
+            user=user,
+            redis_client=redis_client,
+            db=db,
         )
 
         # Main message loop

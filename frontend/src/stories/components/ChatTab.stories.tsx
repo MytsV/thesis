@@ -175,6 +175,6 @@ export const Default: Story = {
     },
     onSendMessage: (message) => {
       alert(`Message sent: ${message}`);
-    }
+    },
   },
 };

@@ -28,7 +28,7 @@ const ChatBubble = ({
     if (!message.view) return;
     onViewClicked({
       id: message.view.id,
-      name: message.view.id,
+      name: message.view.name,
       viewType: message.view.viewType,
     });
   };
@@ -161,7 +161,7 @@ export default function ChatTab({
   currentUserId,
   messages,
   onViewClicked,
-  onSendMessage
+  onSendMessage,
 }: ChatTabProps) {
   return (
     <div className="flex flex-col space-y-4 h-full">

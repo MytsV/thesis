@@ -1,6 +1,5 @@
 import {
-  ActiveUserViewModel,
-  FilterModel,
+  ChatMessageViewModel,
   FilterModelResponse,
   ListColumnsResponse,
   ListRowsResponse,
@@ -14,11 +13,9 @@ import {
   UserLoginViewModel,
   UserViewModel,
   ViewCreateRequest,
-  ViewViewModel,
 } from "@/lib/types";
 import axios, { AxiosProgressEvent } from "axios";
 import { buildQueryString, getApiUrl } from "@/lib/utils/api-utils";
-import { cookies } from "next/headers";
 
 export async function loginUser(
   credentials: LoginCredentials,
@@ -372,6 +369,25 @@ export async function getViewSortModel(
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.detail || "Failed to fetch sort model");
+  }
+
+  return response.json();
+}
+
+export async function listChatMessages(
+  projectId: string,
+): Promise<ChatMessageViewModel[]> {
+  const response = await fetch(
+    `${getApiUrl()}/projects/${projectId}/chat-messages`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch chat messages");
   }
 
   return response.json();

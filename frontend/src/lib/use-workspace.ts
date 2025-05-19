@@ -2,6 +2,8 @@ import { getApiUrl } from "@/lib/utils/api-utils";
 import { useEffect, useState } from "react";
 import {
   ActiveUserViewModel,
+  ChatMessageEvent,
+  ChatMessageViewModel,
   FilterModel,
   InitEvent,
   RowUpdateEvent,
@@ -127,6 +129,32 @@ export function useWorkspace(params: UseWorkspaceParams) {
     );
   };
 
+  const handleChatMessage = (data: ChatMessageEvent) => {
+    queryClient.setQueryData(
+      ["messages", params.projectId],
+      (oldMessages: ChatMessageEvent[]) => {
+        if (!oldMessages) return oldMessages;
+        const chatMessage: ChatMessageViewModel = {
+          id: data.message_id,
+          content: data.content,
+          createdAt: data.created_at,
+          user: {
+            id: data.user_id,
+            username: data.user_username,
+          },
+          view: data.view_id
+            ? {
+                id: data.view_id,
+                name: data.view_name,
+                viewType: data.view_type,
+              }
+            : undefined,
+        };
+        return [...oldMessages, chatMessage];
+      },
+    );
+  };
+
   const messageHandlers: Record<string, (data: any) => void> = {
     user_joined: handleUserJoin,
     user_left: handleUserLeft,
@@ -134,6 +162,7 @@ export function useWorkspace(params: UseWorkspaceParams) {
     user_focus_changed: handleUserFocusChanged,
     user_view_changed: handleUserViewChanged,
     row_update: handleRowUpdate,
+    chat_message: handleChatMessage,
   };
 
   const handleMessage = (event: MessageEvent) => {
@@ -185,6 +214,16 @@ export function useWorkspace(params: UseWorkspaceParams) {
     250,
   );
 
+  const sendChatMessage = throttle((content: string, viewId?: string) => {
+    socket?.send(
+      JSON.stringify({
+        event: "chat_message",
+        content: content,
+        view_id: viewId,
+      }),
+    );
+  }, 250);
+
   useEffect(() => {
     const ws = new WebSocket(
       `ws://${getApiUrl().replace("http://", "")}/ws/projects/${params.projectId}/collaborate`,
@@ -214,6 +253,7 @@ export function useWorkspace(params: UseWorkspaceParams) {
     changeView,
     changeFocus,
     changeFilterSort,
+    sendChatMessage,
     activeUsers,
   };
 }

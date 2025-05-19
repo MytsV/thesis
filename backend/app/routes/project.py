@@ -15,7 +15,7 @@ from fastapi import (
 )
 from fastapi.params import Path
 from sqlalchemy import desc, exists, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from starlette.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
     HTTP_404_NOT_FOUND,
@@ -37,10 +37,21 @@ from app.models.project_models import (
     ProjectListResponse,
     ProjectDetailResponse,
     FileResponse,
+    ChatMessageResponse,
+    UserChatResponse,
+    ViewChatResponse,
 )
 from app.sqla.database import get_db
 from app.sqla.file_repository import FileRepository
-from app.sqla.models import Project, User, ProjectShare, File, FileColumn, FileRow
+from app.sqla.models import (
+    Project,
+    User,
+    ProjectShare,
+    File,
+    FileColumn,
+    FileRow,
+    ChatMessage,
+)
 from app.utils.parsing import ParsedFile, parse_csv, parse_excel
 
 
@@ -408,3 +419,47 @@ async def get_project_active_users(
     check_user_project_access(db, project_id, user.id)
     active_users = await get_active_users(redis_client, str(project_id))
     return active_users
+
+
+@router.get("/{project_id}/chat-messages", response_model=List[ChatMessageResponse])
+async def get_chat_messages(
+    project_id: UUID = Path(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get all chat messages for a project.
+    Available for the owner and shared users.
+    """
+    check_user_project_access(db, project_id, current_user.id)
+
+    query = (
+        db.query(ChatMessage)
+        .options(joinedload(ChatMessage.user), joinedload(ChatMessage.view))
+        .filter(ChatMessage.project_id == project_id)
+        .order_by(ChatMessage.created_at)
+    )
+
+    results = query.all()
+
+    messages = [
+        ChatMessageResponse(
+            id=message.id,
+            content=message.content,
+            created_at=int(message.created_at.timestamp()) * 1000,
+            user=UserChatResponse(id=message.user.id, username=message.user.username),
+            view=(
+                ViewChatResponse(
+                    id=message.view.id,
+                    name=message.view.name,
+                    view_type=message.view.view_type,
+                )
+                if message.view
+                else None
+            ),
+            metadata=message.metadata,
+        )
+        for message in results
+    ]
+
+    return messages

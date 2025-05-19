@@ -179,3 +179,30 @@ export interface FilterSortUpdateEvent {
   sort_model: SortUpdateItem[];
   view_id: string;
 }
+
+export interface ChatMessageViewModel {
+  id: string;
+  content: string;
+  createdAt: number;
+  user: {
+    id: number;
+    username: string;
+  };
+  view?: {
+    id: string;
+    name: string;
+    viewType: ViewType;
+  };
+}
+
+export interface ChatMessageEvent {
+  event: "chat_message";
+  message_id: string;
+  content: string;
+  user_id: number;
+  user_username: string;
+  view_id: string;
+  view_name: string;
+  view_type: ViewType;
+  created_at: number;
+}
