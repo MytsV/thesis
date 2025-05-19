@@ -90,7 +90,7 @@ const mockActiveUsers = [
 
 const mockChatMessages: ChatMessageViewModel[] = [
   {
-    id: 1,
+    id: "msg_001",
     content: "Hey everyone! Just joined the team. Excited to get started!",
     createdAt: 1716105600000, // May 19, 2025 10:00 AM UTC
     user: {
@@ -104,7 +104,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
   },
   {
-    id: 2,
+    id: "msg_002",
     content:
       "Welcome aboard Sarah! Let me know if you need any help getting up to speed.",
     createdAt: 1716106200000, // May 19, 2025 10:10 AM UTC
@@ -119,7 +119,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
   },
   {
-    id: 3,
+    id: "msg_003",
     content:
       "Can someone review the latest design mockups? I've uploaded them to the shared folder.",
     createdAt: 1716107400000, // May 19, 2025 10:30 AM UTC
@@ -134,7 +134,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
   },
   {
-    id: 4,
+    id: "msg_004",
     content: "Looks great! I particularly like the new color scheme you chose.",
     createdAt: 1716108000000, // May 19, 2025 10:40 AM UTC
     user: {
@@ -148,7 +148,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
   },
   {
-    id: 5,
+    id: "msg_005",
     content:
       "Quick question about the API endpoints - are we using REST or GraphQL for the new feature?",
     createdAt: 1716109800000, // May 19, 2025 11:10 AM UTC
@@ -163,7 +163,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
   },
   {
-    id: 6,
+    id: "msg_006",
     content: "Hey, do you have 5 minutes to chat about the project timeline?",
     createdAt: 1716110400000, // May 19, 2025 11:20 AM UTC
     user: {
@@ -177,7 +177,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
   },
   {
-    id: 7,
+    id: "msg_007",
     content:
       "We're going with REST for now, but might migrate to GraphQL in Q3. Check the tech doc I shared yesterday.",
     createdAt: 1716111000000, // May 19, 2025 11:30 AM UTC
@@ -192,7 +192,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
   },
   {
-    id: 8,
+    id: "msg_008",
     content: "Perfect timing! Coffee break anyone? ☕",
     createdAt: 1716112200000, // May 19, 2025 11:50 AM UTC
     user: {
@@ -206,7 +206,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
   },
   {
-    id: 9,
+    id: "msg_009",
     content:
       "Thanks for the quick turnaround on those bug fixes! Everything is working smoothly now.",
     createdAt: 1716113400000, // May 19, 2025 12:10 PM UTC
@@ -221,7 +221,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
   },
   {
-    id: 10,
+    id: "msg_010",
     content: "Absolutely! Let's grab a virtual coffee in 10 minutes?",
     createdAt: 1716113700000, // May 19, 2025 12:15 PM UTC
     user: {
@@ -272,5 +272,7 @@ export const Integration: Story = {
       id: 0,
       username: "testuser",
     },
+    subscriptionUserColor: "#8839ef",
+    unreadMessagesCount: 5,
   },
 };

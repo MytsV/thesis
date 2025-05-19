@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   ChevronLeft,
+  Eye,
   FileChartColumn,
   Info,
   LucideIcon,
@@ -19,22 +20,73 @@ export interface WorkspaceSidebarProps {
   viewsTab: React.ReactNode;
   chatTab: React.ReactNode;
   user: UserViewModel;
+  subscriptionUserColor?: string;
+  unreadMessagesCount?: number;
 }
 
 interface SidebarIconProps {
   Icon: LucideIcon;
-  onClick: () => void;
   isActive: boolean;
+  onClick?: () => void;
 }
 
 function SidebarIcon(props: SidebarIconProps) {
   return (
     <button
-      className={`p-2 rounded-md hover:bg-gray-100 transition-colors ${props.isActive ? "bg-gray-200 text-gray-900" : "text-gray-600"}`}
+      className={`cursor-pointer p-2 rounded-md hover:bg-gray-100 transition-colors ${props.isActive ? "bg-gray-200 text-gray-900" : "text-gray-600"}`}
       onClick={props.onClick}
     >
       <props.Icon size={20} />
     </button>
+  );
+}
+
+interface PresenceIndicatorProps {
+  color: string;
+}
+
+function PresenceIndicator({ color }: PresenceIndicatorProps) {
+  return (
+    <div
+      className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center cursor-pointer"
+      style={{ backgroundColor: color }}
+    >
+      <Eye size={14} className="text-white" />
+    </div>
+  );
+}
+
+interface UnreadBadgeProps {
+  count: number;
+}
+
+function UnreadBadge({ count }: UnreadBadgeProps) {
+  if (count <= 0) return null;
+
+  return (
+    <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center cursor-pointer">
+      <span className="text-white text-xs font-medium">
+        {count > 99 ? "99+" : count}
+      </span>
+    </div>
+  );
+}
+
+interface SidebarIconWithIndicatorProps extends SidebarIconProps {
+  children?: React.ReactNode;
+  onClick: () => void;
+}
+
+function SidebarIconWithIndicator({
+  children,
+  onClick,
+  ...iconProps
+}: SidebarIconWithIndicatorProps) {
+  return (
+    <div className="relative" onClick={onClick}>
+      <SidebarIcon {...iconProps} />
+      {children}
+    </div>
   );
 }
 
@@ -99,14 +151,18 @@ export default function WorkspaceSidebar(props: WorkspaceSidebarProps) {
             isActive={isExpanded && activeTab === "info"}
           />
 
-          <SidebarIcon
+          <SidebarIconWithIndicator
             Icon={Users}
             onClick={() => {
               setActiveTab("users");
               setIsExpanded(true);
             }}
             isActive={isExpanded && activeTab === "users"}
-          />
+          >
+            {props.subscriptionUserColor && (
+              <PresenceIndicator color={props.subscriptionUserColor} />
+            )}
+          </SidebarIconWithIndicator>
 
           <SidebarIcon
             Icon={FileChartColumn}
@@ -117,14 +173,18 @@ export default function WorkspaceSidebar(props: WorkspaceSidebarProps) {
             isActive={isExpanded && activeTab === "views"}
           />
 
-          <SidebarIcon
+          <SidebarIconWithIndicator
             Icon={MessageSquare}
             onClick={() => {
               setActiveTab("chat");
               setIsExpanded(true);
             }}
             isActive={isExpanded && activeTab === "chat"}
-          />
+          >
+            {props.unreadMessagesCount !== undefined && (
+              <UnreadBadge count={props.unreadMessagesCount} />
+            )}
+          </SidebarIconWithIndicator>
         </div>
 
         <div className="flex flex-col items-center">

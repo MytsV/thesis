@@ -666,6 +666,10 @@ export default function Workspace(props: WorkspaceProps) {
     return notFound();
   }
 
+  const subscriptionUserColor = activeUsers.find(
+    (user) => user.id === subscriptionId,
+  )?.color;
+
   return (
     <div className="h-full grow flex">
       <WorkspaceSidebar
@@ -699,6 +703,7 @@ export default function Workspace(props: WorkspaceProps) {
           />
         }
         user={currentUser}
+        subscriptionUserColor={subscriptionUserColor}
       />
       <div className="flex flex-col w-full h-auto">
         <WorkspaceNavigationBar
