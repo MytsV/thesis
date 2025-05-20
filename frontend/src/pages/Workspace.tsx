@@ -16,7 +16,9 @@ import {
 } from "@/lib/types";
 import { useUser } from "@/lib/user-provision";
 import { notFound, useRouter } from "next/navigation";
-import WorkspaceSidebar from "@/components/workspace/WorkspaceSidebar";
+import WorkspaceSidebar, {
+  TabType,
+} from "@/components/workspace/WorkspaceSidebar";
 import InfoTab from "@/components/workspace/InfoTab";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getApiUrl } from "@/lib/utils/api-utils";
@@ -618,6 +620,8 @@ export default function Workspace(props: WorkspaceProps) {
     changeFocus,
     changeFilterSort,
     sendChatMessage,
+    unreadMessages,
+    setUnreadMessages,
   } = useWorkspace({
     projectId: props.project.id,
     initialUsers: props.activeUsers,
@@ -626,6 +630,14 @@ export default function Workspace(props: WorkspaceProps) {
   const { subscribe, unsubscribe, subscriptionId } = useSubscription({
     projectId: props.project.id,
   });
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>("info");
+
+  useEffect(() => {
+    if (activeTab === "chat" && isSidebarExpanded) {
+      setUnreadMessages(0);
+    }
+  }, [activeTab, unreadMessages, isSidebarExpanded]);
 
   const currentUser = useUser();
   const router = useRouter();
@@ -674,6 +686,10 @@ export default function Workspace(props: WorkspaceProps) {
     <div className="h-full grow flex">
       <WorkspaceSidebar
         infoTab={<InfoTabPage project={props.project} />}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isExpanded={isSidebarExpanded}
+        setIsExpanded={setIsSidebarExpanded}
         usersTab={
           <UsersTabPage
             activeUsers={activeUsers}
@@ -704,6 +720,9 @@ export default function Workspace(props: WorkspaceProps) {
         }
         user={currentUser}
         subscriptionUserColor={subscriptionUserColor}
+        unreadMessagesCount={
+          activeTab === "chat" && isSidebarExpanded ? 0 : unreadMessages
+        }
       />
       <div className="flex flex-col w-full h-auto">
         <WorkspaceNavigationBar

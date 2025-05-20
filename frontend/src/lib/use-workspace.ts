@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   ActiveUserViewModel,
   ChatMessageEvent,
+  chatMessageEventToViewModel,
   ChatMessageViewModel,
   FilterModel,
   InitEvent,
@@ -129,30 +130,19 @@ export function useWorkspace(params: UseWorkspaceParams) {
     );
   };
 
+  const [unreadMessages, setUnreadMessages] = useState<number>(0);
+
   const handleChatMessage = (data: ChatMessageEvent) => {
     queryClient.setQueryData(
       ["messages", params.projectId],
       (oldMessages: ChatMessageEvent[]) => {
         if (!oldMessages) return oldMessages;
-        const chatMessage: ChatMessageViewModel = {
-          id: data.message_id,
-          content: data.content,
-          createdAt: data.created_at,
-          user: {
-            id: data.user_id,
-            username: data.user_username,
-          },
-          view: data.view_id
-            ? {
-                id: data.view_id,
-                name: data.view_name,
-                viewType: data.view_type,
-              }
-            : undefined,
-        };
+        const chatMessage = chatMessageEventToViewModel(data);
         return [...oldMessages, chatMessage];
       },
     );
+
+    setUnreadMessages((prev) => prev + 1);
   };
 
   const messageHandlers: Record<string, (data: any) => void> = {
@@ -254,6 +244,8 @@ export function useWorkspace(params: UseWorkspaceParams) {
     changeFocus,
     changeFilterSort,
     sendChatMessage,
+    unreadMessages,
+    setUnreadMessages,
     activeUsers,
   };
 }

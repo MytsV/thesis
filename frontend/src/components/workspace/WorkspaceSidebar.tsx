@@ -12,9 +12,13 @@ import {
 import { UserViewModel } from "@/lib/types";
 import UserAvatar from "@/components/common/UserAvatar";
 
-type TabType = "info" | "users" | "views" | "chat";
+export type TabType = "info" | "users" | "views" | "chat";
 
 export interface WorkspaceSidebarProps {
+  activeTab: TabType;
+  setActiveTab: (tab: TabType) => void;
+  isExpanded: boolean;
+  setIsExpanded: (isExpanded: boolean) => void;
   infoTab: React.ReactNode;
   usersTab: React.ReactNode;
   viewsTab: React.ReactNode;
@@ -91,8 +95,8 @@ function SidebarIconWithIndicator({
 }
 
 export default function WorkspaceSidebar(props: WorkspaceSidebarProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>("info");
+  const { isExpanded, setIsExpanded } = props;
+  const { activeTab, setActiveTab } = props;
   const [contentVisible, setContentVisible] = useState(false);
 
   useEffect(() => {

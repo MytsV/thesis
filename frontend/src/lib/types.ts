@@ -201,8 +201,31 @@ export interface ChatMessageEvent {
   content: string;
   user_id: number;
   user_username: string;
-  view_id: string;
-  view_name: string;
-  view_type: ViewType;
+  view_id?: string;
+  view_name?: string;
+  view_type?: ViewType;
   created_at: number;
+}
+
+export function chatMessageEventToViewModel(
+  event: ChatMessageEvent,
+): ChatMessageViewModel {
+  let view: ViewViewModel | undefined;
+  if (event.view_id && event.view_name && event.view_type) {
+    view = {
+      id: event.view_id,
+      name: event.view_name,
+      viewType: event.view_type,
+    };
+  }
+  return {
+    id: event.message_id,
+    content: event.content,
+    createdAt: event.created_at,
+    user: {
+      id: event.user_id,
+      username: event.user_username,
+    },
+    view: view,
+  };
 }
