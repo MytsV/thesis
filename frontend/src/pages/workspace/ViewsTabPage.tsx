@@ -8,7 +8,8 @@ import React, { useCallback, useState } from "react";
 import ViewsTab, { ViewTypeMeta } from "@/components/workspace/ViewsTab";
 import { listViews } from "@/lib/client-api";
 import { useQuery } from "@tanstack/react-query";
-import CreateSimpleTableViewDialog from "@/pages/workspace/CreateSimpleTableViewPage";
+import CreateSimpleTableViewDialog from "@/pages/workspace/CreateSimpleTableViewDialog";
+import CreateDiscreteColumnChartViewDialog from "@/pages/workspace/CreateDiscreteColumnChartViewDialog";
 
 interface ViewsTabPageProps {
   projectId: string;
@@ -26,6 +27,11 @@ export default function ViewsTabPage(props: ViewsTabPageProps) {
       type: ViewType.SIMPLE_TABLE,
       name: "Simple Table",
       icon: <span>📑</span>,
+    },
+    {
+      type: ViewType.DISCRETE_COLUMN_CHART,
+      name: "Discrete Column Chart",
+      icon: <span>📊</span>,
     },
   ];
 
@@ -62,6 +68,12 @@ export default function ViewsTabPage(props: ViewsTabPageProps) {
   return (
     <>
       <CreateSimpleTableViewDialog
+        availableFiles={props.files}
+        projectId={props.projectId}
+        openViewType={openViewType}
+        setOpenViewType={setOpenViewType}
+      />
+      <CreateDiscreteColumnChartViewDialog
         availableFiles={props.files}
         projectId={props.projectId}
         openViewType={openViewType}

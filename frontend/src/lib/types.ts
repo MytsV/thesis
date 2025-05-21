@@ -119,7 +119,7 @@ export interface ListViewsResponse {
 
 export enum ViewType {
   SIMPLE_TABLE = "simple_table",
-  CHART = "chart",
+  DISCRETE_COLUMN_CHART = "discrete_column_chart",
 }
 
 export enum ColumnType {
@@ -157,7 +157,7 @@ export interface SimpleTableViewCreateRequest {
 export interface DiscreteColumnChartViewCreateRequest {
   name: string;
   fileId: number;
-  columnId: string;
+  columnId: number;
 }
 
 export interface FilterModel extends AgGridFilterModel {}

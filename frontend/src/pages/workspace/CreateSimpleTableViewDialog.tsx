@@ -1,7 +1,17 @@
-import { FileViewModel, ViewType } from "@/lib/types";
-import React, { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createSimpleTableView } from "@/lib/client-api";
+import {
+  ColumnViewModel,
+  FileViewModel,
+  ViewType,
+  ViewViewModel,
+} from "@/lib/types";
+import React, { useCallback, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  createSimpleTableView,
+  listFileColumns,
+  listViewColumns,
+  listViews,
+} from "@/lib/client-api";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -31,7 +41,7 @@ export default function CreateSimpleTableViewDialog(
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["views"],
+        queryKey: ["views", props.projectId],
         refetchType: "active",
       });
       toast("View created successfully");

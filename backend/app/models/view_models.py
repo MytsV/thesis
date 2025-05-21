@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi_camelcase import CamelModel
 from pydantic import UUID4, BaseModel
 from typing import List, Dict, Any
@@ -98,3 +100,31 @@ class SortModelResponse(CamelModel):
 
 class FilterModelResponse(CamelModel):
     filter_model: Dict[str, Any] | None
+
+
+class DiscreteColumnChartViewCreate(CamelModel):
+    name: str
+    file_id: int
+    column_id: int
+
+
+class DiscreteColumnChartViewRead(CamelModel):
+    id: UUID
+    name: str
+    view_type: str
+    project_id: UUID
+    file_id: int
+    column_id: int
+
+    class Config:
+        from_attributes = True
+
+
+class ChartDataPoint(CamelModel):
+    label: str
+    value: int
+
+
+class DiscreteColumnChartDataResponse(CamelModel):
+    column_name: str
+    data: List[ChartDataPoint]

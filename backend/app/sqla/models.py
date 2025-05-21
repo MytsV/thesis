@@ -164,6 +164,24 @@ class SimpleTableView(View):
     }
 
 
+class DiscreteColumnChartView(View):
+    """A chart view that displays frequency distribution of discrete values from a single column."""
+
+    __tablename__ = "discrete_column_chart_views"
+
+    id: Mapped[uuid.UUID] = mapped_column(ForeignKey("views.id"), primary_key=True)
+    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
+    file: Mapped["File"] = relationship()
+    column_id: Mapped[int] = mapped_column(
+        ForeignKey("file_columns.id"), nullable=False
+    )
+    column: Mapped["FileColumn"] = relationship()
+
+    __mapper_args__ = {
+        "polymorphic_identity": "discrete_column_chart",
+    }
+
+
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
 

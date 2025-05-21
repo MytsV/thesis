@@ -130,7 +130,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     view: {
       id: "design-team",
       name: "Design Team",
-      viewType: ViewType.CHART,
+      viewType: ViewType.DISCRETE_COLUMN_CHART,
     },
   },
   {
@@ -144,7 +144,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     view: {
       id: "design-team",
       name: "Design Team",
-      viewType: ViewType.CHART,
+      viewType: ViewType.DISCRETE_COLUMN_CHART,
     },
   },
   {
@@ -173,7 +173,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     view: {
       id: "dm-lisa-john",
       name: "Lisa Parker",
-      viewType: ViewType.CHART,
+      viewType: ViewType.DISCRETE_COLUMN_CHART,
     },
   },
   {
@@ -202,7 +202,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     view: {
       id: "random",
       name: "Random",
-      viewType: ViewType.CHART,
+      viewType: ViewType.DISCRETE_COLUMN_CHART,
     },
   },
   {
@@ -231,7 +231,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     view: {
       id: "dm-lisa-john",
       name: "Lisa Parker",
-      viewType: ViewType.CHART,
+      viewType: ViewType.DISCRETE_COLUMN_CHART,
     },
   },
 ];

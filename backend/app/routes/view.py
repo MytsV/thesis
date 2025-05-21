@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Counter
 from uuid import UUID
 
 import redis
@@ -30,6 +30,10 @@ from app.models.view_models import (
     SortModelUpdate,
     FilterModelResponse,
     FilterModelUpdate,
+    DiscreteColumnChartViewRead,
+    DiscreteColumnChartViewCreate,
+    DiscreteColumnChartDataResponse,
+    ChartDataPoint,
 )
 from app.redis.models import RowUpdateInfo
 from app.redis.storage import get_redis
@@ -43,6 +47,7 @@ from app.sqla.models import (
     FileRow,
     File,
     Project,
+    DiscreteColumnChartView,
 )
 from app.sqla.project_auth import check_user_project_access
 
@@ -501,3 +506,131 @@ async def update_view_filter_model(
     db.refresh(simple_view)
 
     return FilterModelResponse(filter_model=filter_data.filter_model)
+
+
+@router.post(
+    "/project/{project_id}/discrete-column-chart",
+    response_model=DiscreteColumnChartViewRead,
+    status_code=HTTP_201_CREATED,
+)
+async def create_discrete_column_chart_view(
+    project_id: UUID,
+    view_data: DiscreteColumnChartViewCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Create a new discrete column chart view for a project.
+    Available for the owner and shared users.
+    """
+    # Check access to the project
+    project, _ = check_user_project_access(db, project_id, current_user.id)
+
+    # Verify file exists and belongs to the project
+    file = (
+        db.query(File)
+        .filter(File.id == view_data.file_id, File.project_id == project_id)
+        .first()
+    )
+
+    if not file:
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail=f"File with ID {view_data.file_id} does not exist or does not belong to this project",
+        )
+
+    # Verify column exists and belongs to the file
+    column = (
+        db.query(FileColumn)
+        .filter(
+            FileColumn.id == view_data.column_id,
+            FileColumn.file_id == view_data.file_id,
+        )
+        .first()
+    )
+
+    if not column:
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail=f"Column with ID {view_data.column_id} does not exist or does not belong to this file",
+        )
+
+    view = DiscreteColumnChartView(
+        project_id=project_id,
+        name=view_data.name,
+        file_id=view_data.file_id,
+        column_id=view_data.column_id,
+    )
+
+    db.add(view)
+    db.commit()
+    db.refresh(view)
+
+    return view
+
+
+MAX_CHART_DATA_POINTS = 5
+
+
+@router.get("/{view_id}/chart-data", response_model=DiscreteColumnChartDataResponse)
+async def get_chart_data(
+    view_id: UUID = Path(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get the chart data for a discrete column chart view.
+    Returns aggregated data with the top 5 values and an "Other" category.
+    Available for the owner and shared users.
+    """
+    view, _, _ = check_view_exists_and_access(db, view_id, current_user.id)
+
+    if view.view_type != "discrete_column_chart":
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail="Chart data is only available for discrete column chart views",
+        )
+
+    chart_view = (
+        db.query(DiscreteColumnChartView)
+        .filter(DiscreteColumnChartView.id == view_id)
+        .first()
+    )
+    if not chart_view:
+        raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND,
+            detail="Discrete column chart view not found",
+        )
+
+    column = db.query(FileColumn).filter(FileColumn.id == chart_view.column_id).first()
+    if not column:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="Column not found")
+
+    value_counts = {}
+    for row in db.query(FileRow).filter(FileRow.file_id == chart_view.file_id):
+        if column.column_name in row.row_data:
+            value = (
+                str(row.row_data[column.column_name])
+                if row.row_data[column.column_name] is not None
+                else "None"
+            )
+            value_counts[value] = value_counts.get(value, 0) + 1
+
+    sorted_values = sorted(value_counts.items(), key=lambda x: x[1], reverse=True)
+    top_values = sorted_values[:MAX_CHART_DATA_POINTS]
+
+    other_count = (
+        sum(count for _, count in sorted_values[MAX_CHART_DATA_POINTS:])
+        if len(sorted_values) > MAX_CHART_DATA_POINTS
+        else 0
+    )
+
+    chart_data = [
+        ChartDataPoint(label=label, value=count) for label, count in top_values
+    ]
+    if other_count > 0:
+        chart_data.append(ChartDataPoint(label="Other", value=other_count))
+
+    return DiscreteColumnChartDataResponse(
+        column_name=column.column_name, data=chart_data
+    )

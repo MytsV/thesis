@@ -30,7 +30,7 @@ export const Default: Story = {
         icon: <span>📑</span>,
       },
       {
-        type: ViewType.CHART,
+        type: ViewType.DISCRETE_COLUMN_CHART,
         name: "Chart",
         icon: <span>📊</span>,
       },
@@ -44,12 +44,12 @@ export const Default: Story = {
       {
         id: "d4c6a8be-7aae-4cfb-929f-7f294e7f9e75",
         name: "Really long view name that should be truncated or else it will overflow",
-        viewType: ViewType.CHART,
+        viewType: ViewType.DISCRETE_COLUMN_CHART,
       },
       {
         id: "081ffacb-1776-4d2d-966c-891702c3d1c3",
         name: "View 3",
-        viewType: ViewType.CHART,
+        viewType: ViewType.DISCRETE_COLUMN_CHART,
       },
     ],
     currentViewId: "b2ec1a23-1f90-4c11-ba71-83819de1b521",

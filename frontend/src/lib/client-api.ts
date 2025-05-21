@@ -12,7 +12,8 @@ import {
   SortModelResponse,
   UserLoginViewModel,
   UserViewModel,
-  ViewCreateRequest,
+  SimpleTableViewCreateRequest,
+  DiscreteColumnChartViewCreateRequest,
 } from "@/lib/types";
 import axios, { AxiosProgressEvent } from "axios";
 import { buildQueryString, getApiUrl } from "@/lib/utils/api-utils";
@@ -196,12 +197,36 @@ export async function listViews(projectId: string): Promise<ListViewsResponse> {
   return response.json();
 }
 
-export async function createView(
+export async function createSimpleTableView(
   projectId: string,
-  request: ViewCreateRequest,
+  request: SimpleTableViewCreateRequest,
 ) {
   const response = await fetch(
     `${getApiUrl()}/views/project/${projectId}/simple-table`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to create view");
+  }
+
+  return response.json();
+}
+
+export async function createDiscreteColumnChartView(
+  projectId: string,
+  request: DiscreteColumnChartViewCreateRequest,
+) {
+  const response = await fetch(
+    `${getApiUrl()}/views/project/${projectId}/discrete-column-chart`,
     {
       method: "POST",
       headers: {
@@ -245,6 +270,22 @@ export async function listViewColumns(
   viewId: string,
 ): Promise<ListColumnsResponse> {
   const response = await fetch(`${getApiUrl()}/views/${viewId}/schema`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch columns");
+  }
+
+  return response.json();
+}
+
+export async function listFileColumns(
+  fileId: number,
+): Promise<ListColumnsResponse> {
+  const response = await fetch(`${getApiUrl()}/files/${fileId}/schema`, {
     method: "GET",
     credentials: "include",
   });
