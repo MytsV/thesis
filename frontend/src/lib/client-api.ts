@@ -14,6 +14,7 @@ import {
   UserViewModel,
   SimpleTableViewCreateRequest,
   DiscreteColumnChartViewCreateRequest,
+  DiscreteColumnChartViewModel,
 } from "@/lib/types";
 import axios, { AxiosProgressEvent } from "axios";
 import { buildQueryString, getApiUrl } from "@/lib/utils/api-utils";
@@ -300,6 +301,22 @@ export async function listFileColumns(
 
 export async function listViewRows(viewId: string): Promise<ListRowsResponse> {
   const response = await fetch(`${getApiUrl()}/views/${viewId}/rows`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to fetch rows");
+  }
+
+  return response.json();
+}
+
+export async function getDiscreteColumnChartData(
+  viewId: string,
+): Promise<DiscreteColumnChartViewModel> {
+  const response = await fetch(`${getApiUrl()}/views/${viewId}/chart-data`, {
     method: "GET",
     credentials: "include",
   });

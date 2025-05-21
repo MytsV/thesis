@@ -8,6 +8,7 @@ import {
 } from "@/lib/types";
 import React from "react";
 import SimpleTableViewPage from "@/pages/workspace/SimpleTableViewPage";
+import DiscreteColumnChartViewPage from "@/pages/workspace/DiscreteColumnChartViewPage";
 
 interface CurrentViewProps {
   view: ViewViewModel | null;
@@ -36,6 +37,8 @@ export default function CurrentView(props: CurrentViewProps) {
           currentUser={props.currentUser}
         />
       );
+    case ViewType.DISCRETE_COLUMN_CHART:
+      return <DiscreteColumnChartViewPage view={props.view} />;
     default:
       return <div className="text-sm">Unknown view type</div>;
   }
