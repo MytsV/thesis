@@ -237,7 +237,7 @@ export function chatMessageEventToViewModel(
   };
 }
 
-interface DiscreteColumnChartViewModel {
+export interface DiscreteColumnChartViewModel {
   columnName: string;
   data: {
     label: string;
