@@ -131,6 +131,7 @@ export enum ColumnType {
 }
 
 export interface ColumnViewModel {
+  id: number;
   columnName: string;
   columnType: ColumnType;
 }
@@ -148,9 +149,15 @@ export interface ListRowsResponse {
   rows: RowViewModel[];
 }
 
-export interface ViewCreateRequest {
+export interface SimpleTableViewCreateRequest {
   name: string;
   fileId: number;
+}
+
+export interface DiscreteColumnChartViewCreateRequest {
+  name: string;
+  fileId: number;
+  columnId: string;
 }
 
 export interface FilterModel extends AgGridFilterModel {}
@@ -228,4 +235,12 @@ export function chatMessageEventToViewModel(
     },
     view: view,
   };
+}
+
+interface DiscreteColumnChartViewModel {
+  columnName: string;
+  data: {
+    label: string;
+    value: number;
+  }[];
 }
