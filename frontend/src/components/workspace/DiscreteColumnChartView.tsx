@@ -27,18 +27,20 @@ export default function DiscreteColumnChartView(
           label: props.viewModel.columnName,
           data: props.viewModel.data.map((item) => item.value),
           backgroundColor: [
-            "rgba(255, 99, 132, 0.8)",
-            "rgba(54, 162, 235, 0.8)",
-            "rgba(255, 206, 86, 0.8)",
-            "rgba(75, 192, 192, 0.8)",
-            "rgba(153, 102, 255, 0.8)",
+            "rgba(243, 139, 168, 0.8)", // Pink
+            "rgba(137, 180, 250, 0.8)", // Blue
+            "rgba(249, 226, 175, 0.8)", // Yellow
+            "rgba(166, 227, 161, 0.8)", // Green
+            "rgba(203, 166, 247, 0.8)", // Lavender
+            "rgba(186, 194, 222, 0.8)", // Grey
           ],
           borderColor: [
-            "rgba(255, 99, 132, 1)",
-            "rgba(54, 162, 235, 1)",
-            "rgba(255, 206, 86, 1)",
-            "rgba(75, 192, 192, 1)",
-            "rgba(153, 102, 255, 1)",
+            "rgba(243, 139, 168, 1)", // Pink
+            "rgba(137, 180, 250, 1)", // Blue
+            "rgba(249, 226, 175, 1)", // Yellow
+            "rgba(166, 227, 161, 1)", // Green
+            "rgba(203, 166, 247, 1)", // Lavender
+            "rgba(186, 194, 222, 1)", // Grey
           ],
           borderWidth: 1,
         },
@@ -50,6 +52,18 @@ export default function DiscreteColumnChartView(
   const options: ChartOptions<"pie"> = useMemo(
     () => ({
       responsive: true,
+      plugins: {
+        legend: {
+          position: "top",
+          labels: {
+            color: "#000",
+            font: {
+              family: "Geist",
+              size: 14,
+            },
+          },
+        },
+      },
     }),
     [],
   );
