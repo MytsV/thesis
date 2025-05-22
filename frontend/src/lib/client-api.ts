@@ -120,7 +120,7 @@ export async function listSharedProjects({
   pageSize,
 }: ListProjectsRequest): Promise<PaginatedResponse<ProjectViewModel>> {
   const response = await fetch(
-    `${getApiUrl()}/projects/shared-with-me${buildQueryString({ page, pageSize })}`,
+    `${getApiUrl()}/projects/shared${buildQueryString({ page, pageSize })}`,
     {
       method: "GET",
       credentials: "include",

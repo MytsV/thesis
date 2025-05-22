@@ -235,7 +235,7 @@ async def list_user_projects(
     return PaginatedResponse(data=projects, has_next_page=has_next_page)
 
 
-@router.get("/shared-with-me", response_model=PaginatedResponse[ProjectListResponse])
+@router.get("/shared", response_model=PaginatedResponse[ProjectListResponse])
 async def list_shared_projects(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
