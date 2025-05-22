@@ -1,18 +1,29 @@
 import os
 import uuid
 import shutil
-from abc import ABC, abstractmethod
-from typing import BinaryIO, List, Optional, Tuple
+from typing import BinaryIO, List, Optional, Tuple, Protocol
 from fastapi import UploadFile
+from pydantic import BaseModel
 
 
-class FileStorageService(ABC):
+class FileStorageResult(BaseModel):
+    storage_filename: str
+    file_path: str
+    file_type: str
+    file_size: int
+    file_url: Optional[str] = None
+    etag: Optional[str] = None
+
+    class Config:
+        frozen = True
+
+
+class FileStorageService(Protocol):
     """Abstract base class for file storage services."""
 
-    @abstractmethod
     async def save_file(
         self, file: UploadFile, project_id: uuid.UUID
-    ) -> Tuple[str, str, str, int]:
+    ) -> FileStorageResult:
         """
         Save a file and return storage details.
 
@@ -21,12 +32,10 @@ class FileStorageService(ABC):
         """
         pass
 
-    @abstractmethod
     async def get_file(self, file_path: str) -> BinaryIO:
         """Get a file by its storage path."""
         pass
 
-    @abstractmethod
     async def delete_file(self, file_path: str) -> bool:
         """Delete a file by its storage path."""
         pass
@@ -40,8 +49,8 @@ class LocalFileStorageService(FileStorageService):
         os.makedirs(self.base_upload_dir, exist_ok=True)
 
     async def save_file(
-        self, file: UploadFile, project_id: int
-    ) -> Tuple[str, str, str, int]:
+        self, file: UploadFile, project_id: uuid.UUID
+    ) -> FileStorageResult:
         """Save file to local file system."""
         project_dir = os.path.join(self.base_upload_dir, f"project_{project_id}")
         os.makedirs(project_dir, exist_ok=True)
@@ -55,7 +64,12 @@ class LocalFileStorageService(FileStorageService):
 
         file_size = os.path.getsize(file_path)
 
-        return storage_filename, file_path, file.content_type, file_size
+        return FileStorageResult(
+            storage_filename=storage_filename,
+            file_path=file_path,
+            file_type=file.content_type,
+            file_size=file_size,
+        )
 
     async def get_file(self, file_path: str) -> BinaryIO:
         """Get a file from local file system."""

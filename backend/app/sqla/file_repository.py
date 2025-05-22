@@ -22,18 +22,18 @@ class FileRepository:
         await self._validate_file(upload_file)
 
         # Save the file using the storage service
-        storage_filename, file_path, file_type, file_size = (
-            await self.storage_service.save_file(upload_file, project_id)
+        file_storage_result = await self.storage_service.save_file(
+            upload_file, project_id
         )
 
         # Create file record in database
         file = File(
             project_id=project_id,
             original_filename=upload_file.filename,
-            storage_filename=storage_filename,
-            file_path=file_path,
-            file_type=file_type,
-            file_size=file_size,
+            storage_filename=file_storage_result.storage_filename,
+            file_path=file_storage_result.file_path,
+            file_type=file_storage_result.file_type,
+            file_size=file_storage_result.file_size,
         )
 
         self.db.add(file)
