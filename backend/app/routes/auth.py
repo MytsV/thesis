@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 from fastapi import APIRouter, status, Depends, HTTPException, Response
@@ -78,13 +79,12 @@ async def login(
 
     access_token = create_access_token(data={"sub": user.username})
 
-    # TODO: set secure=True in production
     response.set_cookie(
         key="session",
         value=access_token,
         httponly=True,
-        secure=False,  # Set to True in production with HTTPS
-        samesite="lax",  # Protects against CSRF
+        secure=os.getenv("ENVIRONMENT", "development").lower() == "production",
+        samesite="strict",
         max_age=None,
     )
 

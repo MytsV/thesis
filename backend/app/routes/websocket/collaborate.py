@@ -16,6 +16,7 @@ from app.redis.users import (
 )
 from app.routes.project import check_user_project_access
 from app.sqla.database import get_db
+from app.utils.config import allow_origins
 from app.websocket.collaboration_manager import collaboration_manager
 from app.websocket.logging import logger
 from app.websocket.message_handlers import CollaborationMessageHandler
@@ -30,6 +31,11 @@ async def collaborate(
     db: Session = Depends(get_db),
     redis_client: redis.Redis = Depends(get_redis),
 ):
+    origin = websocket.headers.get("origin")
+    if origin not in allow_origins:
+        await websocket.close(code=1008, reason="Forbidden origin")
+        return None
+
     user = await websocket_auth_required(websocket, db)
     if not user:
         await websocket.close(code=1008, reason="Authentication failed")

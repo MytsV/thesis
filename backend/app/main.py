@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
 from app.routes.websocket import collaborate, subscribe
+from app.utils.config import allow_origins
 
 app = FastAPI()
 
@@ -48,9 +49,6 @@ app.include_router(collaborate.router)
 app.include_router(subscribe.router)
 app.include_router(view.router)
 app.include_router(file.router)
-
-origins_str = os.getenv("ALLOWED_ORIGINS")
-allow_origins = origins_str.split(",")
 
 app.add_middleware(
     CORSMiddleware,

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.auth.dependencies import websocket_auth_required
 from app.routes.project import check_user_project_access
 from app.sqla.database import get_db
+from app.utils.config import allow_origins
 from app.websocket.logging import logger
 from app.websocket.subscription_manager import subscription_manager
 
@@ -21,9 +22,18 @@ async def filter_sort_subscription(
     view_id: str,
     db: Session = Depends(get_db),
 ):
+    origin = websocket.headers.get("origin")
+    if origin not in allow_origins:
+        await websocket.close(code=1008, reason="Forbidden origin")
+        return None
+
     watcher = await websocket_auth_required(websocket, db)
     if not watcher:
         await websocket.close(code=1008, reason="Authentication failed")
+        return
+
+    if watcher.id == watched_user_id:
+        await websocket.close(code=1008, reason="Cannot subscribe to self")
         return
 
     try:
