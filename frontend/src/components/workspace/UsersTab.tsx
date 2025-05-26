@@ -1,4 +1,4 @@
-import { ActiveUserViewModel } from "@/lib/types";
+import { ActiveUserViewModel, UserViewModel } from "@/lib/types";
 import UserAvatar from "@/components/common/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,11 @@ export default function UsersTab(props: UsersTabProps) {
 
   const getUserComponent = (user: ActiveUserViewModel) => {
     const isSubscriptionUser = user.id === props.subscriptionUserId;
+    const userViewModel: UserViewModel = {
+      id: user.id,
+      username: user.username,
+      avatarUrl: user.avatar_url,
+    };
 
     const presenceIndicator = isSubscriptionUser ? (
       <Eye className="w-5 h-5" style={{ color: user.color }} />
@@ -47,7 +52,7 @@ export default function UsersTab(props: UsersTabProps) {
         onClick={() => props.onUserClick?.(user)}
       >
         <div className="flex items-center space-x-2">
-          <UserAvatar user={user} className="cursor-auto" />
+          <UserAvatar user={userViewModel} className="cursor-auto" />
           <span className="text-sm font-medium">{user.username}</span>
         </div>
         {user.color && presenceIndicator}

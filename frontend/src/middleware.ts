@@ -73,6 +73,9 @@ function addUserHeadersToResponse(response: NextResponse, userData: any) {
   response.headers.set("x-user-id", userData.id.toString());
   response.headers.set("x-user-name", userData.username);
   response.headers.set("x-user-email", userData.email);
+  if (userData.avatarUrl) {
+    response.headers.set("x-user-avatar", userData.avatarUrl);
+  }
 }
 
 function isProtectedPath(pathname: string) {

@@ -95,6 +95,7 @@ export function useWorkspace(params: UseWorkspaceParams) {
           id: data.id,
           username: data.username,
           color: data.color,
+          avatar_url: data.avatar_url,
         },
       ];
     });

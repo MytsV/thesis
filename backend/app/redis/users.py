@@ -66,7 +66,11 @@ async def get_user_color(
 
 
 async def add_user_to_project(
-    redis_client: redis.Redis, project_id: str, user_id: int, username: str
+    redis_client: redis.Redis,
+    project_id: str,
+    user_id: int,
+    username: str,
+    avatar_url: Optional[str] = None,
 ) -> None:
     """Add user to project presence and publish join notification"""
 
@@ -86,7 +90,10 @@ async def add_user_to_project(
         )
 
     user_presence = UserPresence(
-        username=username, color=color, joined_at=redis_client.time()[0]
+        username=username,
+        color=color,
+        joined_at=redis_client.time()[0],
+        avatar_url=avatar_url,
     )
 
     presence_key = USER_PRESENCE_KEY.format(project_id=project_id)
@@ -97,7 +104,9 @@ async def add_user_to_project(
 
     redis_client.hexpire(presence_key, PRESENCE_TIMEOUT, user_id_field)
 
-    joined_event = UserJoinedEvent(id=user_id, username=username, color=color)
+    joined_event = UserJoinedEvent(
+        id=user_id, username=username, color=color, avatar_url=avatar_url
+    )
 
     redis_client.publish(
         PROJECT_CHANNEL.format(project_id=project_id), joined_event.model_dump_json()

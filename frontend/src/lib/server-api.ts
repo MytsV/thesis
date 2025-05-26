@@ -15,6 +15,7 @@ export async function getUserServer(): Promise<UserViewModel | undefined> {
   const userId = headersList.get("x-user-id");
   const username = headersList.get("x-user-name");
   const email = headersList.get("x-user-email");
+  const avatarUrl = headersList.get("x-user-avatar");
 
   // TODO: either redirect to login or throw an error
   if (!userId || !username || !email) {
@@ -24,6 +25,7 @@ export async function getUserServer(): Promise<UserViewModel | undefined> {
   return {
     id: parseInt(userId),
     username: username,
+    avatarUrl: avatarUrl ?? undefined,
   };
 }
 

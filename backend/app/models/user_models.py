@@ -36,6 +36,7 @@ class UserCreateRequest(UserBase):
 
 class UserCreateResponse(UserBase):
     id: int
+    avatar_url: str | None = None
 
     class Config:
         from_attributes = True

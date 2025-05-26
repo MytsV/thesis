@@ -69,6 +69,7 @@ class ProjectDetailResponse(CamelModel):
 class UserChatResponse(CamelModel):
     id: int
     username: str
+    avatar_url: str | None = None
 
     class Config:
         from_attributes = True

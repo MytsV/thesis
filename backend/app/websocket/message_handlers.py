@@ -94,6 +94,7 @@ class CollaborationMessageHandler:
                 content=chat_message.content,
                 user_id=chat_message.user.id,
                 user_username=chat_message.user.username,
+                user_avatar_url=chat_message.user.avatar_url,
                 view_id=chat_message.view.id if chat_message.view else None,
                 view_name=chat_message.view.name if chat_message.view else None,
                 view_type=chat_message.view.view_type if chat_message.view else None,

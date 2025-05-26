@@ -58,7 +58,11 @@ class CollaborationManager:
                 if user_project_key not in self.connection_counts:
                     self.connection_counts[user_project_key] = 0
                     await add_user_to_project(
-                        redis_client, str(project_id), user.id, user.username
+                        redis_client,
+                        str(project_id),
+                        user.id,
+                        user.username,
+                        user.avatar_url,
                     )
 
                 # Increment connection count

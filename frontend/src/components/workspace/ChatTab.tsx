@@ -22,6 +22,7 @@ const ChatBubble = ({
   const userViewModel: UserViewModel = {
     id: message.user.id,
     username: message.user.username,
+    avatarUrl: message.user.avatarUrl,
   };
 
   const handleViewClick = () => {

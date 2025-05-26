@@ -28,7 +28,7 @@ export default function UsersTabPage({
     onSuccess: () => {
       setInviteUsername("");
       queryClient.invalidateQueries({
-        queryKey: ["sharedUsers"],
+        queryKey: ["sharedUsers", projectId],
         refetchType: "active",
       });
       toast("User invited successfully");
@@ -66,7 +66,7 @@ export default function UsersTabPage({
       allUsers.push({
         id: user.id,
         username: user.username,
-        avatarUrl: user.avatarUrl,
+        avatar_url: user.avatarUrl,
       });
     }
   }

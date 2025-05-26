@@ -1,5 +1,5 @@
 import React from "react";
-import { ActiveUserViewModel } from "@/lib/types";
+import { ActiveUserViewModel, UserViewModel } from "@/lib/types";
 import UserAvatar from "@/components/common/UserAvatar";
 import WebsiteLogo from "@/components/common/WebsiteLogo";
 
@@ -36,14 +36,21 @@ export default function WorkspaceNavigationBar(
       visibleUsers.length > 0 && (
         <>
           <div className="sm:flex -space-x-2 mr-2 hidden">
-            {visibleUsers.map((user) => (
-              <UserAvatar
-                key={user.id}
-                user={user}
-                outlineColor={user.color}
-                className="border-2"
-              />
-            ))}
+            {visibleUsers.map((user) => {
+              const userViewModel: UserViewModel = {
+                id: user.id,
+                username: user.username,
+                avatarUrl: user.avatar_url,
+              };
+              return (
+                <UserAvatar
+                  key={user.id}
+                  user={userViewModel}
+                  outlineColor={user.color}
+                  className="border-2"
+                />
+              );
+            })}
 
             {additionalUsersCount > 0 && getMoreUsers(additionalUsersCount)}
           </div>

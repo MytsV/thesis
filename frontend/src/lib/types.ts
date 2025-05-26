@@ -46,7 +46,7 @@ export enum ProjectListTabs {
 export interface ActiveUserViewModel {
   id: number;
   username: string;
-  avatarUrl?: string;
+  avatar_url?: string;
   color?: string;
   current_view_id?: string;
   focused_row_id?: string;
@@ -74,6 +74,7 @@ export interface UserJoinedEvent {
   id: number;
   username: string;
   color: string;
+  avatar_url?: string;
 }
 
 export interface UserLeftEvent {
@@ -194,6 +195,7 @@ export interface ChatMessageViewModel {
   user: {
     id: number;
     username: string;
+    avatarUrl?: string;
   };
   view?: {
     id: string;
@@ -208,6 +210,7 @@ export interface ChatMessageEvent {
   content: string;
   user_id: number;
   user_username: string;
+  user_avatar_url?: string;
   view_id?: string;
   view_name?: string;
   view_type?: ViewType;
@@ -232,6 +235,7 @@ export function chatMessageEventToViewModel(
     user: {
       id: event.user_id,
       username: event.user_username,
+      avatarUrl: event.user_avatar_url,
     },
     view: view,
   };

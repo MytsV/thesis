@@ -29,12 +29,14 @@ class UserJoinedEvent(BaseEvent):
     id: int
     username: str
     color: str
+    avatar_url: str | None = None
 
 
 class InitEventUser(CamelModel):
     id: int
     username: str
     color: str
+    avatar_url: str | None = None
     current_view_id: str | None = None
     focused_row_id: str | None = None
 
@@ -56,6 +58,7 @@ class UserPresence(BaseModel):
     username: str
     color: str
     joined_at: int
+    avatar_url: str | None = None
     current_view_id: str | None = None
     focused_row_id: str | None = None
 
@@ -108,6 +111,7 @@ class ChatMessageInfo(BaseModel):
     content: str
     user_id: int
     user_username: str
+    user_avatar_url: Optional[str] = None
     view_id: Optional[UUID] = None
     view_name: Optional[str] = None
     view_type: Optional[str] = None

@@ -447,7 +447,11 @@ async def get_chat_messages(
             id=message.id,
             content=message.content,
             created_at=int(message.created_at.timestamp()) * 1000,
-            user=UserChatResponse(id=message.user.id, username=message.user.username),
+            user=UserChatResponse(
+                id=message.user.id,
+                username=message.user.username,
+                avatar_url=message.user.avatar_url,
+            ),
             view=(
                 ViewChatResponse(
                     id=message.view.id,
