@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import Register from "@/pages/Register";
+import Register from "@/page-components/Register";
 
 export const metadata: Metadata = {
   title: "Sign Up",

@@ -7,8 +7,8 @@ import {
   ViewViewModel,
 } from "@/lib/types";
 import React from "react";
-import SimpleTableViewPage from "@/pages/workspace/SimpleTableViewPage";
-import DiscreteColumnChartViewPage from "@/pages/workspace/DiscreteColumnChartViewPage";
+import SimpleTableViewPage from "@/page-components/workspace/SimpleTableViewPage";
+import DiscreteColumnChartViewPage from "@/page-components/workspace/DiscreteColumnChartViewPage";
 
 interface CurrentViewProps {
   view: ViewViewModel | null;

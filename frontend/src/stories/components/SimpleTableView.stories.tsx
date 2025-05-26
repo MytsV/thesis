@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import SimpleTableView from "@/components/workspace/SimpleTableView";
-import { ColumnType, RowViewModel } from "@/lib/types";
+import { ColumnType, ColumnViewModel, RowViewModel } from "@/lib/types";
 
 const meta: Meta<typeof SimpleTableView> = {
   title: "Components/Workspace/SimpleTableView",
@@ -21,12 +21,12 @@ const meta: Meta<typeof SimpleTableView> = {
 export default meta;
 type Story = StoryObj<typeof SimpleTableView>;
 
-const columns = [
-  { columnName: "productName", columnType: ColumnType.STRING },
-  { columnName: "quantity", columnType: ColumnType.INT },
-  { columnName: "price", columnType: ColumnType.FLOAT },
-  { columnName: "isInStock", columnType: ColumnType.BOOLEAN },
-  { columnName: "lastUpdated", columnType: ColumnType.DATETIME },
+const columns: ColumnViewModel[] = [
+  { id: 1, columnName: "productName", columnType: ColumnType.STRING },
+  { id: 2, columnName: "quantity", columnType: ColumnType.INT },
+  { id: 3, columnName: "price", columnType: ColumnType.FLOAT },
+  { id: 4, columnName: "isInStock", columnType: ColumnType.BOOLEAN },
+  { id: 5, columnName: "lastUpdated", columnType: ColumnType.DATETIME },
 ];
 
 function generateMockData(count: number): RowViewModel[] {

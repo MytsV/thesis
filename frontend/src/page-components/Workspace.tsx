@@ -15,11 +15,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useWorkspace } from "@/lib/use-workspace";
 import { useSubscription } from "@/lib/use-subscription";
-import InfoTabPage from "@/pages/workspace/InfoTabPage";
-import UsersTabPage from "@/pages/workspace/UsersTabPage";
-import ViewsTabPage from "@/pages/workspace/ViewsTabPage";
-import ChatTabPage from "@/pages/workspace/ChartTabPage";
-import CurrentView from "@/pages/workspace/CurrentView";
+import InfoTabPage from "@/page-components/workspace/InfoTabPage";
+import UsersTabPage from "@/page-components/workspace/UsersTabPage";
+import ViewsTabPage from "@/page-components/workspace/ViewsTabPage";
+import ChatTabPage from "@/page-components/workspace/ChartTabPage";
+import CurrentView from "@/page-components/workspace/CurrentView";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;

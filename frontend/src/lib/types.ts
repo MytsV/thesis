@@ -161,7 +161,7 @@ export interface DiscreteColumnChartViewCreateRequest {
   columnId: number;
 }
 
-export interface FilterModel extends AgGridFilterModel {}
+export type FilterModel = AgGridFilterModel;
 
 export interface SortModelItem {
   columnName: string;

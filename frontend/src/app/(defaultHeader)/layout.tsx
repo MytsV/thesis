@@ -1,5 +1,5 @@
 import { getUserServer } from "@/lib/server-api";
-import Header from "@/pages/Header";
+import Header from "@/page-components/Header";
 import { Toaster } from "@/components/ui/sonner";
 import { UserProvider } from "@/lib/user-provision";
 import { CustomQueryProvider } from "@/lib/query-provision";

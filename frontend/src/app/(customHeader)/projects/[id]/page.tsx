@@ -1,7 +1,7 @@
 import { getActiveUsers, getProjectDetails } from "@/lib/server-api";
 import { ActiveUserViewModel, DetailedProjectViewModel } from "@/lib/types";
 import { notFound } from "next/navigation";
-import Workspace from "@/pages/Workspace";
+import Workspace from "@/page-components/Workspace";
 
 export default async function Page({
   params,
@@ -22,6 +22,10 @@ export default async function Page({
     activeUsers = await getActiveUsers(id);
   } catch (error) {
     console.error("Error fetching active users:", error);
+    notFound();
+  }
+
+  if (!projectDetails || !activeUsers) {
     notFound();
   }
 

@@ -8,8 +8,8 @@ import React, { useCallback, useState } from "react";
 import ViewsTab, { ViewTypeMeta } from "@/components/workspace/ViewsTab";
 import { listViews } from "@/lib/client-api";
 import { useQuery } from "@tanstack/react-query";
-import CreateSimpleTableViewDialog from "@/pages/workspace/CreateSimpleTableViewDialog";
-import CreateDiscreteColumnChartViewDialog from "@/pages/workspace/CreateDiscreteColumnChartViewDialog";
+import CreateSimpleTableViewDialog from "@/page-components/workspace/CreateSimpleTableViewDialog";
+import CreateDiscreteColumnChartViewDialog from "@/page-components/workspace/CreateDiscreteColumnChartViewDialog";
 
 interface ViewsTabPageProps {
   projectId: string;
