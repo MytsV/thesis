@@ -1,5 +1,4 @@
-import { getApiUrl } from "@/lib/utils/api-utils";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActiveUserViewModel,
   ChatMessageEvent,
@@ -48,12 +47,23 @@ function throttle<T extends (...args: any[]) => void>(
   };
 }
 
+enum SocketStatus {
+  INITIAL = "initial",
+  CONNECTING = "connecting",
+  OPEN = "open",
+  DISCONNECTED = "disconnected",
+  ERROR = "error",
+}
+
 interface UseWorkspaceParams {
   projectId: string;
   initialUsers: ActiveUserViewModel[];
 }
 
 export function useWorkspace(params: UseWorkspaceParams) {
+  const [socketStatus, setSocketStatus] = useState<SocketStatus>(
+    SocketStatus.INITIAL,
+  );
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [activeUsers, setActiveUsers] = useState<ActiveUserViewModel[]>(
     params.initialUsers,
@@ -215,32 +225,51 @@ export function useWorkspace(params: UseWorkspaceParams) {
     );
   }, 250);
 
-  useEffect(() => {
+  const connect = useCallback(() => {
+    if (socketStatus !== SocketStatus.INITIAL) {
+      return;
+    }
+
+    console.log("Connecting to WebSocket...");
+
+    setSocketStatus(SocketStatus.CONNECTING);
+
     const ws = new WebSocket(
-      `ws://${getApiUrl().replace("http://", "")}/ws/projects/${params.projectId}/collaborate`,
+      `${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/projects/${params.projectId}/collaborate`,
     );
 
     ws.onopen = () => {
+      console.log("WebSocket connection established");
       setSocket(ws);
+      setSocketStatus(SocketStatus.OPEN);
     };
 
     ws.onmessage = handleMessage;
 
     ws.onerror = (error) => {
-      // TODO: handle app.websocket error
+      setSocketStatus(SocketStatus.ERROR);
     };
 
     ws.onclose = () => {
+      setSocketStatus(SocketStatus.DISCONNECTED);
       setSocket(null);
     };
 
+    return ws;
+  }, [params.projectId, socketStatus]);
+
+  useEffect(() => {
+    const ws = connect();
+
     return () => {
-      ws.close();
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
     };
-  }, [params.projectId]);
+  }, [params.projectId, connect]);
 
   return {
-    socket,
+    socketStatus,
     changeView,
     changeFocus,
     changeFilterSort,

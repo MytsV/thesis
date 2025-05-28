@@ -69,8 +69,6 @@ function UserDropdown(props: UserDropdownProps) {
 export default function NavigationBar(props: HeaderProps) {
   const showAvatar = props.user && !props.isUserLoading;
 
-  console.log(props.user);
-
   return (
     <div className="w-full h-14 border-b shadow-xs">
       <div className="flex items-center justify-between h-full max-w-7xl mx-auto px-4">

@@ -33,6 +33,7 @@ export default function Workspace(props: WorkspaceProps) {
     changeFocus,
     changeFilterSort,
     sendChatMessage,
+    socketStatus,
     unreadMessages,
     setUnreadMessages,
   } = useWorkspace({
