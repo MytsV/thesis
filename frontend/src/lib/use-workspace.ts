@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActiveUserViewModel,
   ChatMessageEvent,
@@ -47,7 +47,7 @@ function throttle<T extends (...args: any[]) => void>(
   };
 }
 
-enum SocketStatus {
+export enum SocketStatus {
   INITIAL = "initial",
   CONNECTING = "connecting",
   OPEN = "open",
@@ -60,11 +60,15 @@ interface UseWorkspaceParams {
   initialUsers: ActiveUserViewModel[];
 }
 
+const HEARTBEAT_INTERVAL = 10000; // 10 seconds
+const HEARTBEAT_TIMEOUT = 5000; // 5 seconds to wait for pong
+const MAX_MISSED_HEARTBEATS = 2;
+
 export function useWorkspace(params: UseWorkspaceParams) {
   const [socketStatus, setSocketStatus] = useState<SocketStatus>(
     SocketStatus.INITIAL,
   );
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const socket = useRef<WebSocket | null>(null);
   const [activeUsers, setActiveUsers] = useState<ActiveUserViewModel[]>(
     params.initialUsers,
   );
@@ -156,6 +160,15 @@ export function useWorkspace(params: UseWorkspaceParams) {
     setUnreadMessages((prev) => prev + 1);
   };
 
+  const handleHeartbeat = () => {
+    missedHeartbeats.current = 0;
+
+    if (heartbeatTimeout.current) {
+      clearTimeout(heartbeatTimeout.current);
+      heartbeatTimeout.current = null;
+    }
+  };
+
   const messageHandlers: Record<string, (data: any) => void> = {
     user_joined: handleUserJoin,
     user_left: handleUserLeft,
@@ -164,6 +177,7 @@ export function useWorkspace(params: UseWorkspaceParams) {
     user_view_changed: handleUserViewChanged,
     row_update: handleRowUpdate,
     chat_message: handleChatMessage,
+    heartbeat_ack: handleHeartbeat,
   };
 
   const handleMessage = (event: MessageEvent) => {
@@ -181,7 +195,7 @@ export function useWorkspace(params: UseWorkspaceParams) {
   };
 
   const changeView = throttle((view: ViewViewModel) => {
-    socket?.send(
+    socket.current?.send(
       JSON.stringify({
         event: "view_change",
         view_id: view.id,
@@ -190,7 +204,7 @@ export function useWorkspace(params: UseWorkspaceParams) {
   }, 250);
 
   const changeFocus = throttle((rowId: string) => {
-    socket?.send(
+    socket.current?.send(
       JSON.stringify({
         event: "focus_change",
         row_id: rowId,
@@ -200,7 +214,7 @@ export function useWorkspace(params: UseWorkspaceParams) {
 
   const changeFilterSort = throttle(
     (viewId: string, filterModel: FilterModel, sortModel: SortModelItem[]) => {
-      socket?.send(
+      socket.current?.send(
         JSON.stringify({
           event: "filter_sort_update",
           filter_model: filterModel,
@@ -216,7 +230,7 @@ export function useWorkspace(params: UseWorkspaceParams) {
   );
 
   const sendChatMessage = throttle((content: string, viewId?: string) => {
-    socket?.send(
+    socket.current?.send(
       JSON.stringify({
         event: "chat_message",
         content: content,
@@ -225,13 +239,50 @@ export function useWorkspace(params: UseWorkspaceParams) {
     );
   }, 250);
 
-  const connect = useCallback(() => {
-    if (socketStatus !== SocketStatus.INITIAL) {
+  const heartbeatInterval = useRef<NodeJS.Timeout | null>(null);
+  const heartbeatTimeout = useRef<NodeJS.Timeout | null>(null);
+  const missedHeartbeats = useRef<number>(0);
+
+  const cleanup = useCallback(() => {
+    if (heartbeatInterval.current) {
+      clearInterval(heartbeatInterval.current);
+      heartbeatInterval.current = null;
+    }
+    if (heartbeatTimeout.current) {
+      clearTimeout(heartbeatTimeout.current);
+      heartbeatTimeout.current = null;
+    }
+    missedHeartbeats.current = 0;
+  }, []);
+
+  const disconnect = useCallback(() => {
+    if (!socket) {
       return;
     }
+    cleanup();
+    socket.current?.close();
+  }, [setSocketStatus]);
 
-    console.log("Connecting to WebSocket...");
+  const startHeartbeat = useCallback(() => {
+    cleanup();
+    heartbeatInterval.current = setInterval(() => {
+      socket.current?.send(JSON.stringify({ event: "heartbeat" }));
 
+      heartbeatTimeout.current = setTimeout(() => {
+        missedHeartbeats.current += 1;
+        console.warn(
+          `Missed heartbeat ${missedHeartbeats.current}/${MAX_MISSED_HEARTBEATS}`,
+        );
+
+        if (missedHeartbeats.current >= MAX_MISSED_HEARTBEATS) {
+          console.error("Too many missed heartbeats, closing connection");
+          disconnect();
+        }
+      }, HEARTBEAT_TIMEOUT);
+    }, HEARTBEAT_INTERVAL);
+  }, [disconnect, cleanup]);
+
+  const connect = useCallback(() => {
     setSocketStatus(SocketStatus.CONNECTING);
 
     const ws = new WebSocket(
@@ -239,9 +290,9 @@ export function useWorkspace(params: UseWorkspaceParams) {
     );
 
     ws.onopen = () => {
-      console.log("WebSocket connection established");
-      setSocket(ws);
+      socket.current = ws;
       setSocketStatus(SocketStatus.OPEN);
+      startHeartbeat();
     };
 
     ws.onmessage = handleMessage;
@@ -252,24 +303,31 @@ export function useWorkspace(params: UseWorkspaceParams) {
 
     ws.onclose = () => {
       setSocketStatus(SocketStatus.DISCONNECTED);
-      setSocket(null);
+      socket.current = null;
     };
 
     return ws;
-  }, [params.projectId, socketStatus]);
+  }, [params.projectId, setSocketStatus]);
+
+  const initializeConnection = useCallback(() => {
+    if (socketStatus === SocketStatus.INITIAL) {
+      connect();
+    }
+  }, [socketStatus, connect]);
 
   useEffect(() => {
-    const ws = connect();
+    initializeConnection();
 
     return () => {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.close();
+      if (socket.current && socket.current.readyState === WebSocket.OPEN) {
+        socket.current.close();
       }
     };
   }, [params.projectId, connect]);
 
   return {
     socketStatus,
+    connect,
     changeView,
     changeFocus,
     changeFilterSort,

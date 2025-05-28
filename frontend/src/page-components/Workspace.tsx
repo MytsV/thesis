@@ -13,13 +13,14 @@ import WorkspaceSidebar, {
 } from "@/components/workspace/WorkspaceSidebar";
 import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useWorkspace } from "@/lib/use-workspace";
+import { SocketStatus, useWorkspace } from "@/lib/use-workspace";
 import { useSubscription } from "@/lib/use-subscription";
 import InfoTabPage from "@/page-components/workspace/InfoTabPage";
 import UsersTabPage from "@/page-components/workspace/UsersTabPage";
 import ViewsTabPage from "@/page-components/workspace/ViewsTabPage";
 import ChatTabPage from "@/page-components/workspace/ChartTabPage";
 import CurrentView from "@/page-components/workspace/CurrentView";
+import { Button } from "@/components/ui/button";
 
 export interface WorkspaceProps {
   project: DetailedProjectViewModel;
@@ -29,6 +30,7 @@ export interface WorkspaceProps {
 export default function Workspace(props: WorkspaceProps) {
   const {
     activeUsers,
+    connect,
     changeView,
     changeFocus,
     changeFilterSort,
@@ -95,6 +97,29 @@ export default function Workspace(props: WorkspaceProps) {
   const subscriptionUserColor = activeUsers.find(
     (user) => user.id === subscriptionId,
   )?.color;
+
+  if (socketStatus !== SocketStatus.OPEN) {
+    let content;
+    if (
+      socketStatus === SocketStatus.ERROR ||
+      socketStatus === SocketStatus.DISCONNECTED
+    ) {
+      content = (
+        <>
+          <span>Disconnected from the server.</span>
+          <Button onClick={connect}>Click to reconnect</Button>
+        </>
+      );
+    } else {
+      content = <span>Connecting to the server...</span>;
+    }
+
+    return (
+      <div className="grow mx-auto flex flex-col justify-center max-w-xl items-center space-y-2">
+        {content}
+      </div>
+    );
+  }
 
   return (
     <div className="h-full grow flex">
