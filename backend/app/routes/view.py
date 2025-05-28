@@ -336,6 +336,7 @@ async def update_cell(
             value=validated_value,
             row_version=row.version,
             view_id=str(view_id),
+            file_id=simple_view.file_id,
         )
 
         update_row(

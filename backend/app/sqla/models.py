@@ -140,6 +140,9 @@ class View(Base):
 
     project: Mapped["Project"] = relationship(back_populates="views")
 
+    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
+    file: Mapped["File"] = relationship()
+
     __mapper_args__ = {
         "polymorphic_identity": "view",
         "polymorphic_on": view_type,
@@ -152,8 +155,6 @@ class SimpleTableView(View):
     __tablename__ = "simple_table_views"
 
     id: Mapped[uuid.UUID] = mapped_column(ForeignKey("views.id"), primary_key=True)
-    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
-    file: Mapped["File"] = relationship()
     filter_model: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=True)
     sort_model: Mapped[List[Dict[str, Any]]] = mapped_column(
         JSON,
@@ -171,8 +172,6 @@ class DiscreteColumnChartView(View):
     __tablename__ = "discrete_column_chart_views"
 
     id: Mapped[uuid.UUID] = mapped_column(ForeignKey("views.id"), primary_key=True)
-    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
-    file: Mapped["File"] = relationship()
     column_id: Mapped[int] = mapped_column(
         ForeignKey("file_columns.id"), nullable=False
     )

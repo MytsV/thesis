@@ -85,6 +85,7 @@ class RowUpdateInfo(BaseModel):
     value: Any
     row_version: int
     view_id: str
+    file_id: int
 
 
 class RowUpdateEvent(RowUpdateInfo):
@@ -115,6 +116,7 @@ class ChatMessageInfo(BaseModel):
     view_id: Optional[UUID] = None
     view_name: Optional[str] = None
     view_type: Optional[str] = None
+    view_file_id: Optional[int] = None
     created_at: datetime
 
 

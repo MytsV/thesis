@@ -77,7 +77,7 @@ export function useWorkspace(params: UseWorkspaceParams) {
 
   const handleRowUpdate = (event: RowUpdateEvent) => {
     queryClient.setQueryData(
-      ["rows", event.view_id],
+      ["rows", event.file_id],
       (oldRows: RowViewModel[]) => {
         if (!oldRows) return oldRows;
         return oldRows.map((row) => {
@@ -95,6 +95,7 @@ export function useWorkspace(params: UseWorkspaceParams) {
         });
       },
     );
+    queryClient.invalidateQueries({ queryKey: ["chartData", event.file_id] });
   };
 
   const handleUserJoin = (data: UserJoinedEvent) => {

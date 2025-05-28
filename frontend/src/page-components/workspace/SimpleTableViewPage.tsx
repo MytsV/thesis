@@ -52,7 +52,7 @@ export default function SimpleTableViewPage(props: SimpleTableViewPageProps) {
     error: columnsError,
     isFetching: columnsLoading,
   } = useQuery<ColumnViewModel[]>({
-    queryKey: ["columns", props.view.id],
+    queryKey: ["columns", props.view.fileId],
     queryFn: columnsQuery,
   });
 
@@ -66,7 +66,7 @@ export default function SimpleTableViewPage(props: SimpleTableViewPageProps) {
     error: rowsError,
     isFetching: rowsLoading,
   } = useQuery<RowViewModel[]>({
-    queryKey: ["rows", props.view.id],
+    queryKey: ["rows", props.view.fileId],
     queryFn: rowsQuery,
   });
 
@@ -240,7 +240,12 @@ export default function SimpleTableViewPage(props: SimpleTableViewPageProps) {
 
   const highlight: Record<string, string> = {};
   props.activeUsers.forEach((user) => {
-    if (user.id !== props.currentUser.id && user.focused_row_id && user.color) {
+    if (
+      user.id !== props.currentUser.id &&
+      user.focused_row_id &&
+      user.color &&
+      user.current_view_id === props.view.id
+    ) {
       highlight[user.focused_row_id] = user.color;
     }
   });

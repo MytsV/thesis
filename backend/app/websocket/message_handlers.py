@@ -98,6 +98,7 @@ class CollaborationMessageHandler:
                 view_id=chat_message.view.id if chat_message.view else None,
                 view_name=chat_message.view.name if chat_message.view else None,
                 view_type=chat_message.view.view_type if chat_message.view else None,
+                view_file_id=chat_message.view.file_id if chat_message.view else None,
                 created_at=int(chat_message.created_at.timestamp()) * 1000,
             )
 

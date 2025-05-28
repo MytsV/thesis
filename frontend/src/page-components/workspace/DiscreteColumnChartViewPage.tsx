@@ -13,11 +13,12 @@ export default function DiscreteColumnChartViewPage(
   props: DiscreteColumnChartViewPageProps,
 ) {
   const viewModelQuery = useCallback(() => {
+    console.log("Fetching discrete column chart data for view:", props.view.id);
     return getDiscreteColumnChartData(props.view.id);
   }, [props.view.id]);
 
   const { data, error, isLoading } = useQuery({
-    queryKey: ["chartData", props.view.id],
+    queryKey: ["chartData", props.view.fileId],
     queryFn: viewModelQuery,
   });
 

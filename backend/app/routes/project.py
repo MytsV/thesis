@@ -457,6 +457,7 @@ async def get_chat_messages(
                     id=message.view.id,
                     name=message.view.name,
                     view_type=message.view.view_type,
+                    file_id=message.view.file_id,
                 )
                 if message.view
                 else None

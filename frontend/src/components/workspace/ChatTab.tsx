@@ -27,11 +27,7 @@ const ChatBubble = ({
 
   const handleViewClick = () => {
     if (!message.view) return;
-    onViewClicked({
-      id: message.view.id,
-      name: message.view.name,
-      viewType: message.view.viewType,
-    });
+    onViewClicked(message.view);
   };
 
   return (

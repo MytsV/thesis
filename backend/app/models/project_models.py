@@ -79,6 +79,7 @@ class ViewChatResponse(CamelModel):
     id: uuid.UUID
     name: str
     view_type: str
+    file_id: int
 
     class Config:
         from_attributes = True

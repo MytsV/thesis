@@ -102,6 +102,7 @@ export interface UserViewChangedEvent {
 export interface RowUpdateEvent {
   event: "row_update";
   view_id: string;
+  file_id: number;
   row_id: string;
   row_version: number;
   column_name: string;
@@ -112,6 +113,7 @@ export interface ViewViewModel {
   id: string;
   name: string;
   viewType: ViewType;
+  fileId: number;
 }
 
 export interface ListViewsResponse {
@@ -197,11 +199,7 @@ export interface ChatMessageViewModel {
     username: string;
     avatarUrl?: string;
   };
-  view?: {
-    id: string;
-    name: string;
-    viewType: ViewType;
-  };
+  view?: ViewViewModel;
 }
 
 export interface ChatMessageEvent {
@@ -214,6 +212,7 @@ export interface ChatMessageEvent {
   view_id?: string;
   view_name?: string;
   view_type?: ViewType;
+  view_file_id?: number;
   created_at: number;
 }
 
@@ -221,11 +220,17 @@ export function chatMessageEventToViewModel(
   event: ChatMessageEvent,
 ): ChatMessageViewModel {
   let view: ViewViewModel | undefined;
-  if (event.view_id && event.view_name && event.view_type) {
+  if (
+    event.view_id &&
+    event.view_name &&
+    event.view_type &&
+    event.view_file_id
+  ) {
     view = {
       id: event.view_id,
       name: event.view_name,
       viewType: event.view_type,
+      fileId: event.view_file_id,
     };
   }
   return {

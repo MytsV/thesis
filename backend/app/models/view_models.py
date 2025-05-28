@@ -24,14 +24,13 @@ class ViewRead(ViewBase):
     id: UUID4
     project_id: UUID4
     view_type: str
+    file_id: int
 
     class Config:
         from_attributes = True
 
 
 class SimpleTableViewRead(ViewRead):
-    file_id: int
-
     class Config:
         from_attributes = True
 
