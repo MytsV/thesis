@@ -86,12 +86,3 @@ async def get_websocket_user(
         return user
     except Exception:
         return None
-
-
-# Function to check if a WebSocket connection is authenticated
-async def websocket_auth_required(websocket: WebSocket, db: Session = Depends(get_db)):
-    user = await get_websocket_user(websocket, db)
-    if user is None:
-        await websocket.close(code=1008)  # Policy violation
-        return None
-    return user

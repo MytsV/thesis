@@ -5,8 +5,9 @@ from uuid import UUID
 import redis
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException
 from sqlalchemy.orm import Session
+from starlette import status
 
-from app.auth.dependencies import websocket_auth_required
+from app.auth.dependencies import get_websocket_user
 from app.redis.models import (
     InitEvent,
 )
@@ -33,13 +34,17 @@ async def collaborate(
 ):
     origin = websocket.headers.get("origin")
     if origin not in allow_origins:
-        await websocket.close(code=1008, reason="Forbidden origin")
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Origin not allowed"
+        )
 
-    user = await websocket_auth_required(websocket, db)
+    user = await get_websocket_user(websocket, db)
     if not user:
-        await websocket.close(code=1008, reason="Authentication failed")
-        return
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication failed"
+        )
 
     connection_id = str(uuid.uuid4())
 
