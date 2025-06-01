@@ -29,6 +29,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
     view: {
       id: "general-chat",
+      fileId: 1,
       name: "General Chat",
       viewType: ViewType.SIMPLE_TABLE,
     },
@@ -44,6 +45,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
     view: {
       id: "general-chat",
+      fileId: 1,
       name: "General Chat",
       viewType: ViewType.SIMPLE_TABLE,
     },
@@ -59,6 +61,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
     view: {
       id: "design-team",
+      fileId: 1,
       name: "Design Team",
       viewType: ViewType.DISCRETE_COLUMN_CHART,
     },
@@ -73,6 +76,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
     view: {
       id: "design-team",
+      fileId: 1,
       name: "Design Team",
       viewType: ViewType.DISCRETE_COLUMN_CHART,
     },
@@ -88,6 +92,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
     view: {
       id: "backend-dev",
+      fileId: 1,
       name: "Backend Development",
       viewType: ViewType.SIMPLE_TABLE,
     },
@@ -102,6 +107,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
     view: {
       id: "dm-lisa-john",
+      fileId: 1,
       name: "Lisa Parker",
       viewType: ViewType.DISCRETE_COLUMN_CHART,
     },
@@ -117,6 +123,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
     view: {
       id: "backend-dev",
+      fileId: 1,
       name: "Backend Development",
       viewType: ViewType.SIMPLE_TABLE,
     },
@@ -131,6 +138,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
     view: {
       id: "random",
+      fileId: 1,
       name: "Random",
       viewType: ViewType.DISCRETE_COLUMN_CHART,
     },
@@ -146,6 +154,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
     view: {
       id: "dev-team",
+      fileId: 1,
       name: "Development Team",
       viewType: ViewType.SIMPLE_TABLE,
     },
@@ -160,6 +169,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
     },
     view: {
       id: "dm-lisa-john",
+      fileId: 1,
       name: "Lisa Parker",
       viewType: ViewType.DISCRETE_COLUMN_CHART,
     },

@@ -1,4 +1,4 @@
-import { Cat } from "lucide-react";
+import { Table2 } from "lucide-react";
 import React from "react";
 
 export interface WebsiteLogoProps {
@@ -7,7 +7,7 @@ export interface WebsiteLogoProps {
 
 export default function WebsiteLogo(props: WebsiteLogoProps) {
   return (
-    <Cat
+    <Table2
       className="h-7 w-7 text-primary cursor-pointer"
       onClick={props.onLogoClick}
     />

@@ -101,6 +101,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
       id: "general-chat",
       name: "General Chat",
       viewType: ViewType.SIMPLE_TABLE,
+      fileId: 1,
     },
   },
   {
@@ -116,6 +117,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
       id: "general-chat",
       name: "General Chat",
       viewType: ViewType.SIMPLE_TABLE,
+      fileId: 1,
     },
   },
   {
@@ -131,6 +133,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
       id: "design-team",
       name: "Design Team",
       viewType: ViewType.DISCRETE_COLUMN_CHART,
+      fileId: 1,
     },
   },
   {
@@ -145,6 +148,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
       id: "design-team",
       name: "Design Team",
       viewType: ViewType.DISCRETE_COLUMN_CHART,
+      fileId: 1,
     },
   },
   {
@@ -160,6 +164,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
       id: "backend-dev",
       name: "Backend Development",
       viewType: ViewType.SIMPLE_TABLE,
+      fileId: 1,
     },
   },
   {
@@ -174,6 +179,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
       id: "dm-lisa-john",
       name: "Lisa Parker",
       viewType: ViewType.DISCRETE_COLUMN_CHART,
+      fileId: 1,
     },
   },
   {
@@ -189,6 +195,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
       id: "backend-dev",
       name: "Backend Development",
       viewType: ViewType.SIMPLE_TABLE,
+      fileId: 1,
     },
   },
   {
@@ -203,6 +210,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
       id: "random",
       name: "Random",
       viewType: ViewType.DISCRETE_COLUMN_CHART,
+      fileId: 1,
     },
   },
   {
@@ -218,6 +226,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
       id: "dev-team",
       name: "Development Team",
       viewType: ViewType.SIMPLE_TABLE,
+      fileId: 1,
     },
   },
   {
@@ -232,6 +241,7 @@ const mockChatMessages: ChatMessageViewModel[] = [
       id: "dm-lisa-john",
       name: "Lisa Parker",
       viewType: ViewType.DISCRETE_COLUMN_CHART,
+      fileId: 1,
     },
   },
 ];
